@@ -9,8 +9,8 @@
     @foreach (FormModel chapter in chapters)
     {
         <div @onclick="@(() => FocusChapter(chapter))" class="w-75 d-flex align-self-center gap-2 p-2">
-            <div id="" class="w-75 d-flex flex-column gap-2 p-4 rounded-3" style="background-color: rgb(100, 100, 100)">
-                <SectionHeader></SectionHeader>
+            <div class="w-75 d-flex flex-column gap-2 p-4 rounded-3" style="background-color: rgb(100, 100, 100) ; border-left: @(chapter == currentChapter ? "4px solid white" : "4px solid rgb(100, 100, 100)") ">
+                <SectionHeader IsFocused="@(currentChapter == chapter)"></SectionHeader>
                 <Questions Chapter="@chapter"></Questions>
             </div>
         </div>
@@ -26,7 +26,6 @@
         position:absolute;
         top: @focusPosition;
         left: 69%;
-
     }
 </style>
 
@@ -35,7 +34,6 @@
     private List<FormModel> chapters = new();
     private string focusPosition = "80px";
     private FormModel currentChapter = new();
-    private int totalQuestions = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -45,7 +43,6 @@
     public void AddQuestion(FormModel chapter)
     {
         chapter.Components.Add(new QuestionModel());
-        totalQuestions++;
     }
 
     public void AddSection()

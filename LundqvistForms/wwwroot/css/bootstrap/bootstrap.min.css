@@ -2108,8 +2108,8 @@ progress {
     transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
     outline: none !important;
     background-color: rgb(50, 50, 50) !important;
-    border-bottom-width: 1px;
-    border-bottom-color: white !important;
+    border-bottom-width: 3px;
+    border-bottom-color: rgb(40, 40, 40) !important;
     border-radius: 0;
 }
 
@@ -2129,7 +2129,7 @@ progress {
 
 .form-control:focus {
     background-color: rgb(50, 50, 50) !important;
-    border-bottom-width: 3px !important;
+    border-bottom-color: white !important;
     outline: 0;
 }
 

@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
+// TODO: Lägg till preview av hur färdiga formuläret ser ut
+// TODO: Vid fokusering på fråga ska den expanda och visa innehållet beroende på vilket alternativ man valt i dropdown
+// TODO: 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
