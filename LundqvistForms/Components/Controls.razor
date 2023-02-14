@@ -1,0 +1,29 @@
+﻿@using FormsLibrary.Models;
+
+<div class="d-flex flex-column gap-2 p-2 rounded-3" style="background-color: rgb(50, 50, 50)">
+    <button @onclick="@OnQuestionAdded.InvokeAsync" id="addQuestion" class="btn btn-outline-light oi oi-plus" style="width: 45px; height: 45px;"><span class="tooltip">Lägg till fråga</span></button>
+    <button @onclick="@OnSectionAdded.InvokeAsync" id="addSection" class="btn btn-outline-secondary oi oi-list" style="width: 45px; height: 45px;"><span class="tooltip">Lägg till avsnitt</span></button>
+</div>
+
+<style>
+    .btn:hover .tooltip{
+        display: block;
+        color: white;
+        top: calc(50% - 12px);
+        left: calc(100% + 16px);
+        background-color: rgba(120, 120, 120, 1);
+        padding: 2px 6px 2px 6px;
+        white-space: nowrap;
+        border-radius: 4px;
+    }
+</style>
+
+@code {
+    // TODO: Tooltips fixa till höger om buttons
+
+    [Parameter]
+    public EventCallback<QuestionModel> OnQuestionAdded { get; set; }
+
+    [Parameter]
+    public EventCallback<QuestionModel> OnSectionAdded { get; set; }
+}

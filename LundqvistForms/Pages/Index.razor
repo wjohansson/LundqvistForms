@@ -1,0 +1,62 @@
+﻿@page "/"
+
+@using FormsLibrary.Models;
+@using LundqvistForms.Components
+
+<PageTitle>Lundqvist Forms</PageTitle>
+
+<div class="w-100 d-flex flex-column align-content-center gap-2">
+    @foreach (FormModel chapter in chapters)
+    {
+        <div @onclick="@(() => FocusChapter(chapter))" class="w-75 d-flex align-self-center gap-2 p-2">
+            <div id="" class="w-75 d-flex flex-column gap-2 p-4 rounded-3" style="background-color: rgb(100, 100, 100)">
+                <SectionHeader></SectionHeader>
+                <Questions Chapter="@chapter"></Questions>
+            </div>
+        </div>
+    }
+    <div class="controls">
+        <Controls OnQuestionAdded="@(() => AddQuestion(currentChapter))" OnSectionAdded="@AddSection"></Controls>
+    </div>
+
+</div>
+
+<style>
+    .controls {
+        position:absolute;
+        top: @focusPosition;
+        left: 69%;
+
+    }
+</style>
+
+@code {
+    // TODO: Trace active field and move controls to always be adjacent of that component
+    private List<FormModel> chapters = new();
+    private string focusPosition = "80px";
+    private FormModel currentChapter = new();
+    private int totalQuestions = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AddSection();
+    }
+
+    public void AddQuestion(FormModel chapter)
+    {
+        chapter.Components.Add(new QuestionModel());
+        totalQuestions++;
+    }
+
+    public void AddSection()
+    {
+        FormModel newForm = new();
+        chapters.Add(newForm);
+        currentChapter = newForm;
+    }
+
+    public void FocusChapter(FormModel chapter)
+    {
+        currentChapter = chapter;
+    }
+}

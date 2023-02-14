@@ -1,0 +1,36 @@
+﻿@using FormsLibrary.Models;
+@foreach (QuestionModel question in Chapter.Components)
+{
+    <div class="w-100 rounded-3 p-3" style="background-color: rgb(50, 50, 50)">
+        <EditForm Model="question">
+            <DataAnnotationsValidator />
+            <div class="d-flex flex-column d-flex gap-2">
+                <div class="form-group row">
+                    <div class="form-group col col-10">
+                        <InputText placeholder="Fråga..." id="title" @bind-Value="question.QuestionTitle" class="form-control border-none lh-lg text-white" style="font-size: 20px; background-color: rgb(60, 60, 60) !important" />
+                        <ValidationMessage For="@(() => question.QuestionTitle)" />
+                    </div>
+                    <div class="form-group col">
+                        <InputSelect placeholder="Svarsalternativ..." id="option" @bind-Value="question.Option" class="form-control lh-sm text-white" style="">
+
+                            <option value="@QuestionOptions.Enkelval" class="text-opacity-75">Enkelval</option>
+
+                            @foreach (QuestionOptions option in Enum.GetValues(typeof(QuestionOptions)))
+                            {
+                                <option value="@option">@option</option>
+
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => question.Option)" />
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public FormModel Chapter { get; set; } = new();
+}
