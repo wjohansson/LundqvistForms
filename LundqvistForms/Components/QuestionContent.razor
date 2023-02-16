@@ -13,7 +13,7 @@
 
                 break;
             case QuestionOptions.Lång:
-                <MudTextField placeholder="Långt svar..."
+                <MudTextField Placeholder="Långt svar..."
                       @bind-Value="longAnswer"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
@@ -30,8 +30,9 @@
                       Style="@($" color: {Colors.Grey.Lighten4};")"
                       Variant="Variant.Filled" />
                 }
-
-                <MudButton Variant="Variant.Filled" OnClick="@AddMultipleChoice" Color="Color.Warning">Add option</MudButton>
+                <MudTooltip Arrow="true" Placement="Placement.Right">
+                    <MudButton Variant="Variant.Filled" OnClick="@AddMultipleChoice" Color="Color.Warning">Lägg till alternativ</MudButton>
+                </MudTooltip>
 
                 break;
             case QuestionOptions.Enkelval:
@@ -45,7 +46,9 @@
                       Variant="Variant.Filled" />
                 }
 
-                <MudButton Variant="Variant.Filled" OnClick="@AddSingleChoice" Color="Color.Warning">Add option</MudButton>
+                <MudTooltip Arrow="true" Placement="Placement.Right">
+                    <MudButton Variant="Variant.Filled" OnClick="@AddSingleChoice" Color="Color.Warning">Lägg till alternativ</MudButton>
+                </MudTooltip>
 
                 break;
             case QuestionOptions.Dropdown:
@@ -58,52 +61,66 @@
                       Style="@($" color: {Colors.Grey.Lighten4};")"
                       Variant="Variant.Filled" />
                 }
-
-                <MudButton Variant="Variant.Filled" OnClick="@AddDropdownChoice" Color="Color.Warning">Add option</MudButton>
+                <MudTooltip Arrow="true" Placement="Placement.Right">
+                    <MudButton Variant="Variant.Filled" OnClick="@AddDropdownChoice" Color="Color.Warning">Lägg till alternativ</MudButton>
+                </MudTooltip>
 
                 break;
             case QuestionOptions.Datum:
                 <MudDatePicker Editable="true"
                        Placeholder="Datum..."
-                       @bind-Value="date" 
-                       Size="50%"
-                       Class="px-2" 
-                       Style="@($" color: {Colors.Grey.Lighten4};")"
-                       ShowWeekNumbers="true" 
+                       @bind-Value="date"
+                       ShowWeekNumbers="true"
                        DisplayMonths="2"
-                       Variant="Variant.Filled" 
                        PickerVariant="PickerVariant.Dialog"
-                       Color="Color.Warning"/>
+                       Color="Color.Warning"
+                       Class="px-2"
+                       Variant="Variant.Filled" />
+                break;
+            case QuestionOptions.Tidsintervall:
+                <MudDateRangePicker Editable="true"
+                            Placeholder="Tidsintervall..."
+                            @bind-DateRange="dateRange"
+                            ShowWeekNumbers="true"
+                            PickerVariant="PickerVariant.Dialog"
+                            Color="Color.Warning"
+                            Class="px-2"
+                            Variant="Variant.Filled" />
                 break;
             case QuestionOptions.Tid:
-                <MudDateRangePicker type="time" placeholder="Tid..." id="time-span" @bind-Value="timeSpan" class="form-control border-none lh-lg text-white" style="font-size: 16px; background-color: rgb(70, 70, 70) !important" />
+                <MudTimePicker Placeholder="Tid..."
+                       @bind-Time="timeSpan"
+                       Editable="true"
+                       PickerVariant="PickerVariant.Dialog"
+                       Color="Color.Warning"
+                       Class="px-2"
+                       Variant="Variant.Filled" />
                 break;
             case QuestionOptions.Skala:
-                <div class="text-white">
-                    <div class="d-flex gap-2 align-items-center">
-                        <InputSelect @bind-Value="scaleLow" class="w-25 form-control border-none lh-lg text-white" style="font-size: 16px; background-color: rgb(70, 70, 70) !important">
-                            <option value="0">0</option>
-                            <option value="1">1</option>
-                        </InputSelect>
+                //<MudContainer Class="d-flex flex-column pa-2 gap-2" Style="@($"background-color: {Colors.Grey.Darken1};")">
+                <MudContainer Class="text-white">
+                    <MudContainer Class="d-flex align-center gap-2" Style="@($"background-color: {Colors.Grey.Darken1};")">
+                        <MudSelect @bind-Value="scaleLow" Variant="Variant.Filled">
+                            <MudSelectItem Value="@(0)" />
+                            <MudSelectItem Value="@(1)" />
+                        </MudSelect>
                         <span>till</span>
-                        <InputSelect @bind-Value="scaleHigh" class="w-25 form-control border-none lh-lg text-white" style="font-size: 16px; background-color: rgb(70, 70, 70) !important">
+                        <MudSelect @bind-Value="scaleHigh" Variant="Variant.Filled">
                             @for (int i = 1; i <= 10; i++)
                             {
-                                <option value="@i">@i</option>
+                                <MudSelectItem Value="i" />
                             }
-                        </InputSelect>
-                    </div>
-                    <div class="d-flex flex-column gap-2 mt-4">
-                        <div class="d-flex align-items-center gap-4">
-                            <label for="scale-low-label">@scaleLow</label>
-                            <InputText placeholder="Etikett (valfri)..." id="scale-low-label" @bind-Value="scaleLowLabel" class="w-50 form-control border-none lh-lg text-white" style="font-size: 16px; background-color: rgb(70, 70, 70) !important" />
-                        </div>
-                        <div class="d-flex align-items-center gap-4">
-                            <label for="scale-high-label">@scaleHigh</label>
-                            <InputText placeholder="Etikett (valfri)..." id="scale-high-label" @bind-Value="scaleHighLabel" class="w-50 form-control border-none lh-lg text-white" style="font-size: 16px; background-color: rgb(70, 70, 70) !important" />
-                        </div>
-                    </div>
-                </div>
+                        </MudSelect>
+                    </MudContainer>
+                    <MudContainer Class="d-flex flex-column gap-2 mt-4">
+                        <MudContainer Class="d-flex align-center gap-4">
+                            <MudTextField Label="@($"{scaleLow.ToString()}: Etikett (Valfri)")" @bind-Value="scaleLowLabel" Variant="Variant.Filled" />
+                        </MudContainer>
+                        <MudContainer Class="d-flex align-items-center gap-4">
+                            <MudTextField Label="@($"{scaleHigh.ToString()}: Etikett (Valfri)")" @bind-Value="scaleHighLabel" Variant="Variant.Filled" />
+                        </MudContainer>
+                    </MudContainer>
+                </MudContainer>
                 break;
         }
     </MudContainer>
@@ -114,9 +131,12 @@
     // TODO: Fixa så att det inte går att ha dubletter i API:et
     // TODO: Fixa OI på alla input rader för att visualisera vad input ska vara
     // TODO: Fixa TimeSpan så att det hämtar in nuvarande tid som standard värde plus att den inte ska PM/AM
-    // TODO: Fixa utseendemässiga sidan av att bocka för. Ta bort blå focus indikatorn. Outline och border?
+    // TODO: Fixa utseendemässiga av att bocka för. Ta bort blå focus indikatorn. Outline och border?
     // TODO: Fixa en obligatorisk toggle på alla svar
     // TODO: Fixa sätt att duplicera fråga, avsnitt och helt form
+    // TODO: Fixa så att standard färgen är gul istället för blå vid focus states
+    // TODO: Fixa checkbox knappar och radio knappar innan raderna "Alternativ"
+    // TODO: Fixa lägg till knapparna
     [Parameter]
     public QuestionModel Question { get; set; } = new();
 
@@ -127,15 +147,10 @@
     private List<string> singleChoiceAlternatives = new();
     private List<string> dropdownChoiceAlternatives = new();
     private DateTime? date;
-    private string? timeSpan;
-    //private TimeSpan localTime = TimeSpan.FromHours(0);
-    //private string timeSpan
-    //{
-    //    get => Answer.Answers.ToString();
-    //    set => TimeSpan.TryParse(value, out LocalTime);
-    //}
-    private int? scaleLow = 1;
-    private int? scaleHigh = 5;
+    private DateRange? dateRange;
+    private TimeSpan? timeSpan;
+    private int scaleLow = 1;
+    private int scaleHigh = 5;
     private string? scaleLowLabel;
     private string? scaleHighLabel;
 
