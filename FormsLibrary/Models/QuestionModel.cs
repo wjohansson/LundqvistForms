@@ -16,9 +16,10 @@ namespace FormsLibrary.Models
     {
         Flerval,
         Enkelval,
-        Rullgardin,
+        Dropdown,
         Skala,
         Datum,
+        Tidsintervall,
         Tid,
         Kort,
         Lång

@@ -1,15 +1,17 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MudBlazor.Services;
 
 // TODO: Lägg till preview av hur färdiga formuläret ser ut
 // TODO: Vid fokusering på fråga ska den expanda och visa innehållet beroende på vilket alternativ man valt i dropdown
-// TODO: 
-
+// TODO: Lägg till möhlighet att välja färgtema
+// TODO: Lägg till charts med statistik på svarade formulär
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 

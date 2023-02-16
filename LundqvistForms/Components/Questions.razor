@@ -1,30 +1,29 @@
 ﻿@using FormsLibrary.Models;
 @foreach (QuestionModel question in Chapter.Components)
 {
-    <div class="align-self-center rounded-3 p-3" style="background-color: rgb(50, 50, 50); width: 90%;">
+    <MudPaper Width="90%" Class="align-self-center pa-2" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken2};")">
         <EditForm Model="question">
             <DataAnnotationsValidator />
-            <div class="d-flex flex-column d-flex gap-2">
-                <div class="form-group row">
-                    <div class="form-group col col-9">
-                        <InputText placeholder="Fråga..." id="title" @bind-Value="question.QuestionTitle" class="form-control border-none lh-lg text-white" style="font-size: 20px; background-color: rgb(60, 60, 60) !important" />
-                        <ValidationMessage For="@(() => question.QuestionTitle)" />
-                    </div>
-                    <div class="form-group col d-flex align-items-center">
-                        <InputSelect placeholder="Svarsalternativ..." id="option" @bind-Value="question.Option" class="form-control lh-sm text-white p-2">
-                            @foreach (QuestionOptions option in Enum.GetValues(typeof(QuestionOptions)))
-                            {
-                                <option class="text-opacity-75" value="@option">@option</option>
-                            }
-                        </InputSelect>
-                        <div class=" oi oi-chevron-bottom text-white"></div>
-                        <ValidationMessage For="@(() => question.Option)" />
-                    </div>
-                </div>
-            </div>
+            <MudCard>
+                <MudCardContent Class="d-flex" Style="@($"background-color: {Colors.Grey.Darken1};")">
+                    <MudTextField Placeholder="Fråga..."
+                              @bind-Value="question.QuestionTitle"
+                              For="@(() => question.QuestionTitle)"
+                              Style="@($"color: {Colors.Grey.Lighten4}")" />
+                    <MudSelect Placeholder="Beskrivning..."
+                           @bind-Value="question.Option"
+                           For="@(() => question.Option)"
+                           Style="@($"color: {Colors.Grey.Lighten5}")">
+                        @foreach (QuestionOptions option in Enum.GetValues(typeof(QuestionOptions)))
+                        {
+                            <MudSelectItem Class="text-opacity-75" Value="@option">@option</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudCardContent>
+                <QuestionContent Question="@question"></QuestionContent>
+            </MudCard>
         </EditForm>
-        <QuestionContent Question="@question"></QuestionContent>
-    </div>
+    </MudPaper>
 }
 
 @code {

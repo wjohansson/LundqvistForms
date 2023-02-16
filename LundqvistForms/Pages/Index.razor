@@ -5,35 +5,34 @@
 
 <PageTitle>Lundqvist Forms</PageTitle>
 
-<div class="w-100 d-flex flex-column align-content-center gap-2">
+<MudPaper Width="100%" Class="d-flex flex-column align-content-center gap-2 " Elevation="0" Style="@($"background-color: {Colors.Grey.Darken3};")">
     @foreach (FormModel chapter in chapters)
     {
-        <div @onclick="@(() => FocusChapter(chapter))" class="w-75 d-flex align-self-center gap-2 p-2">
-            <div class="w-75 d-flex flex-column gap-2 p-4 rounded-3" style="background-color: rgb(100, 100, 100) ; border-left: @(chapter == currentChapter ? "4px solid white" : "4px solid rgb(100, 100, 100)") ">
-                <SectionHeader IsFocused="@(currentChapter == chapter)"></SectionHeader>
-                <Questions Chapter="@chapter"></Questions>
-            </div>
-        </div>
+        <MudContainer MaxWidth="MaxWidth.Small" @onclick="@(() => FocusChapter(chapter))" Class="d-flex flex-column gap-2 p-4 rounded-3 pa-0 rounded" Style="@($"background-color: {Colors.Grey.Darken2}; border-left-color: {borderColor};")">
+            <SectionHeader IsFocused="@(currentChapter == chapter)"></SectionHeader>
+            <Questions Chapter="@chapter"></Questions>
+        </MudContainer>
     }
-    <div class="controls">
+    <MudContainer class="controls">
         <Controls OnQuestionAdded="@(() => AddQuestion(currentChapter))" OnSectionAdded="@AddSection"></Controls>
-    </div>
-
-</div>
+    </MudContainer>
+</MudPaper>
 
 <style>
     .controls {
-        position:absolute;
+        position: fixed;
         top: @focusPosition;
-        left: 69%;
+        left: 95%;
     }
 </style>
 
 @code {
     // TODO: Trace active field and move controls to always be adjacent of that component
+    // TODO: Fixa focus vänstra vita linjen
     private List<FormModel> chapters = new();
     private string focusPosition = "80px";
     private FormModel currentChapter = new();
+    private string borderColor = Colors.Grey.Darken1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -55,5 +54,14 @@
     public void FocusChapter(FormModel chapter)
     {
         currentChapter = chapter;
+    }
+
+    public string CheckFocus(FormModel chapter)
+    {
+        if (currentChapter == chapter)
+        {
+            return Colors.Grey.Lighten1;
+        }
+        return Colors.Grey.Darken3;
     }
 }
