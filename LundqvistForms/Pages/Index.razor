@@ -24,7 +24,7 @@
             <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="CreateForm" StartIcon="@Icons.Material.Filled.AddCircle" Size="Size.Large">Skapa enkät</MudButton>
         </MudTooltip>
         <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="CreateForm" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Large">Radera enkät</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="DeleteForm" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Large">Radera enkät</MudButton>
         </MudTooltip>
     </MudContainer>
 </MudPaper>
@@ -33,6 +33,8 @@
     // TODO: Flytta controls knapparna så att dom följer med aktiva avstnittet med animation
     // TODO: Fixa vid focus av dropdowns att texten i fälten blir på samma ställe som dropdown
     // TODO: Fixa så att hela formen sparas ifall man skulle refresha sidan
+    // TODO: Kunna radera på alla steg. Enskild fråga, enskilt avsnitt och hela formuläret
+    // TODO: Fixa expand och collapse på avsnitt
     private List<FormModel> chapters = new();
     private FormModel currentChapter = new();
     private string borderColor = Colors.Grey.Darken2;
@@ -71,5 +73,11 @@
 
     public async Task CreateForm()
     {
+    }
+
+    public async Task DeleteForm()
+    {
+        chapters = new();
+        AddSection();
     }
 }
