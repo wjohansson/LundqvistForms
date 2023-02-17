@@ -1,7 +1,7 @@
 ﻿@using FormsLibrary.Models;
 <EditForm Model="Question">
-    <MudContainer Class="d-flex flex-column pa-2 gap-2" Style="@($"background-color: {Colors.Grey.Darken1};")">
-        @switch (Question.Option)
+    <MudContainer Class="d-flex flex-column pa-2 gap-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
+        @switch (Question.QuestionOption)
         {
             case QuestionOptions.Kort:
 
@@ -9,7 +9,8 @@
                       @bind-Value="shortAnswer"
                       Class="px-2"
                       Style="@($"color: {Colors.Grey.Lighten4};")"
-                      Variant="Variant.Filled" />
+                      Variant="Variant.Filled"
+                      Clearable="true" />
 
                 break;
             case QuestionOptions.Lång:
@@ -17,7 +18,8 @@
                       @bind-Value="longAnswer"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
-                      Variant="Variant.Filled" />
+                      Variant="Variant.Filled"
+                      Clearable="true" />
 
                 break;
             case QuestionOptions.Flerval:
@@ -25,10 +27,11 @@
                 {
                     var index = i;
                     <MudTextField Placeholder="Alternativ..."
-                      @bind-Value="multipleChoiceAlternatives[index]"
+                      @bind-Value="multipleChoiceAlternatives[i]"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
-                      Variant="Variant.Filled" />
+                      Variant="Variant.Filled"
+                      Clearable="true" />
                 }
                 <MudTooltip Arrow="true" Placement="Placement.Right">
                     <MudButton Variant="Variant.Filled" OnClick="@AddMultipleChoice" Color="Color.Warning">Lägg till alternativ</MudButton>
@@ -43,7 +46,8 @@
                       @bind-Value="singleChoiceAlternatives[index]"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
-                      Variant="Variant.Filled" />
+                      Variant="Variant.Filled"
+                      Clearable="true" />
                 }
 
                 <MudTooltip Arrow="true" Placement="Placement.Right">
@@ -59,7 +63,8 @@
                       @bind-Value="dropdownChoiceAlternatives[index]"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
-                      Variant="Variant.Filled" />
+                      Variant="Variant.Filled"
+                      Clearable="true" />
                 }
                 <MudTooltip Arrow="true" Placement="Placement.Right">
                     <MudButton Variant="Variant.Filled" OnClick="@AddDropdownChoice" Color="Color.Warning">Lägg till alternativ</MudButton>
@@ -75,7 +80,8 @@
                        PickerVariant="PickerVariant.Dialog"
                        Color="Color.Warning"
                        Class="px-2"
-                       Variant="Variant.Filled" />
+                       Variant="Variant.Filled"
+                       Clearable="true" />
                 break;
             case QuestionOptions.Tidsintervall:
                 <MudDateRangePicker Editable="true"
@@ -85,7 +91,8 @@
                             PickerVariant="PickerVariant.Dialog"
                             Color="Color.Warning"
                             Class="px-2"
-                            Variant="Variant.Filled" />
+                            Variant="Variant.Filled"
+                            Clearable="true" />
                 break;
             case QuestionOptions.Tid:
                 <MudTimePicker Placeholder="Tid..."
@@ -94,12 +101,12 @@
                        PickerVariant="PickerVariant.Dialog"
                        Color="Color.Warning"
                        Class="px-2"
-                       Variant="Variant.Filled" />
+                       Variant="Variant.Filled"
+                       Clearable="true" />
                 break;
             case QuestionOptions.Skala:
-                //<MudContainer Class="d-flex flex-column pa-2 gap-2" Style="@($"background-color: {Colors.Grey.Darken1};")">
                 <MudContainer Class="text-white">
-                    <MudContainer Class="d-flex align-center gap-2" Style="@($"background-color: {Colors.Grey.Darken1};")">
+                    <MudContainer Class="d-flex align-center gap-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
                         <MudSelect @bind-Value="scaleLow" Variant="Variant.Filled">
                             <MudSelectItem Value="@(0)" />
                             <MudSelectItem Value="@(1)" />
@@ -112,12 +119,19 @@
                             }
                         </MudSelect>
                     </MudContainer>
+
                     <MudContainer Class="d-flex flex-column gap-2 mt-4">
                         <MudContainer Class="d-flex align-center gap-4">
-                            <MudTextField Label="@($"{scaleLow.ToString()}: Etikett (Valfri)")" @bind-Value="scaleLowLabel" Variant="Variant.Filled" />
+                            <MudTextField Label="@($"{scaleLow.ToString()}: Etikett (Valfri)")"
+                                  @bind-Value="scaleLowLabel"
+                                  Variant="Variant.Filled"
+                                  Clearable="true" />
                         </MudContainer>
                         <MudContainer Class="d-flex align-items-center gap-4">
-                            <MudTextField Label="@($"{scaleHigh.ToString()}: Etikett (Valfri)")" @bind-Value="scaleHighLabel" Variant="Variant.Filled" />
+                            <MudTextField Label="@($"{scaleHigh.ToString()}: Etikett (Valfri)")"
+                                  @bind-Value="scaleHighLabel"
+                                  Variant="Variant.Filled"
+                                  Clearable="true" />
                         </MudContainer>
                     </MudContainer>
                 </MudContainer>

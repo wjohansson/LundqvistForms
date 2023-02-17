@@ -6,6 +6,10 @@ using MudBlazor.Services;
 // TODO: Vid fokusering på fråga ska den expanda och visa innehållet beroende på vilket alternativ man valt i dropdown
 // TODO: Lägg till möhlighet att välja färgtema
 // TODO: Lägg till charts med statistik på svarade formulär
+
+// SIDA: Översikt över alla formulär. Kan edita rubrik och andra stora properties
+// SIDA: Se det färdiga formuläret, förhandsgranskning
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

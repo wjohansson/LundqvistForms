@@ -1,20 +1,22 @@
 ﻿@using FormsLibrary.Models;
 
-<MudContainer @onfocusin="@(() => borderColor = Colors.Grey.Lighten5)" @onfocusout="@(() => borderColor = Colors.Grey.Darken1)" Class="text-white rounded pa-0" Style="@($"border-inline-start: 4px solid {borderColor};")">
-    <EditForm Model="@form">
+<MudContainer @onfocusin="@(() => borderColor = Colors.Grey.Lighten5)" @onfocusout="@(() => borderColor = Colors.Grey.Darken2)" Class="text-white rounded pa-0" Style="@($"border-inline-start: 4px solid {borderColor};")">
+    <EditForm Model="@this.section">
         <DataAnnotationsValidator />
         <MudCard Elevation="0">
-            <MudCardContent Style="@($"background-color: {Colors.Grey.Darken1};")">
-                <MudTextField Placeholder="Rubrik..."
-                              @bind-Value="form.FormTitle"
+            <MudCardContent Style="@($"background-color: {Colors.Grey.Darken2};")">
+                <MudTextField Placeholder="Avstnitt rubrik..."
+                              @bind-Value="section.SectionTitle"
                               AdornmentColor="Color.Warning"
-                              For="@(() => form.FormTitle)"
-                              Style="@($"color: {Colors.Grey.Lighten4}")" 
-                              Class=""/>
-                <MudTextField Placeholder="Beskrivning..."
-                              @bind-Value="form.FormDescription"
-                              For="@(() => form.FormDescription)"
-                              Style="@($"color: {Colors.Grey.Lighten5}")" />
+                              For="@(() => section.SectionTitle)"
+                              Style="@($"color: {Colors.Grey.Lighten4};font-size: 24px;")"
+                              Clearable="true" />
+                <MudTextField Placeholder="Avsnitt beskrivning..."
+                              @bind-Value="section.SectionDescription"
+                              For="@(() => section.SectionDescription)"
+                              Style="@($"color: {Colors.Grey.Lighten5}")" 
+                              Class="mx-2"
+                              Clearable="true" />
             </MudCardContent>
         </MudCard>
 
@@ -23,9 +25,8 @@
 </MudContainer>
 
 @code {
-    // TODO: Ändra färg på texten till vit
     [Parameter]
     public bool IsFocused { get; set; }
-    private FormModel form = new FormModel();
-    private string borderColor = Colors.Grey.Darken1;
+    private SectionModel section = new SectionModel();
+    private string borderColor = Colors.Grey.Darken2;
 }

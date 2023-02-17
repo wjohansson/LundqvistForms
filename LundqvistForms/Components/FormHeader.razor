@@ -1,0 +1,26 @@
+﻿@using FormsLibrary.Models;
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="">
+    <EditForm Model="Form">
+        <DataAnnotationsValidator />
+        <MudCard Elevation="0">
+            <MudCardContent Style="@($"background-color: {Colors.Grey.Darken4};")">
+                <MudTextField Placeholder="Formulär rubrik..."
+                              @bind-Value="Form.FormTitle"
+                              For="@(() => Form.FormTitle)"
+                              Style="font-size: 24px"
+                              Clearable="true" />
+                <MudTextField Placeholder="Formulär beskrivning..."
+                              @bind-Value="Form.FormDescription"
+                              For="@(() => Form.FormDescription)"
+                              Class="mx-2"
+                              Clearable="true" />
+            </MudCardContent>
+        </MudCard>
+    </EditForm>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public FormModel Form { get; set; } = new();
+}

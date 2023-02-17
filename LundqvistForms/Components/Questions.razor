@@ -1,18 +1,19 @@
 ﻿@using FormsLibrary.Models;
-@foreach (QuestionModel question in Chapter.Components)
+@foreach (QuestionModel question in Chapter.Questions)
 {
-    <MudPaper Width="90%" Class="align-self-center pa-2" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken2};")">
+    <MudPaper Width="90%" @onfocusin="@(() => currentQuestion = question)" @onfocusout="@(() => currentQuestion = new QuestionModel())" Class="align-self-center pa-2" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {CheckFocus(question)}")">
         <EditForm Model="question">
             <DataAnnotationsValidator />
-            <MudCard>
-                <MudCardContent Class="d-flex" Style="@($"background-color: {Colors.Grey.Darken1};")">
+            <MudCard Elevation="0">
+                <MudCardContent Class="d-flex" Style="@($"background-color: {Colors.Grey.Darken2};")">
                     <MudTextField Placeholder="Fråga..."
                               @bind-Value="question.QuestionTitle"
                               For="@(() => question.QuestionTitle)"
-                              Style="@($"color: {Colors.Grey.Lighten4}")" />
-                    <MudSelect Placeholder="Beskrivning..."
-                           @bind-Value="question.Option"
-                           For="@(() => question.Option)"
+                              Style="@($"color: {Colors.Grey.Lighten4}")"
+                              Clearable="true" />
+                    <MudSelect Placeholder="Typ av fråga..."
+                           @bind-Value="question.QuestionOption"
+                           For="@(() => question.QuestionOption)"
                            Style="@($"color: {Colors.Grey.Lighten5}")">
                         @foreach (QuestionOptions option in Enum.GetValues(typeof(QuestionOptions)))
                         {
@@ -20,7 +21,8 @@
                         }
                     </MudSelect>
                 </MudCardContent>
-                <QuestionContent Question="@question"></QuestionContent>
+
+                <QuestionContent Question="@question" />
             </MudCard>
         </EditForm>
     </MudPaper>
@@ -29,5 +31,16 @@
 @code {
     // TODO: Fixa ChevronBottom oi så att den är inne i drop down rutan
     [Parameter]
-    public FormModel Chapter { get; set; } = new();
+    public SectionModel Chapter { get; set; } = new();
+
+    private QuestionModel currentQuestion = new();
+
+    public string CheckFocus(QuestionModel question)
+    {
+        if (currentQuestion == question)
+        {
+            return Colors.Grey.Lighten5;
+        }
+        return Colors.Grey.Darken2;
+    }
 }

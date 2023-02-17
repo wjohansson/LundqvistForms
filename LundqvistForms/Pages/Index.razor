@@ -4,25 +4,29 @@
 @using LundqvistForms.Components
 
 <PageTitle>Lundqvist Forms</PageTitle>
-<MudPaper Width="100%" Class="d-flex flex-column align-center gap-2 pb-4" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken3};")">
-    @foreach (FormModel chapter in chapters)
+<MudPaper Width="100%" Class="d-flex flex-column align-center gap-2 pb-4" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken4};")">
+    <FormHeader Form="@form" />
+
+    @foreach (SectionModel chapter in sections)
     {
         <MudContainer Class="d-flex gap-2 mx-0 justify-center">
-            <MudContainer MaxWidth="MaxWidth.Small" @onclick="@(() => FocusChapter(chapter))" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {CheckFocus(chapter)};")">
-                <SectionHeader IsFocused="@(currentChapter == chapter)"></SectionHeader>
-                <Questions Chapter="@chapter"></Questions>
+            <MudContainer MaxWidth="MaxWidth.Small" @onclick="@(() => FocusSection(chapter))" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(chapter)};")">
+                <SectionHeader IsFocused="@(currentSection == chapter)" />
+                <Questions Chapter="@chapter" />
             </MudContainer>
-            @if (chapter == currentChapter)
+
+            @if (chapter == currentSection)
             {
-                <Controls OnQuestionAdded="@(() => AddQuestion(currentChapter))" OnSectionAdded="@AddSection"></Controls>
+                <Controls OnQuestionAdded="@(() => AddQuestion(currentSection))" OnSectionAdded="@AddSection" />
             }
         </MudContainer>
-
     }
+
     <MudContainer Class="d-flex justify-center gap-2">
         <MudTooltip Arrow="true" Placement="Placement.Right">
             <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="CreateForm" StartIcon="@Icons.Material.Filled.AddCircle" Size="Size.Large">Skapa enkät</MudButton>
         </MudTooltip>
+
         <MudTooltip Arrow="true" Placement="Placement.Right">
             <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="DeleteForm" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Large">Radera enkät</MudButton>
         </MudTooltip>
@@ -35,40 +39,42 @@
     // TODO: Fixa så att hela formen sparas ifall man skulle refresha sidan
     // TODO: Kunna radera på alla steg. Enskild fråga, enskilt avsnitt och hela formuläret
     // TODO: Fixa expand och collapse på avsnitt
-    private List<FormModel> chapters = new();
-    private FormModel currentChapter = new();
-    private string borderColor = Colors.Grey.Darken2;
+    // TODO: Fixa are you sure på radera knappar
+    // TODO: Fixa så att delete knapp faktiskt tar bort titel och description på 1a avsnittet
+    // TODO: Fixa specifika error meddelanden
+    private FormModel form = new();
+    private List<SectionModel> sections = new();
+    private SectionModel currentSection = new();
 
     protected override async Task OnInitializedAsync()
     {
         AddSection();
     }
 
-    public void AddQuestion(FormModel chapter)
+    public void AddQuestion(SectionModel section)
     {
-        chapter.Components.Add(new QuestionModel());
+        section.Questions.Add(new QuestionModel());
     }
 
     public void AddSection()
     {
-        FormModel newForm = new();
-        chapters.Add(newForm);
-        currentChapter = newForm;
+        SectionModel newChapter = new();
+        sections.Add(newChapter);
+        currentSection = newChapter;
     }
 
-    public void FocusChapter(FormModel chapter)
+    public void FocusSection(SectionModel section)
     {
-        currentChapter = chapter;
-        borderColor = Colors.Grey.Lighten5;
+        currentSection = section;
     }
 
-    public string CheckFocus(FormModel chapter)
+    public string CheckFocus(SectionModel section)
     {
-        if (currentChapter == chapter)
+        if (currentSection == section)
         {
             return Colors.Grey.Lighten5;
         }
-        return Colors.Grey.Darken2;
+        return Colors.Grey.Darken3;
     }
 
     public async Task CreateForm()
@@ -77,7 +83,7 @@
 
     public async Task DeleteForm()
     {
-        chapters = new();
+        sections.Clear();
         AddSection();
     }
 }

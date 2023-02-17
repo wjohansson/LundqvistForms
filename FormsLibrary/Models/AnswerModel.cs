@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace FormsLibrary.Models
 {
     public class AnswerModel
     {
-        public ICollection<dynamic> Answers { get; set; }
-        //public ShortAnswerModel? ShortAnswer { get; set; }
-        //public LongAnswerModel? LongAnswer { get; set; }
-        //public SingleChoiceModel? SingleChoice { get; set; }
-        //public MultipleChoiceModel? MultipleChoice { get; set; }
-        //public DropdownChoiceModel? DrowDownChoice { get; set; }
-        //public DateTime? Date { get; set; }
-        //public TimeSpan? Time { get; set; }
+        [Key]
+        [JsonPropertyName("answerId")]
+        public Guid AnswerId { get; set; } = Guid.NewGuid();
 
-        public AnswerModel()
-        {
-            Answers = new List<dynamic>();
-        }
+        [JsonPropertyName("answer")]
+        public string? Answer { get; set; }
+
+        [JsonPropertyName("answerDate")]
+        public DateTime AnswerDate { get; set; } = DateTime.Now;
+
+        [JsonPropertyName("questionId")]
+        public Guid QuestionId { get; set; }
     }
 }

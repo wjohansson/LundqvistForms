@@ -12,9 +12,14 @@
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         Lundqvist Forms
         <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Edge="Edge.End" Color="Color.Inherit" OnClick="@((e) => ProfileToggle())" />
+        <MudTooltip Text="Förhandsgranska" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Edge="Edge.End" Color="Color.Inherit" Class="mx-2" OnClick="@((e) => ProfileToggle())" />
+        </MudTooltip>
+        <MudTooltip Text="Profil" Arrow="true" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Edge="Edge.End" Color="Color.Inherit" Class="mx-2" OnClick="@((e) => ProfileToggle())" />
+        </MudTooltip>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen" Anchor="Anchor.Start" >
+    <MudDrawer @bind-Open="@_drawerOpen" Anchor="Anchor.Start" Variant="@DrawerVariant.Temporary">
         <NavMenu />
     </MudDrawer>
     <MudDrawer @bind-Open="@_profileOpen" Anchor="Anchor.End" Variant="@DrawerVariant.Temporary">
@@ -29,7 +34,7 @@
 
 <style>
     body {
-        background-color: @($"{Colors.Grey.Darken3}");
+        background-color: @($"{Colors.Grey.Darken4}");
     }
 </style>
 
