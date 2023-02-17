@@ -1,11 +1,14 @@
+using LundqvistForms.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MudBlazor;
 using MudBlazor.Services;
 
 // TODO: Lägg till preview av hur färdiga formuläret ser ut
 // TODO: Vid fokusering på fråga ska den expanda och visa innehållet beroende på vilket alternativ man valt i dropdown
 // TODO: Lägg till möhlighet att välja färgtema
 // TODO: Lägg till charts med statistik på svarade formulär
+// TODO: Fixa alla knappar så att dom tar bort eller lägger till i databasen också
 
 // SIDA: Översikt över alla formulär. Kan edita rubrik och andra stora properties
 // SIDA: Se det färdiga formuläret, förhandsgranskning
@@ -16,6 +19,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();
+
+builder.Services.AddHttpClient<HttpClientWrapper>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5000");
+});
+
+builder.Services.AddSingleton<FormServiceUi>();
+builder.Services.AddSingleton<SectionServiceUi>();
+builder.Services.AddSingleton<QuestionServiceUi>();
+builder.Services.AddSingleton<AnswerServiceUi>();
 
 var app = builder.Build();
 

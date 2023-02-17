@@ -1,0 +1,30 @@
+﻿@page "/forms"
+
+@using FormsLibrary.Models;
+@using LundqvistForms.Services;
+@inject FormServiceUi formService
+
+<MudPaper Class="mx-16 pa-2">
+    @if (forms == null)
+    {
+        <MudText Typo="Typo.h2">Loading...</MudText>
+    }
+    else
+    {
+        <MudText Typo="Typo.h2">Your forms</MudText>
+        @foreach (FormModel form in forms)
+        {
+            <MudText>@form.FormTitle</MudText>
+        }
+    }
+</MudPaper>
+
+
+@code {
+    private List<FormModel>? forms = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        forms = await formService.GetAllForms();
+    }
+}
