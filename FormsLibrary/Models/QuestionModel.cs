@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace FormsLibrary.Models
 {
@@ -23,6 +18,21 @@ namespace FormsLibrary.Models
         [Required]
         public QuestionOptions QuestionOption { get; set; }
 
+        [JsonPropertyName("multipleChoiceOptions")]
+        [ForeignKey("QuestionId")]
+        public ICollection<MultipleChoiceOptions> MultipleChoiceOptions { get; set; }
+
+        [JsonPropertyName("singleChoiceOptions")]
+        [ForeignKey("QuestionId")]
+        public ICollection<SingleChoiceOptions> SingleChoiceOptions { get; set; }
+
+        [JsonPropertyName("dropwdownChoiceOptions")]
+        [ForeignKey("QuestionId")]
+        public ICollection<DropdownChoiceOptions> DropdownChoiceOptions { get; set; }
+
+        [JsonPropertyName("scaleOptions")]
+        public ScaleOptions ScaleOptions { get; set; }
+
         [JsonPropertyName("segmentId")]
         public Guid SegmentId { get; set; }
 
@@ -33,6 +43,10 @@ namespace FormsLibrary.Models
         public QuestionModel()
         {
             Answers = new List<AnswerModel>();
+            MultipleChoiceOptions = new List<MultipleChoiceOptions>();
+            SingleChoiceOptions = new List<SingleChoiceOptions>();
+            DropdownChoiceOptions = new List<DropdownChoiceOptions>();
+            ScaleOptions = new ScaleOptions();
         }
     }
 

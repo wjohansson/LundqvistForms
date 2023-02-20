@@ -4,14 +4,15 @@
 @using LundqvistForms.Components;
 @using LundqvistForms.Services;
 @inject FormServiceUi formService;
-@inject SegmentServiceUi segmetService;
+@inject SegmentServiceUi segmentService;
+@inject QuestionServiceUi questionService;
 
 <PageTitle>Lundqvist Forms</PageTitle>
 
 <MudPaper Width="100%" Class="d-flex flex-column align-center gap-2 pb-4" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken4};")">
-    <FormHeader Form="@form" />
+    <FormHeader Form="@Form" />
 
-    <Virtualize Items="form.Segments" Context="segment">
+    <Virtualize Items="Form.Segments" Context="segment">
         <MudContainer Class="d-flex gap-2 mx-0 justify-center">
             <MudContainer MaxWidth="MaxWidth.Medium" @onclick="@(() => FocusSegment(segment))" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(segment)};")">
                 <SegmentHeader IsFocused="@(currentSegment == segment)" Segment="segment" />
@@ -45,14 +46,14 @@
     // TODO: Fixa are you sure på radera knappar
     // TODO: Fixa global ångra knapp, och ctrl y liknande knapp
     // TODO: Lägg till date now vid create list i API
-
-    private FormModel form = new();
+    [Parameter]
+    public FormModel Form { get; set; } = new();
     private SegmentModel currentSegment = new();
 
     protected override async Task OnInitializedAsync()
     {
-        form.FormTitle = "Formulär utan namn";
-        form.FormDescription = "Ingen beskrivning";
+        Form.FormTitle = "Formulär utan namn";
+        Form.FormDescription = "Ingen beskrivning";
         AddSegment();
     }
 
@@ -69,11 +70,11 @@
     {
         SegmentModel newSegment = new()
             {
-                FormId = form.FormId,
+                FormId = Form.FormId,
                 SegmentTitle = "Avsnitt utan namn",
                 SegmentDescription = "Ingen beskrivning"
             };
-        form.Segments.Add(newSegment);
+        Form.Segments.Add(newSegment);
         currentSegment = newSegment;
     }
 
@@ -93,14 +94,29 @@
 
     public async Task CreateForm()
     {
+        try
+        {
+            await formService.CreateForm(Form);
+            Form = new()
+                {
+                    FormTitle = "Formulär utan namn",
+                    FormDescription = "Ingen beskrivning"
+                };
+            AddSegment();
+        }
+        catch (Exception)
+        {
+
+            return;
+        }
 
     }
 
-    public async Task ClearForm()
+    public void ClearForm()
     {
-        form = new();
-        form.FormTitle = "Formulär utan namn";
-        form.FormDescription = "Ingen beskrivning";
+        Form = new();
+        Form.FormTitle = "Formulär utan namn";
+        Form.FormDescription = "Ingen beskrivning";
 
         AddSegment();
     }

@@ -4,13 +4,13 @@
         @switch (Question.QuestionOption)
         {
             case QuestionOptions.Kort:
-
                 <MudTextField Label="Kort svar"
                       @bind-Value="shortAnswer"
                       Class="px-2"
                       Style="@($"color: {Colors.Grey.Lighten4};")"
                       Variant="Variant.Filled"
-                      Clearable="true" />
+                      Clearable="true"
+                      Disabled="true" />
 
                 break;
             case QuestionOptions.Lång:
@@ -19,15 +19,16 @@
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
                       Variant="Variant.Filled"
-                      Clearable="true" />
+                      Clearable="true"
+                      Lines="4" />
 
                 break;
             case QuestionOptions.Flerval:
-                @for (var i = 0; i < multipleChoiceAlternatives.Count; i++)
+                @for (var i = 0; i < Question.MultipleChoiceOptions.Count; i++)
                 {
                     var index = i;
                     <MudTextField Label="Alternativ"
-                      @bind-Value="multipleChoiceAlternatives[i]"
+                      @bind-Value="Question.MultipleChoiceOptions.ToList()[index].MultipleChoiceTitle"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
                       Variant="Variant.Filled"
@@ -39,11 +40,11 @@
 
                 break;
             case QuestionOptions.Enkelval:
-                @for (var i = 0; i < singleChoiceAlternatives.Count; i++)
+                @for (var i = 0; i < Question.SingleChoiceOptions.Count; i++)
                 {
                     var index = i;
                     <MudTextField Label="Alternativ"
-                      @bind-Value="singleChoiceAlternatives[index]"
+                      @bind-Value="Question.SingleChoiceOptions.ToList()[index].SingleChoiceTitle"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
                       Variant="Variant.Filled"
@@ -56,11 +57,11 @@
 
                 break;
             case QuestionOptions.Dropdown:
-                @for (var i = 0; i < dropdownChoiceAlternatives.Count; i++)
+                @for (var i = 0; i < Question.DropdownChoiceOptions.Count; i++)
                 {
                     var index = i;
                     <MudTextField Label="Alternativ"
-                      @bind-Value="dropdownChoiceAlternatives[index]"
+                      @bind-Value="Question.DropdownChoiceOptions.ToList()[index].DropdownChoiceTitle"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
                       Variant="Variant.Filled"
@@ -81,7 +82,8 @@
                        Color="Color.Warning"
                        Class="px-2"
                        Variant="Variant.Filled"
-                       Clearable="true" />
+                       Clearable="true"
+                       Disabled="true" />
                 break;
             case QuestionOptions.Tidsintervall:
                 <MudDateRangePicker Editable="true"
@@ -92,7 +94,8 @@
                             Color="Color.Warning"
                             Class="px-2"
                             Variant="Variant.Filled"
-                            Clearable="true" />
+                            Clearable="true"
+                            Disabled="true" />
                 break;
             case QuestionOptions.Tid:
                 <MudTimePicker Label="Tid"
@@ -102,17 +105,18 @@
                        Color="Color.Warning"
                        Class="px-2"
                        Variant="Variant.Filled"
-                       Clearable="true" />
+                       Clearable="true"
+                       Disabled="true" />
                 break;
             case QuestionOptions.Skala:
                 <MudContainer Class="text-white">
                     <MudContainer Class="d-flex align-center gap-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
-                        <MudSelect @bind-Value="scaleLow" Variant="Variant.Filled">
-                            <MudSelectItem Value="@(0)" />
-                            <MudSelectItem Value="@(1)" />
+                        <MudSelect @bind-Value="@(Question.ScaleOptions.Low)" Variant="Variant.Filled">
+                            <MudSelectItem Value="0" />
+                            <MudSelectItem Value="1" />
                         </MudSelect>
                         <span>till</span>
-                        <MudSelect @bind-Value="scaleHigh" Variant="Variant.Filled">
+                        <MudSelect @bind-Value="@(Question.ScaleOptions.High)" Variant="Variant.Filled">
                             @for (int i = 1; i <= 10; i++)
                             {
                                 <MudSelectItem Value="i" />
@@ -122,14 +126,15 @@
 
                     <MudContainer Class="d-flex flex-column gap-2 mt-4">
                         <MudContainer Class="d-flex align-center gap-4">
-                            <MudTextField Label="@($"{scaleLow.ToString()}: Etikett (Valfri)")"
-                                  @bind-Value="scaleLowLabel"
+                            <MudTextField Label="@($"{Question.ScaleOptions.Low}: Etikett (Valfri)")"
+                                  @bind-Value="@(Question.ScaleOptions.LowLabel)"
                                   Variant="Variant.Filled"
                                   Clearable="true" />
+
                         </MudContainer>
                         <MudContainer Class="d-flex align-items-center gap-4">
-                            <MudTextField Label="@($"{scaleHigh.ToString()}: Etikett (Valfri)")"
-                                  @bind-Value="scaleHighLabel"
+                            <MudTextField Label="@($"{Question.ScaleOptions.High}: Etikett (Valfri)")"
+                                  @bind-Value="@(Question.ScaleOptions.HighLabel)"
                                   Variant="Variant.Filled"
                                   Clearable="true" />
                         </MudContainer>
@@ -157,41 +162,41 @@
 
     private string? shortAnswer;
     private string? longAnswer;
-    private List<string> multipleChoiceAlternatives = new();
-    private List<string> singleChoiceAlternatives = new();
-    private List<string> dropdownChoiceAlternatives = new();
     private DateTime? date;
     private DateRange? dateRange;
     private TimeSpan? timeSpan;
-    private int scaleLow = 1;
-    private int scaleHigh = 5;
-    private string? scaleLowLabel;
-    private string? scaleHighLabel;
 
-
-    private AnswerModel Answer = new();
-    private List<string> multipleChoices = new();
-
-    private bool MultipleChoice()
+    protected override async Task OnInitializedAsync()
     {
-        return false;
-    }
+    } 
 
     private void AddMultipleChoice()
     {
-        string key = $"Alternativ {multipleChoiceAlternatives.Count + 1}";
-        multipleChoiceAlternatives.Add(key);
+        MultipleChoiceOptions choice = new()
+            {
+                QuestionId = Question.QuestionId,
+                MultipleChoiceTitle = $"Alternativ {Question.MultipleChoiceOptions.Count + 1}"
+            };
+        Question.MultipleChoiceOptions.Add(choice);
     }
 
     private void AddSingleChoice()
     {
-        string key = $"Alternativ {singleChoiceAlternatives.Count + 1}";
-        singleChoiceAlternatives.Add(key);
+        SingleChoiceOptions choice = new()
+            {
+                QuestionId = Question.QuestionId,
+                SingleChoiceTitle = $"Alternativ {Question.SingleChoiceOptions.Count + 1}"
+            };
+        Question.SingleChoiceOptions.Add(choice);
     }
 
     private void AddDropdownChoice()
     {
-        string key = $"Alternativ {dropdownChoiceAlternatives.Count + 1}";
-        dropdownChoiceAlternatives.Add(key);
+        DropdownChoiceOptions choice = new()
+            {
+                QuestionId = Question.QuestionId,
+                DropdownChoiceTitle = $"Alternativ {Question.DropdownChoiceOptions.Count + 1}"
+            };
+        Question.DropdownChoiceOptions.Add(choice);
     }
 }

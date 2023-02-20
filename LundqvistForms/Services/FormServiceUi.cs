@@ -19,7 +19,7 @@ namespace LundqvistForms.Services
         {
             var stringContent = JsonSerializer.Serialize(form);
             var data = new StringContent(stringContent, Encoding.UTF8, "application/json");
-            return await _clientWrapper.PostAsync<FormModel>($"/Form/Create", data);
+        return await _clientWrapper.PostAsync<FormModel>($"/Form/Create", data);
         }
 
         public async Task DeleteForm(FormModel form)
