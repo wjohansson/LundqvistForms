@@ -5,7 +5,7 @@
         {
             case QuestionOptions.Kort:
 
-                <MudTextField Placeholder="Kort svar..."
+                <MudTextField Label="Kort svar"
                       @bind-Value="shortAnswer"
                       Class="px-2"
                       Style="@($"color: {Colors.Grey.Lighten4};")"
@@ -14,7 +14,7 @@
 
                 break;
             case QuestionOptions.Lång:
-                <MudTextField Placeholder="Långt svar..."
+                <MudTextField Label="Långt svar"
                       @bind-Value="longAnswer"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
@@ -26,7 +26,7 @@
                 @for (var i = 0; i < multipleChoiceAlternatives.Count; i++)
                 {
                     var index = i;
-                    <MudTextField Placeholder="Alternativ..."
+                    <MudTextField Label="Alternativ"
                       @bind-Value="multipleChoiceAlternatives[i]"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
@@ -42,7 +42,7 @@
                 @for (var i = 0; i < singleChoiceAlternatives.Count; i++)
                 {
                     var index = i;
-                    <MudTextField Placeholder="Alternativ..."
+                    <MudTextField Label="Alternativ"
                       @bind-Value="singleChoiceAlternatives[index]"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
@@ -59,7 +59,7 @@
                 @for (var i = 0; i < dropdownChoiceAlternatives.Count; i++)
                 {
                     var index = i;
-                    <MudTextField Placeholder="Alternativ..."
+                    <MudTextField Label="Alternativ"
                       @bind-Value="dropdownChoiceAlternatives[index]"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
@@ -73,7 +73,7 @@
                 break;
             case QuestionOptions.Datum:
                 <MudDatePicker Editable="true"
-                       Placeholder="Datum..."
+                       Label="Datum"
                        @bind-Value="date"
                        ShowWeekNumbers="true"
                        DisplayMonths="2"
@@ -85,7 +85,7 @@
                 break;
             case QuestionOptions.Tidsintervall:
                 <MudDateRangePicker Editable="true"
-                            Placeholder="Tidsintervall..."
+                            Label="Tidsintervall"
                             @bind-DateRange="dateRange"
                             ShowWeekNumbers="true"
                             PickerVariant="PickerVariant.Dialog"
@@ -95,7 +95,7 @@
                             Clearable="true" />
                 break;
             case QuestionOptions.Tid:
-                <MudTimePicker Placeholder="Tid..."
+                <MudTimePicker Label="Tid"
                        @bind-Time="timeSpan"
                        Editable="true"
                        PickerVariant="PickerVariant.Dialog"

@@ -1,0 +1,34 @@
+﻿@using FormsLibrary.Models;
+
+<MudPaper @onfocusin="@(() => borderColor = Colors.Grey.Lighten5)" @onfocusout="@(() => borderColor = Colors.Grey.Darken2)" Class="text-white pa-2" Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {borderColor};")">
+    <EditForm Model="@Segment">
+        <DataAnnotationsValidator />
+        <MudCard Elevation="0">
+            <MudCardContent Style="@($"background-color: {Colors.Grey.Darken2};")">
+                <MudTextField Placeholder="Avstnitt rubrik..."
+                              @bind-Value="Segment.SegmentTitle"
+                              For="@(() => Segment.SegmentTitle)"
+                              Style="@($"color: {Colors.Grey.Lighten5};font-size: 24px;")"
+                              Clearable="true" />
+                <MudTextField Placeholder="Avsnitt beskrivning..."
+                              @bind-Value="Segment.SegmentDescription"
+                              For="@(() => Segment.SegmentDescription)"
+                              Style="@($"color: {Colors.Grey.Lighten5}")" 
+                              Class="mx-2"
+                              Clearable="true" />
+            </MudCardContent>
+        </MudCard>
+
+    </EditForm>
+
+</MudPaper>
+
+@code {
+    [Parameter]
+    public bool IsFocused { get; set; }
+
+    [Parameter]
+    public SegmentModel Segment { get; set; }
+
+    private string borderColor = Colors.Grey.Darken2;
+}

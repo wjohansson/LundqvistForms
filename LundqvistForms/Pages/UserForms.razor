@@ -7,11 +7,15 @@
 <MudPaper Class="mx-16 pa-2">
     @if (forms == null)
     {
-        <MudText Typo="Typo.h2">Loading...</MudText>
+        <MudText Typo="Typo.h2">Laddar...</MudText>
+    }
+    else if (forms.Count == 0)
+    {
+        <MudText Typo="Typo.h2">Du har inga formulär just nu</MudText>
     }
     else
     {
-        <MudText Typo="Typo.h2">Your forms</MudText>
+        <MudText Typo="Typo.h2">Dina formulär</MudText>
         @foreach (FormModel form in forms)
         {
             <MudText>@form.FormTitle</MudText>

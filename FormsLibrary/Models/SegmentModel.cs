@@ -9,28 +9,28 @@ using System.Threading.Tasks;
 
 namespace FormsLibrary.Models
 {
-    public class SectionModel
+    public class SegmentModel
     {
         [Key]
-        [JsonPropertyName("sectionId")]
-        public Guid SectionId { get; set; } = Guid.NewGuid();
+        [JsonPropertyName("segmentId")]
+        public Guid SegmentId { get; set; } = Guid.NewGuid();
 
         [Required(ErrorMessage = "Avsnittet måste ha en rubrik")]
-        [JsonPropertyName("sectionTitle")]
-        public string SectionTitle { get; set; } = "";
+        [JsonPropertyName("segmentTitle")]
+        public string SegmentTitle { get; set; } = "";
 
         [Required(ErrorMessage = "Avsnittet måste ha en beskrivning")]
-        [JsonPropertyName("sectionDescription")]
-        public string SectionDescription { get; set; } = "";
+        [JsonPropertyName("segmentDescription")]
+        public string SegmentDescription { get; set; } = "";
 
         [JsonPropertyName("formId")]
         public Guid FormId { get; set; }
 
-        [ForeignKey("SectionId")]
+        [ForeignKey("SegmentId")]
         [JsonPropertyName("questions")]
         public ICollection<QuestionModel> Questions { get; set; }
 
-        public SectionModel()
+        public SegmentModel()
         {
             Questions = new List<QuestionModel>();
         }

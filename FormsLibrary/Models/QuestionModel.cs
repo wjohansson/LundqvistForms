@@ -16,15 +16,15 @@ namespace FormsLibrary.Models
         public Guid QuestionId { get; set; } = Guid.NewGuid();
 
         [JsonPropertyName("questionTitle")]
-        [Required(ErrorMessage = "Frågan måste ha en rubrik")]
+        [Required(ErrorMessage = "Frågan kan inte vara tom")]
         public string QuestionTitle { get; set; } = "";
 
         [JsonPropertyName("quetsionOption")]
         [Required]
         public QuestionOptions QuestionOption { get; set; }
 
-        [JsonPropertyName("sectionId")]
-        public Guid SectionId { get; set; }
+        [JsonPropertyName("segmentId")]
+        public Guid SegmentId { get; set; }
 
         [ForeignKey("QuestionId")]
         [JsonPropertyName("answers")]

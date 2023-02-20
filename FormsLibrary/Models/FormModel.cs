@@ -20,12 +20,12 @@ namespace FormsLibrary.Models
         public string FormDescription { get; set; } = "";
 
         [ForeignKey("FormId")]
-        [JsonPropertyName("sections")]
-        public ICollection<SectionModel> Sections { get; set; }
+        [JsonPropertyName("segments")]
+        public ICollection<SegmentModel> Segments { get; set; }
 
         public FormModel()
         {
-            Sections = new List<SectionModel>();
+            Segments = new List<SegmentModel>();
         }
     }
 }

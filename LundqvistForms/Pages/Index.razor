@@ -1,34 +1,37 @@
 ﻿@page "/"
 
 @using FormsLibrary.Models;
-@using LundqvistForms.Components
+@using LundqvistForms.Components;
+@using LundqvistForms.Services;
+@inject FormServiceUi formService;
+@inject SegmentServiceUi segmetService;
 
 <PageTitle>Lundqvist Forms</PageTitle>
+
 <MudPaper Width="100%" Class="d-flex flex-column align-center gap-2 pb-4" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken4};")">
     <FormHeader Form="@form" />
 
-    @foreach (SectionModel chapter in sections)
-    {
+    <Virtualize Items="form.Segments" Context="segment">
         <MudContainer Class="d-flex gap-2 mx-0 justify-center">
-            <MudContainer MaxWidth="MaxWidth.Small" @onclick="@(() => FocusSection(chapter))" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(chapter)};")">
-                <SectionHeader IsFocused="@(currentSection == chapter)" />
-                <Questions Chapter="@chapter" />
+            <MudContainer MaxWidth="MaxWidth.Medium" @onclick="@(() => FocusSegment(segment))" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(segment)};")">
+                <SegmentHeader IsFocused="@(currentSegment == segment)" Segment="segment" />
+                <Questions Segment="@segment" />
             </MudContainer>
 
-            @if (chapter == currentSection)
+            @if (segment == currentSegment)
             {
-                <Controls OnQuestionAdded="@(() => AddQuestion(currentSection))" OnSectionAdded="@AddSection" />
+                <Controls OnQuestionAdded="AddQuestion" OnSegmentAdded="AddSegment" />
             }
         </MudContainer>
-    }
+    </Virtualize>
 
     <MudContainer Class="d-flex justify-center gap-2">
         <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="CreateForm" StartIcon="@Icons.Material.Filled.AddCircle" Size="Size.Large">Skapa enkät</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="CreateForm" StartIcon="@Icons.Material.Filled.AddCircle" Size="Size.Large">Skapa formulär</MudButton>
         </MudTooltip>
 
         <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="DeleteForm" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Large">Radera enkät</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="ClearForm" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Large">Rensa formulär</MudButton>
         </MudTooltip>
     </MudContainer>
 </MudPaper>
@@ -40,37 +43,48 @@
     // TODO: Kunna radera på alla steg. Enskild fråga, enskilt avsnitt och hela formuläret
     // TODO: Fixa expand och collapse på avsnitt
     // TODO: Fixa are you sure på radera knappar
-    // TODO: Fixa så att delete knapp faktiskt tar bort titel och description på 1a avsnittet
-    // TODO: Fixa specifika error meddelanden
+    // TODO: Fixa global ångra knapp, och ctrl y liknande knapp
+    // TODO: Lägg till date now vid create list i API
+
     private FormModel form = new();
-    private List<SectionModel> sections = new();
-    private SectionModel currentSection = new();
+    private SegmentModel currentSegment = new();
 
     protected override async Task OnInitializedAsync()
     {
-        AddSection();
+        form.FormTitle = "Formulär utan namn";
+        form.FormDescription = "Ingen beskrivning";
+        AddSegment();
     }
 
-    public void AddQuestion(SectionModel section)
+    public void AddQuestion()
     {
-        section.Questions.Add(new QuestionModel());
+        QuestionModel newQuestion = new()
+            {
+                SegmentId = currentSegment.SegmentId
+            };
+        currentSegment.Questions.Add(newQuestion);
     }
 
-    public void AddSection()
+    public void AddSegment()
     {
-        SectionModel newChapter = new();
-        sections.Add(newChapter);
-        currentSection = newChapter;
+        SegmentModel newSegment = new()
+            {
+                FormId = form.FormId,
+                SegmentTitle = "Avsnitt utan namn",
+                SegmentDescription = "Ingen beskrivning"
+            };
+        form.Segments.Add(newSegment);
+        currentSegment = newSegment;
     }
 
-    public void FocusSection(SectionModel section)
+    public void FocusSegment(SegmentModel segment)
     {
-        currentSection = section;
+        currentSegment = segment;
     }
 
-    public string CheckFocus(SectionModel section)
+    public string CheckFocus(SegmentModel segment)
     {
-        if (currentSection == section)
+        if (currentSegment == segment)
         {
             return Colors.Grey.Lighten5;
         }
@@ -79,11 +93,15 @@
 
     public async Task CreateForm()
     {
+
     }
 
-    public async Task DeleteForm()
+    public async Task ClearForm()
     {
-        sections.Clear();
-        AddSection();
+        form = new();
+        form.FormTitle = "Formulär utan namn";
+        form.FormDescription = "Ingen beskrivning";
+
+        AddSegment();
     }
 }
