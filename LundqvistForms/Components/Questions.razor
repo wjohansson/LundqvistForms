@@ -24,16 +24,18 @@
                         }
                     </MudSelect>
                     <MudTooltip Text="Duplicera fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
-                        <MudIconButton Color="Color.Warning"
+                        <MudIconButton Class="mt-3"
+                                   Color="Color.Warning"
                                    OnClick="@(() => DuplicateQuestion(question))"
                                    Icon="@Icons.Material.Filled.ContentCopy"
-                                   Size="Size.Large"></MudIconButton>
+                                   Size="Size.Medium"></MudIconButton>
                     </MudTooltip>
                     <MudTooltip Text="Ta bort fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
-                        <MudIconButton Color="Color.Error"
+                        <MudIconButton Class="mt-3"
+                                   Color="Color.Error"
                                    OnClick="@(() => DeleteQuestion(question))"
                                    Icon="@Icons.Material.Filled.Delete"
-                                   Size="Size.Large"></MudIconButton>
+                                   Size="Size.Medium"></MudIconButton>
                     </MudTooltip>
 
                 </MudCardContent>
@@ -45,8 +47,6 @@
 }
 
 @code {
-    // TODO: Fixa ChevronBottom oi så att den är inne i drop down rutan
-
     [Parameter]
     public EventCallback<SegmentModel> OnChange { get; set; }
 
@@ -61,6 +61,7 @@
         {
             return Colors.Grey.Lighten5;
         }
+
         return Colors.Grey.Darken2;
     }
 
@@ -70,8 +71,10 @@
             {
                 SegmentId = question.SegmentId,
                 QuestionTitle = question.QuestionTitle,
-                QuestionOption = question.QuestionOption
+                QuestionOption = question.QuestionOption,
+                ChoiceOptions = question.ChoiceOptions
             };
+
         Segment.Questions.Add(newQuestion);
 
         await OnChange.InvokeAsync();

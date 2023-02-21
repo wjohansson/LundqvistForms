@@ -93,9 +93,11 @@
         {
             QuestionModel newQuestion = new()
                 {
+                    QuestionId = Guid.NewGuid(),
                     SegmentId = question.SegmentId,
                     QuestionTitle = question.QuestionTitle,
-                    QuestionOption = question.QuestionOption
+                    QuestionOption = question.QuestionOption,
+                    ChoiceOptions = question.ChoiceOptions
                 };
             newSegment.Questions.Add(newQuestion);
         }
