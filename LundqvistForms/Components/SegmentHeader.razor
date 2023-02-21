@@ -1,34 +1,112 @@
 ﻿@using FormsLibrary.Models;
 
-<MudPaper @onfocusin="@(() => borderColor = Colors.Grey.Lighten5)" @onfocusout="@(() => borderColor = Colors.Grey.Darken2)" Class="text-white pa-2" Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {borderColor};")">
-    <EditForm Model="@Segment">
-        <DataAnnotationsValidator />
-        <MudCard Elevation="0">
-            <MudCardContent Style="@($"background-color: {Colors.Grey.Darken2};")">
-                <MudTextField Placeholder="Avstnitt rubrik..."
-                              @bind-Value="Segment.SegmentTitle"
-                              For="@(() => Segment.SegmentTitle)"
-                              Style="@($"color: {Colors.Grey.Lighten5};font-size: 24px;")"
-                              Clearable="true" />
-                <MudTextField Placeholder="Avsnitt beskrivning..."
-                              @bind-Value="Segment.SegmentDescription"
-                              For="@(() => Segment.SegmentDescription)"
-                              Style="@($"color: {Colors.Grey.Lighten5}")" 
-                              Class="mx-2"
-                              Clearable="true" />
-            </MudCardContent>
-        </MudCard>
+<MudPaper @onfocusin="@(() => borderColor = Colors.Grey.Lighten5)" @onfocusout="@(() => borderColor = Colors.Grey.Darken2)" Class="text-white pa-2 d-flex justify-space-between" Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {borderColor};")">
+    <MudContainer>
+        <EditForm Model="@Segment">
+            <DataAnnotationsValidator />
+            <MudCard Elevation="0">
+                <MudCardContent Style="@($"background-color: {Colors.Grey.Darken2};")">
+                    <MudTextField Placeholder="Avstnitt rubrik..."
+                                  @bind-Value="Segment.SegmentTitle"
+                                  For="@(() => Segment.SegmentTitle)"
+                                  Style="@($"color: {Colors.Grey.Lighten5};font-size: 24px;")"
+                                  Clearable="true" />
+                    <MudTextField Placeholder="Avsnitt beskrivning..."
+                                  @bind-Value="Segment.SegmentDescription"
+                                  For="@(() => Segment.SegmentDescription)"
+                                  Style="@($"color: {Colors.Grey.Lighten5}")"
+                                  Class="mx-2"
+                                  Clearable="true" />
+                </MudCardContent>
+            </MudCard>
+        </EditForm>
+    </MudContainer>
 
-    </EditForm>
+    <MudContainer Class="d-flex align-center gap-2 ma-0" Style="width: fit-content">
+        <MudTooltip Text="@(expandSegment ? "Minska": "Utvidga")" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+            <MudIconButton Color="Color.Warning"
+                           OnClick="@(() => ToggleExpandSegment(Segment))"
+                           Icon="@(expandSegment ? @Icons.Material.Filled.ExpandLess : @Icons.Material.Filled.ExpandMore)"
+                           Size="Size.Large"></MudIconButton>
+        </MudTooltip>
 
+        <MudTooltip Text="Duplicera avsnitt" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+            <MudIconButton Color="Color.Warning"
+                           OnClick="@(() => DuplicateSegment(Segment))"
+                           Icon="@Icons.Material.Filled.ContentCopy"
+                           Size="Size.Large"></MudIconButton>
+        </MudTooltip>
+
+        <MudTooltip Text="Ta bort avsnitt" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+            <MudIconButton Color="Color.Error"
+                           OnClick="@(() => DeleteSegment(Segment))"
+                           Icon="@Icons.Material.Filled.Delete"
+                           Size="Size.Large"></MudIconButton>
+        </MudTooltip>
+    </MudContainer>
 </MudPaper>
 
 @code {
     [Parameter]
+    public EventCallback<SegmentModel> OnChange { get; set; }
+
+    [Parameter]
     public bool IsFocused { get; set; }
 
     [Parameter]
-    public SegmentModel Segment { get; set; }
+    public SegmentModel Segment { get; set; } = new();
+
+    [Parameter]
+    public FormModel Form { get; set; } = new();
+
+    private bool expandSegment;
 
     private string borderColor = Colors.Grey.Darken2;
+
+    private async Task DeleteSegment(SegmentModel segment)
+    {
+        Form.Segments.Remove(segment);
+
+        if (Form.Segments.Count == 0)
+        {
+            Form.Segments.Add(new SegmentModel()
+            {
+                FormId = Form.FormId,
+                SegmentTitle = "Avsnitt utan namn",
+                SegmentDescription = "Ingen beskrivning"
+            });
+        }
+
+        await OnChange.InvokeAsync();
+    }
+
+    private async Task DuplicateSegment(SegmentModel segment)
+    {
+        SegmentModel newSegment = new()
+        {
+            FormId = segment.FormId,
+            SegmentTitle = segment.SegmentTitle,
+            SegmentDescription = segment.SegmentDescription
+        };
+
+        foreach (QuestionModel question in segment.Questions)
+        {
+            QuestionModel newQuestion = new()
+                {
+                    SegmentId = question.SegmentId,
+                    QuestionTitle = question.QuestionTitle,
+                    QuestionOption = question.QuestionOption
+                };
+            newSegment.Questions.Add(newQuestion);
+        }
+
+        Form.Segments.Add(newSegment);
+
+        await OnChange.InvokeAsync();
+    }
+
+    private void ToggleExpandSegment(SegmentModel segment)
+    {
+        expandSegment = !expandSegment;
+    }
 }

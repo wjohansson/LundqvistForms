@@ -1,11 +1,13 @@
 ﻿@page "/forms"
 
 @using FormsLibrary.Models;
+@using LundqvistForms.Components;
 @using LundqvistForms.Services;
 @inject FormServiceUi formService
 @inject NavigationManager navigationManager;
+@inject IDialogService DialogService;
 
-<MudPaper Class="mx-16 pa-2">
+<MudPaper Class="mx-16 pa-10 mb-16">
     @if (forms == null)
     {
         <MudText Typo="Typo.h2">Laddar...</MudText>
@@ -16,16 +18,14 @@
     }
     else
     {
+        <MudText Typo="Typo.h2" Class="mb-4">Dina formulär</MudText>
         <MudTable Items="forms" GroupHeaderStyle="@($"background-color: {Colors.Grey.Darken1}")" CustomHeader Hover="true" LoadingProgressColor="Color.Warning" Class="mx-12 pa-4" Style="@($"background-color: {Colors.Grey.Darken2}")">
-            <ToolBarContent>
-                <MudText Typo="Typo.h2" Class="mb-4">Dina formulär</MudText>
-            </ToolBarContent>
             <HeaderContent>
                 <MudTh>Titel</MudTh>
                 <MudTh>Antal frågor</MudTh>
-                <MudTh Style="width:200px">Förhandsgranska</MudTh>
-                <MudTh Style="width:200px">Redigera</MudTh>
-                <MudTh Style="width:200px">Ta bort</MudTh>
+                <MudTh Style="width:150px">Förhandsgranska</MudTh>
+                <MudTh Style="width:150px">Redigera</MudTh>
+                <MudTh Style="width:150px">Ta bort</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Title">@context.FormTitle</MudTd>
@@ -47,7 +47,7 @@
 
 @code {
     // TODO: Kolla table filtrering med mera
-    private List<FormModel>? forms = null;
+    public List<FormModel>? forms = null;
 
 
     protected override async Task OnInitializedAsync()
@@ -67,6 +67,11 @@
         return count;
     }
 
+    public void Update()
+    {
+        this.StateHasChanged();
+    }
+
     private void GoToPreview(FormModel form)
     {
 
@@ -74,11 +79,18 @@
 
     private void EditForm(FormModel form)
     {
-        navigationManager.NavigateTo($"/edit");
+        navigationManager.NavigateTo($"/forms/edit/{form.FormId}");
     }
 
     private void DeleteForm(FormModel form)
     {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", "Är du säker att du vill ta bort formuläret?");
+        parameters.Add("ButtonText", "Ta bort");
+        parameters.Add("Color", Color.Error);
 
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        DialogService.Show<DeleteForm>("Delete", parameters, options);
     }
 }

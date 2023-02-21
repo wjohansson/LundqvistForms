@@ -47,5 +47,12 @@ namespace LundqvistForms.Services
             var data = new StringContent(stringContent, Encoding.UTF8, "application/json");
             return await _clientWrapper.PutAsync<FormModel>($"/Form", data);
         }
+
+        public async Task<FormModel?> GetFormById(Guid formId)
+        {
+            var stringContent = JsonSerializer.Serialize(formId);
+            var data = new StringContent(stringContent, Encoding.UTF8, "application/json");
+            return await _clientWrapper.PutAsync<FormModel>($"/Form/GetById", data);
+        }
     }
 }

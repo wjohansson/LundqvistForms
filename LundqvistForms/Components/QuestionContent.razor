@@ -20,7 +20,8 @@
                       Style="@($" color: {Colors.Grey.Lighten4};")"
                       Variant="Variant.Filled"
                       Clearable="true"
-                      Lines="4" />
+                      Lines="4" 
+                      Disabled="true"/>
 
                 break;
             case QuestionOptions.Flerval:
@@ -95,7 +96,7 @@
                             Class="px-2"
                             Variant="Variant.Filled"
                             Clearable="true"
-                            Disabled="true" />
+                             />
                 break;
             case QuestionOptions.Tid:
                 <MudTimePicker Label="Tid"
@@ -165,10 +166,6 @@
     private DateTime? date;
     private DateRange? dateRange;
     private TimeSpan? timeSpan;
-
-    protected override async Task OnInitializedAsync()
-    {
-    } 
 
     private void AddMultipleChoice()
     {

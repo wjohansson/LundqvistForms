@@ -10,13 +10,13 @@
 <PageTitle>Lundqvist Forms</PageTitle>
 
 <MudPaper Width="100%" Class="d-flex flex-column align-center gap-2 pb-4" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken4};")">
-    <FormHeader Form="@Form" />
+    <FormHeader Form="@form" />
 
-    <Virtualize Items="Form.Segments" Context="segment">
+    <Virtualize Items="form.Segments" Context="segment">
         <MudContainer Class="d-flex gap-2 mx-0 justify-center">
             <MudContainer MaxWidth="MaxWidth.Medium" @onclick="@(() => FocusSegment(segment))" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(segment)};")">
-                <SegmentHeader IsFocused="@(currentSegment == segment)" Segment="segment" />
-                <Questions Segment="@segment" />
+                <SegmentHeader OnChange="StateHasChanged" Form="form" IsFocused="@(currentSegment == segment)" Segment="segment" />
+                <Questions OnChange="StateHasChanged" Segment="@segment" />
             </MudContainer>
 
             @if (segment == currentSegment)
@@ -46,14 +46,20 @@
     // TODO: Fixa are you sure på radera knappar
     // TODO: Fixa global ångra knapp, och ctrl y liknande knapp
     // TODO: Lägg till date now vid create list i API
-    [Parameter]
-    public FormModel Form { get; set; } = new();
+    // TODO: Kolla så att det krävs en valid submit på alla ställen
+    // TODO: Få alla select/text fields i question header att bli samma storlek, både på edit och create form
+    // TODO: Få till delete på alla nivåer
+    // TODO: Dialog rutor som popups vid varje gång delete
+    // TODO: Kunna flytta ordning på avsnitt och frågor genom drag and drop (frågor) och välja ordning (avsnitt)
+    // TODO: FIxa duplication på avsnitt och fråga
+
+    public FormModel form { get; set; } = new();
     private SegmentModel currentSegment = new();
 
     protected override async Task OnInitializedAsync()
     {
-        Form.FormTitle = "Formulär utan namn";
-        Form.FormDescription = "Ingen beskrivning";
+        form.FormTitle = "Formulär utan namn";
+        form.FormDescription = "Ingen beskrivning";
         AddSegment();
     }
 
@@ -70,11 +76,11 @@
     {
         SegmentModel newSegment = new()
             {
-                FormId = Form.FormId,
+                FormId = form.FormId,
                 SegmentTitle = "Avsnitt utan namn",
                 SegmentDescription = "Ingen beskrivning"
             };
-        Form.Segments.Add(newSegment);
+        form.Segments.Add(newSegment);
         currentSegment = newSegment;
     }
 
@@ -96,8 +102,8 @@
     {
         try
         {
-            await formService.CreateForm(Form);
-            Form = new()
+            await formService.CreateForm(form);
+            form = new()
                 {
                     FormTitle = "Formulär utan namn",
                     FormDescription = "Ingen beskrivning"
@@ -114,9 +120,9 @@
 
     public void ClearForm()
     {
-        Form = new();
-        Form.FormTitle = "Formulär utan namn";
-        Form.FormDescription = "Ingen beskrivning";
+        form = new();
+        form.FormTitle = "Formulär utan namn";
+        form.FormDescription = "Ingen beskrivning";
 
         AddSegment();
     }

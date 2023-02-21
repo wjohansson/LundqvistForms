@@ -1,10 +1,10 @@
 ﻿@using FormsLibrary.Models;
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="">
+<MudContainer MaxWidth="MaxWidth.Medium">
     <EditForm Model="Form">
         <DataAnnotationsValidator />
         <MudCard Elevation="0">
-            <MudCardContent Style="@($"background-color: {Colors.Grey.Darken4};")">
+            <MudCardContent Class="rounded" Style="@($"background-color: {Colors.Grey.Darken4};")">
                 <MudTextField Placeholder="Formulär rubrik..."
                               @bind-Value="Form.FormTitle"
                               For="@(() => Form.FormTitle)"

@@ -10,18 +10,32 @@
                               @bind-Value="question.QuestionTitle"
                               For="@(() => question.QuestionTitle)"
                               Style="@($"color: {Colors.Grey.Lighten4}")"
-                              Clearable="true" 
+                              Clearable="true"
                               Variant="Variant.Filled" />
+
                     <MudSelect Placeholder="Typ av fråga..."
                            @bind-Value="question.QuestionOption"
                            For="@(() => question.QuestionOption)"
-                           Style="@($"color: {Colors.Grey.Lighten5}")"
+                           Style="@($"color: {Colors.Grey.Lighten5}; ")"
                            Variant="Variant.Outlined">
                         @foreach (QuestionOptions option in Enum.GetValues(typeof(QuestionOptions)))
                         {
                             <MudSelectItem Value="@option">@option</MudSelectItem>
                         }
                     </MudSelect>
+                    <MudTooltip Text="Duplicera fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                        <MudIconButton Color="Color.Warning"
+                                   OnClick="@(() => DuplicateQuestion(question))"
+                                   Icon="@Icons.Material.Filled.ContentCopy"
+                                   Size="Size.Large"></MudIconButton>
+                    </MudTooltip>
+                    <MudTooltip Text="Ta bort fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                        <MudIconButton Color="Color.Error"
+                                   OnClick="@(() => DeleteQuestion(question))"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Large"></MudIconButton>
+                    </MudTooltip>
+
                 </MudCardContent>
 
                 <QuestionContent Question="@question" />
@@ -32,6 +46,10 @@
 
 @code {
     // TODO: Fixa ChevronBottom oi så att den är inne i drop down rutan
+
+    [Parameter]
+    public EventCallback<SegmentModel> OnChange { get; set; }
+
     [Parameter]
     public SegmentModel Segment { get; set; } = new();
 
@@ -44,5 +62,25 @@
             return Colors.Grey.Lighten5;
         }
         return Colors.Grey.Darken2;
+    }
+
+    private async Task DuplicateQuestion(QuestionModel question)
+    {
+        QuestionModel newQuestion = new()
+            {
+                SegmentId = question.SegmentId,
+                QuestionTitle = question.QuestionTitle,
+                QuestionOption = question.QuestionOption
+            };
+        Segment.Questions.Add(newQuestion);
+
+        await OnChange.InvokeAsync();
+    }
+
+    private async Task DeleteQuestion(QuestionModel question)
+    {
+        Segment.Questions.Remove(question);
+
+        await OnChange.InvokeAsync();
     }
 }

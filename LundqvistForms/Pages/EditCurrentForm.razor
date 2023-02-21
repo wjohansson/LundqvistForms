@@ -1,0 +1,107 @@
+﻿@page "/forms/edit/{FormId}"
+
+@using FormsLibrary.Models;
+@using LundqvistForms.Components;
+@using LundqvistForms.Pages;
+@using LundqvistForms.Services;
+@inject FormServiceUi formService;
+@inject SegmentServiceUi segmentService;
+@inject QuestionServiceUi questionService;
+@inject NavigationManager navigationManager;
+
+<PageTitle>Lundqvist Forms</PageTitle>
+
+<MudPaper Width="100%" Class="d-flex flex-column align-center gap-2 pb-4" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken4};")">
+    <FormHeader Form="@form" />
+
+    <Virtualize Items="form.Segments" Context="segment">
+        <MudContainer Class="d-flex gap-2 mx-0 justify-center">
+            <MudContainer MaxWidth="MaxWidth.Medium" @onclick="@(() => FocusSegment(segment))" Class="d-flex flex-column gap-2 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(segment)};")">
+                <SegmentHeader IsFocused="@(currentSegment == segment)" Segment="segment" />
+                <Questions Segment="@segment" />
+            </MudContainer>
+
+            @if (segment == currentSegment)
+            {
+                <Controls OnQuestionAdded="AddQuestion" OnSegmentAdded="AddSegment" />
+            }
+        </MudContainer>
+    </Virtualize>
+
+    <MudContainer Class="d-flex justify-center gap-2">
+        <MudTooltip Arrow="true" Placement="Placement.Right">
+            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="EditForm" StartIcon="@Icons.Material.Filled.Edit" Size="Size.Large">Redigera formulär</MudButton>
+        </MudTooltip>
+
+        <MudTooltip Arrow="true" Placement="Placement.Right">
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Cancel" Size="Size.Large">Avbryt</MudButton>
+        </MudTooltip>
+    </MudContainer>
+</MudPaper>
+
+
+@code {
+    [Parameter]
+    public string FormId { get; set; } = "";
+
+    private FormModel form = new();
+    private SegmentModel currentSegment = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        form = await formService.GetFormById(Guid.Parse(FormId));
+    }
+
+    public void AddQuestion()
+    {
+        QuestionModel newQuestion = new()
+            {
+                SegmentId = currentSegment.SegmentId
+            };
+        currentSegment.Questions.Add(newQuestion);
+    }
+
+    public void AddSegment()
+    {
+        SegmentModel newSegment = new()
+            {
+                FormId = form.FormId,
+                SegmentTitle = "Avsnitt utan namn",
+                SegmentDescription = "Ingen beskrivning"
+            };
+        form.Segments.Add(newSegment);
+        currentSegment = newSegment;
+    }
+
+    public void FocusSegment(SegmentModel segment)
+    {
+        currentSegment = segment;
+    }
+
+    public string CheckFocus(SegmentModel segment)
+    {
+        if (currentSegment == segment)
+        {
+            return Colors.Grey.Lighten5;
+        }
+        return Colors.Grey.Darken3;
+    }
+
+    public async Task EditForm()
+    {
+        try
+        {
+            await formService.EditForm(form);
+        }
+        catch (Exception)
+        {
+            return;
+        }
+
+    }
+
+    private void Cancel()
+    {
+        navigationManager.NavigateTo("/forms");
+    }
+}
