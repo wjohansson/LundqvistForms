@@ -23,21 +23,21 @@
             <HeaderContent>
                 <MudTh>Titel</MudTh>
                 <MudTh>Antal frågor</MudTh>
-                <MudTh Style="width:150px">Förhandsgranska</MudTh>
-                <MudTh Style="width:150px">Redigera</MudTh>
-                <MudTh Style="width:150px">Ta bort</MudTh>
+                <MudTh Style="width: 200px"></MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Title">@context.FormTitle</MudTd>
                 <MudTd DataLabel="Antal frågor">@CountQuestion(context)</MudTd>
-                <MudTd DataLabel="Förhandsgranska">
-                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Variant="Variant.Filled" OnClick="@(() => GoToPreview(context))" Color="Color.Warning"></MudIconButton>
-                </MudTd>
-                <MudTd DataLabel="Redigera">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" OnClick="@(() => EditForm(context))" Color="Color.Warning"></MudIconButton>
-                </MudTd>
-                <MudTd DataLabel="Ta bort">
-                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Variant="Variant.Filled" OnClick="@(() => DeleteForm(context))" Color="Color.Warning"></MudIconButton>
+                <MudTd DataLabel="" Class="d-flex justify-end gap-2">
+                    <MudTooltip Text="Förhandsgranska" Style="@($"background-color: {Colors.Grey.Darken3}")" Arrow="true" Placement="Placement.Bottom">
+                        <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Variant="Variant.Outlined" OnClick="@(() => GoToPreview(context))" Color="Color.Warning"></MudIconButton>
+                    </MudTooltip>
+                    <MudTooltip Text="Regidera" Style="@($"background-color: {Colors.Grey.Darken3}")" Arrow="true" Placement="Placement.Bottom">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" OnClick="@(() => EditForm(context))" Color="Color.Warning"></MudIconButton>
+                    </MudTooltip>
+                    <MudTooltip Text="Ta bort" Style="@($"background-color: {Colors.Grey.Darken3}")" Arrow="true" Placement="Placement.Bottom">
+                        <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" Variant="Variant.Filled" OnClick="@(() => DeleteForm(context))" Color="Color.Error"></MudIconButton>
+                    </MudTooltip>
                 </MudTd>
             </RowTemplate>
         </MudTable>
@@ -84,13 +84,20 @@
 
     private void DeleteForm(FormModel form)
     {
+        UserForms userForms = new();
         var parameters = new DialogParameters();
         parameters.Add("ContentText", "Är du säker att du vill ta bort formuläret?");
         parameters.Add("ButtonText", "Ta bort");
         parameters.Add("Color", Color.Error);
+        parameters.Add("Form", form);
 
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
 
-        DialogService.Show<DeleteForm>("Delete", parameters, options);
+        DialogService.Show<DeleteForm>("Är du säker?", parameters, options);
+    }
+
+    public async Task FormDeleted()
+    {
+        forms = await formService.GetAllForms();
     }
 }

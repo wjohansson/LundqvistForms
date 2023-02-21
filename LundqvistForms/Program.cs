@@ -5,16 +5,12 @@ using MudBlazor;
 using MudBlazor.Services;
 
 // TODO: Lägg till preview av hur färdiga formuläret ser ut
-// TODO: Vid fokusering på fråga ska den expanda och visa innehållet beroende på vilket alternativ man valt i dropdown
 // TODO: Lägg till möhlighet att välja färgtema
 // TODO: Lägg till charts med statistik på svarade formulär
-// TODO: Fixa alla knappar så att dom tar bort eller lägger till i databasen också
-// TODO: Kolla varför det inte går att använda include
 // TODO: Kolla om man kan använda await istället för att köra .Result
 // TODO: Fixa preserved state vid reload och kanske även vid byte av session
 // TODO: Kunna dela alla mallar mellan varadra, kan göras genom att alla får se alla formulär och skapa en kopia på sin egen användare
 
-// SIDA: Översikt över alla formulär. Kan edita rubrik och andra stora properties
 // SIDA: Se det färdiga formuläret, förhandsgranskning
 
 var builder = WebApplication.CreateBuilder(args);
