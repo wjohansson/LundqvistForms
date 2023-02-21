@@ -6,6 +6,8 @@ namespace FormsLibrary.Models
 {
     public class FormModel
     {
+        // TODO: Datum på skapas och ändras
+        // TODO: Fixa edit funktion så att det gamla formuläret sparas som en "gammal version"
         [Key]
         [JsonPropertyName("formId")]
         public Guid FormId { get; set; } = Guid.NewGuid();
@@ -17,6 +19,9 @@ namespace FormsLibrary.Models
         [Required(ErrorMessage = "Formuläret måste ha en beskrivning")]
         [JsonPropertyName("formDescription")]
         public string FormDescription { get; set; } = "";
+
+        [JsonPropertyName("dateCreated")]
+        public DateTime DateCreated { get; set; } = DateTime.Now;
 
         [ForeignKey("FormId")]
         [JsonPropertyName("segments")]

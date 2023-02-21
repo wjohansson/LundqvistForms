@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FormsLibrary.Models
 {
-    public class ScaleOptions
+    public class ScaleModel
     {
         [Key]
         [JsonPropertyName("scaleID")]

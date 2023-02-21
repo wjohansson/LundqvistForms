@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace FormsLibrary.Models
 {
-    public class MultipleChoiceOptions
+    public class ChoiceModel
     {
         [Key]
-        [JsonPropertyName("multipleChoiceID")]
-        public Guid MultipleChoiceId { get; set; } = Guid.NewGuid();
+        [JsonPropertyName("choiceID")]
+        public Guid ChoiceId { get; set; } = Guid.NewGuid();
 
-        [JsonPropertyName("multipleChoiceTitle")]
+        [JsonPropertyName("choiceTitle")]
         [Required(ErrorMessage = "Alternativet kan inte vara tomt")]
-        public string MultipleChoiceTitle { get; set; } = "";
+        public string ChoiceTitle { get; set; } = "";
 
         [JsonPropertyName("questionId")]
         public Guid QuestionId { get; set; }

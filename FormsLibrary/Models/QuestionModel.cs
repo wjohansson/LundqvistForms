@@ -18,20 +18,12 @@ namespace FormsLibrary.Models
         [Required]
         public QuestionOptions QuestionOption { get; set; }
 
-        [JsonPropertyName("multipleChoiceOptions")]
+        [JsonPropertyName("choiceOptions")]
         [ForeignKey("QuestionId")]
-        public ICollection<MultipleChoiceOptions> MultipleChoiceOptions { get; set; }
-
-        [JsonPropertyName("singleChoiceOptions")]
-        [ForeignKey("QuestionId")]
-        public ICollection<SingleChoiceOptions> SingleChoiceOptions { get; set; }
-
-        [JsonPropertyName("dropwdownChoiceOptions")]
-        [ForeignKey("QuestionId")]
-        public ICollection<DropdownChoiceOptions> DropdownChoiceOptions { get; set; }
+        public ICollection<ChoiceModel> ChoiceOptions { get; set; }
 
         [JsonPropertyName("scaleOptions")]
-        public ScaleOptions ScaleOptions { get; set; }
+        public ScaleModel ScaleOptions { get; set; }
 
         [JsonPropertyName("segmentId")]
         public Guid SegmentId { get; set; }
@@ -43,10 +35,8 @@ namespace FormsLibrary.Models
         public QuestionModel()
         {
             Answers = new List<AnswerModel>();
-            MultipleChoiceOptions = new List<MultipleChoiceOptions>();
-            SingleChoiceOptions = new List<SingleChoiceOptions>();
-            DropdownChoiceOptions = new List<DropdownChoiceOptions>();
-            ScaleOptions = new ScaleOptions();
+            ChoiceOptions = new List<ChoiceModel>();
+            ScaleOptions = new ScaleModel();
         }
     }
 
