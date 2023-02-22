@@ -49,37 +49,39 @@
     </MudContainer>
 </MudPaper>
 
+<MudMessageBox @ref="clearBox" Title="Rensa formulär" CancelText="Avbryt">
+    <MessageContent>
+        Är du säker att du vill rensa formuläret?
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error">Rensa</MudButton>
+    </YesButton>
+</MudMessageBox>
+
 @code {
     // TODO: Fixa vid focus av dropdowns att texten i fälten blir på samma ställe som dropdown
     // TODO: Fixa så att hela formen sparas ifall man skulle refresha sidan
-    // TODO: Fixa expand och collapse på avsnitt
     // TODO: Fixa global ångra knapp, och ctrl y liknande knapp
-    // TODO: Lägg till date now vid create form i API
     // TODO: Lägga till möjlighet att spara versioner av formuläret genom dates, och kunna kolla på gamla versioner av denna genom UserForms tabellen
     // TODO: Få alla select/text fields i question header att bli samma storlek, både på edit och create form
     // TODO: Dialog rutor som popups vid varje gång delete ---------
     // TODO: Kunna flytta ordning på avsnitt och frågor genom drag and drop (frågor) och välja ordning (avsnitt)
-    // TODO: Fixa så att duplication också tar med alla alternativ för 1 fråga
-    // TODO: FIxa fokus vid klicka på duplicera mm knappar
-    // TODO: Fixa så att statehaschanged kallas i UserForms då man deletar ett formulär
+    // TODO: Fixa fokus vid klicka på duplicera mm knappar
     // TODO: Lägg till fler viktiga columner i UserForms, exempelvis antal svar. Sen lägga till knapp för visa resultatet
-    // TODO: Fixa automatiskt minst 1 alternativ i varje choice model vid reset och liknande
-    // TODO: Fixa typo i databasen på singechoices
-    // TODO: Fixa on change vid ändring av typ av fråga så att den tömmer alla andra alternativ på allt utom valet som är aktivt
     // TODO: Från UserForms kunna markera flera formulär och sedan köra delete all marked.
     // TODO: Undersök möjlighet att ha en delete all older than... knapp på UserForms
     // TODO: Fixa validation på alternativ, måste kanske göra 1 EditForm komponent runt varje case i switchen
-    // TODO: Fixa visuell feedback på att ett formulär har skapats
     // TODO: Fixa mer responsiv design
-    // TODO: Undersök eventcallbacks via dialog om det går
-    // TODO: Gör en bättre statehaschanged istället för reloada sidan vid rensa formulär och ta bort formulär
-    // TODO: Få till error meddelanden på att man inte får ha ett tomt alternativ
     // TODO: Fråga: Vill man ha en delay på progressing vid skapandet av formulär?
+
 
     public FormModel form { get; set; } = new();
     private SegmentModel currentSegment = new();
+    private MudMessageBox? clearBox { get; set; }
+
     private string errorMessage = "Något obligatoriskt fält är tomt";
     private string successMessage = "Formulär skapat";
+    private string clearMessage = "Formulär rensat";
     private bool segmentExpanded = true;
     private bool processing;
 
@@ -97,6 +99,13 @@
                 SegmentId = currentSegment.SegmentId,
                 QuestionTitle = $"Fråga {currentSegment.Questions.Count + 1}"
             };
+
+        ChoiceModel newChoice = new()
+            {
+                QuestionId = newQuestion.QuestionId,
+                ChoiceTitle = "Alternativ 1"
+            };
+        newQuestion.ChoiceOptions.Add(newChoice);
 
         currentSegment.Questions.Add(newQuestion);
     }
@@ -183,16 +192,25 @@
         }
     }
 
-    public void ClearForm()
+    private async void ClearForm()
     {
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", "Är du säker att du vill rensa formuläret?");
-        parameters.Add("ButtonText", "Rensa formulär");
-        parameters.Add("Color", Color.Error);
-        parameters.Add("Form", form);
+        bool? result = await clearBox.Show();
 
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        if (result == null || result == false)
+        {
+            return;
+        }
 
-        DialogService.Show<ClearForm>("Är du säker?", parameters, options);
+        form = new()
+        {
+            FormTitle = "Formulär utan namn",
+            FormDescription = "Ingen beskrivning"
+        };
+
+        AddSegment();
+        Snackbar.Add(clearMessage, Severity.Info);
+
+        StateHasChanged();
+
     }
 }

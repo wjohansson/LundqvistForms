@@ -1,4 +1,6 @@
 ﻿@using FormsLibrary.Models;
+@inject ISnackbar Snackbar
+
 @foreach (QuestionModel question in Segment.Questions)
 {
     <MudPaper Width="90%" @onfocusin="@(() => currentQuestion = question)" @onfocusout="@(() => currentQuestion = new QuestionModel())" Class="align-self-center pa-2" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {CheckFocus(question)}")">
@@ -46,6 +48,15 @@
     </MudPaper>
 }
 
+<MudMessageBox @ref="deleteQuestionBox" Title="Ta bort fråga" CancelText="Avbryt">
+    <MessageContent>
+        Är du säker att du vill ta bort frågan?
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error">Ta bort</MudButton>
+    </YesButton>
+</MudMessageBox>
+
 @code {
     [Parameter]
     public EventCallback<SegmentModel> OnChange { get; set; }
@@ -56,6 +67,8 @@
     [Parameter]
     public bool Expanded { get; set; }
 
+    private MudMessageBox? deleteQuestionBox { get; set; }
+    private string deleteQuestionMessage = "Frågan borttagen";
     private QuestionModel currentQuestion = new();
 
     public string CheckFocus(QuestionModel question)
@@ -106,7 +119,15 @@
 
     private async Task DeleteQuestion(QuestionModel question)
     {
+        bool? result = await deleteQuestionBox.Show();
+
+        if (result == null || result == false)
+        {
+            return;
+        }
+
         Segment.Questions.Remove(question);
+        Snackbar.Add(deleteQuestionMessage, Severity.Info);
 
         await OnChange.InvokeAsync();
     }

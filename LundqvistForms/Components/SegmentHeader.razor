@@ -1,4 +1,5 @@
 ﻿@using FormsLibrary.Models;
+@inject ISnackbar Snackbar
 
 <MudPaper @onfocusin="@(() => borderColor = Colors.Grey.Lighten5)" @onfocusout="@(() => borderColor = Colors.Grey.Darken2)" Class="text-white pa-2 d-flex justify-space-between" Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {borderColor};")">
     <MudContainer>
@@ -46,6 +47,15 @@
     </MudContainer>
 </MudPaper>
 
+<MudMessageBox @ref="deleteSegmentBox" Title="Ta bort avsnitt" CancelText="Avbryt">
+    <MessageContent>
+        Är du säker att du vill ta bort avsnittet?
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error">Ta bort</MudButton>
+    </YesButton>
+</MudMessageBox>
+
 @code {
     [Parameter]
     public EventCallback<SegmentModel> OnChange { get; set; }
@@ -62,12 +72,21 @@
     [Parameter]
     public FormModel Form { get; set; } = new();
 
-    private bool expandSegment;
+    private MudMessageBox? deleteSegmentBox { get; set; }
 
+    private string deleteSegmentMessage = "Avsnitt borttaget";
+    private bool expandSegment;
     private string borderColor = Colors.Grey.Darken2;
 
     private async Task DeleteSegment(SegmentModel segment)
     {
+        bool? result = await deleteSegmentBox.Show();
+
+        if (result == null || result == false)
+        {
+            return;
+        }
+
         Form.Segments.Remove(segment);
 
         if (Form.Segments.Count == 0)
@@ -79,6 +98,7 @@
                     SegmentDescription = "Ingen beskrivning"
                 });
         }
+        Snackbar.Add(deleteSegmentMessage, Severity.Info);
 
         await OnChange.InvokeAsync();
     }

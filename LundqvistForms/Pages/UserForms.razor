@@ -6,6 +6,7 @@
 @inject FormServiceUi formService
 @inject NavigationManager navigationManager;
 @inject IDialogService DialogService;
+@inject ISnackbar Snackbar
 
 <MudPaper Class="mx-16 pa-10 mb-16">
     @if (forms == null)
@@ -44,11 +45,23 @@
     }
 </MudPaper>
 
+<MudMessageBox @ref="deleteFormBox" Title="Ta bort formulär" CancelText="Avbryt">
+    <MessageContent>
+        Är du säker att du vill ta bort formuläret?
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error">Ta bort</MudButton>
+    </YesButton>
+</MudMessageBox>
+
 
 @code {
     // TODO: Kolla table filtrering med mera
-    public List<FormModel>? forms = null;
+    // TODO: Fixa sortering på användares formulär på UserForms
 
+    public List<FormModel>? forms = null;
+    private MudMessageBox? deleteFormBox { get; set; }
+    private string deleteFormMessage = "Formulär borttaget";
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,22 +95,19 @@
         navigationManager.NavigateTo($"/forms/edit/{form.FormId}");
     }
 
-    private void DeleteForm(FormModel form)
+    private async void DeleteForm(FormModel form)
     {
-        UserForms userForms = new();
-        var parameters = new DialogParameters();
-        parameters.Add("ContentText", "Är du säker att du vill ta bort formuläret?");
-        parameters.Add("ButtonText", "Ta bort");
-        parameters.Add("Color", Color.Error);
-        parameters.Add("Form", form);
+        bool? result = await deleteFormBox.Show();
 
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        if (result == null || result == false)
+        {
+            return;
+        }
 
-        DialogService.Show<DeleteForm>("Är du säker?", parameters, options);
-    }
-
-    public async Task FormDeleted()
-    {
+        await formService.DeleteForm(form);
         forms = await formService.GetAllForms();
+        Snackbar.Add(deleteFormMessage, Severity.Info);
+
+        StateHasChanged();
     }
 }
