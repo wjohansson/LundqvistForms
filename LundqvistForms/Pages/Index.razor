@@ -7,6 +7,7 @@
 @inject SegmentServiceUi segmentService;
 @inject QuestionServiceUi questionService;
 @inject IDialogService DialogService;
+@inject ISnackbar Snackbar
 
 <PageTitle>Lundqvist Forms</PageTitle>
 
@@ -16,8 +17,8 @@
     <Virtualize Items="form.Segments" Context="segment">
         <MudContainer Class="d-flex gap-2 mx-0 justify-center">
             <MudContainer MaxWidth="MaxWidth.Medium" @onclick="@(() => FocusSegment(segment))" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(segment)};")">
-                <SegmentHeader OnChange="StateHasChanged" Form="form" IsFocused="@(currentSegment == segment)" Segment="segment" />
-                <Questions OnChange="StateHasChanged" Segment="@segment" />
+                <SegmentHeader OnToggleExpand="@(() => ToggleSegmentExpand(segment))" OnChange="StateHasChanged" Form="form" IsFocused="@(currentSegment == segment)" Segment="segment" />
+                <Questions OnChange="StateHasChanged" Segment="segment" Expanded="segmentExpanded" />
             </MudContainer>
 
             @if (segment == currentSegment)
@@ -29,11 +30,17 @@
 
     <MudContainer Class="d-flex justify-center gap-2">
         <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="CreateForm" StartIcon="@Icons.Material.Filled.AddCircle" Size="Size.Large">Skapa formulär</MudButton>
-            @if (ShowError)
-            {
-                <MudText Align="Align.Center" Typo="Typo.subtitle2" Color="Color.Error">@ErrorMessage</MudText>
-            }
+            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="CreateForm" StartIcon="@Icons.Material.Filled.AddCircle" Size="Size.Large">
+                @if (processing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Skapar formulär...</MudText>
+                }
+                else
+                {
+                    <MudText>Skapa formulär</MudText>
+                }
+            </MudButton>
         </MudTooltip>
 
         <MudTooltip Arrow="true" Placement="Placement.Right">
@@ -65,13 +72,16 @@
     // TODO: Fixa visuell feedback på att ett formulär har skapats
     // TODO: Fixa mer responsiv design
     // TODO: Undersök eventcallbacks via dialog om det går
-    // TODO: Kolla om det går att fixa samma alternativ mellan de 3 olika choices typerna
     // TODO: Gör en bättre statehaschanged istället för reloada sidan vid rensa formulär och ta bort formulär
+    // TODO: Få till error meddelanden på att man inte får ha ett tomt alternativ
+    // TODO: Fråga: Vill man ha en delay på progressing vid skapandet av formulär?
 
     public FormModel form { get; set; } = new();
     private SegmentModel currentSegment = new();
-    private string ErrorMessage = "Något obligatoriskt fält är tomt";
-    private bool ShowError;
+    private string errorMessage = "Något obligatoriskt fält är tomt";
+    private string successMessage = "Formulär skapat";
+    private bool segmentExpanded = true;
+    private bool processing;
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,6 +97,7 @@
                 SegmentId = currentSegment.SegmentId,
                 QuestionTitle = $"Fråga {currentSegment.Questions.Count + 1}"
             };
+
         currentSegment.Questions.Add(newQuestion);
     }
 
@@ -116,22 +127,33 @@
         return Colors.Grey.Darken3;
     }
 
+    public void ToggleSegmentExpand(SegmentModel segment)
+    {
+        currentSegment = segment;
+        segmentExpanded = !segmentExpanded;
+    }
+
     public async Task CreateForm()
     {
-        foreach(SegmentModel segment in form.Segments)
+        if (form.FormTitle == "" || form.FormDescription == "")
+        {
+            Snackbar.Add(errorMessage, Severity.Error);
+            return;
+        }
+
+        foreach (SegmentModel segment in form.Segments)
         {
             if (segment.SegmentTitle == "" || segment.SegmentDescription == "")
             {
-                ShowError = true;
+                Snackbar.Add(errorMessage, Severity.Error);
                 return;
             }
 
             foreach (QuestionModel question in segment.Questions)
             {
-                if (question.QuestionTitle == "" ||
-                    question.ChoiceOptions.Any(x => x.ChoiceTitle == ""))
+                if (question.QuestionTitle == "" || question.ChoiceOptions.Any(x => x.ChoiceTitle == ""))
                 {
-                    ShowError = true;
+                    Snackbar.Add(errorMessage, Severity.Error);
                     return;
                 }
             }
@@ -139,13 +161,21 @@
 
         try
         {
+            processing = true;
+
             await formService.CreateForm(form);
+
             form = new()
                 {
                     FormTitle = "Formulär utan namn",
                     FormDescription = "Ingen beskrivning"
                 };
+
             AddSegment();
+
+            await Task.Delay(500);
+            processing = false;
+            Snackbar.Add(successMessage, Severity.Success);
         }
         catch (Exception)
         {
