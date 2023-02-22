@@ -40,7 +40,7 @@
 
                 </MudCardContent>
 
-                <QuestionContent Question="@question" />
+                <QuestionContent Expanded="Expanded" Question="@question" />
             </MudCard>
         </EditForm>
     </MudPaper>
@@ -52,6 +52,9 @@
 
     [Parameter]
     public SegmentModel Segment { get; set; } = new();
+
+    [Parameter]
+    public bool Expanded { get; set; }
 
     private QuestionModel currentQuestion = new();
 
@@ -72,8 +75,29 @@
                 SegmentId = question.SegmentId,
                 QuestionTitle = question.QuestionTitle,
                 QuestionOption = question.QuestionOption,
-                ChoiceOptions = question.ChoiceOptions
             };
+
+        foreach (ChoiceModel choice in question.ChoiceOptions)
+        {
+            ChoiceModel newChoice = new()
+                {
+                    QuestionId = choice.QuestionId,
+                    ChoiceTitle = choice.ChoiceTitle
+                };
+
+            newQuestion.ChoiceOptions.Add(newChoice);
+        }
+
+        ScaleModel newScale = new()
+            {
+                QuestionId = question.QuestionId,
+                Low = question.ScaleOptions.Low,
+                High = question.ScaleOptions.High,
+                LowLabel = question.ScaleOptions.LowLabel,
+                HighLabel = question.ScaleOptions.HighLabel
+            };
+
+        newQuestion.ScaleOptions = newScale;
 
         Segment.Questions.Add(newQuestion);
 

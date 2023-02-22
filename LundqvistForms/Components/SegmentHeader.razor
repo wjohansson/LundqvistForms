@@ -23,10 +23,10 @@
     </MudContainer>
 
     <MudContainer Class="d-flex align-center gap-2 ma-0" Style="width: fit-content">
-        <MudTooltip Text="@(expandSegment ? "Minska": "Utvidga")" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+        <MudTooltip Text="@(expandSegment ? "Utvidga" : "Minska")" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
             <MudIconButton Color="Color.Warning"
                            OnClick="@(() => ToggleExpandSegment(Segment))"
-                           Icon="@(expandSegment ? @Icons.Material.Filled.ExpandLess : @Icons.Material.Filled.ExpandMore)"
+                           Icon="@(expandSegment ? @Icons.Material.Filled.ExpandMore : @Icons.Material.Filled.ExpandLess)"
                            Size="Size.Large"></MudIconButton>
         </MudTooltip>
 
@@ -51,6 +51,9 @@
     public EventCallback<SegmentModel> OnChange { get; set; }
 
     [Parameter]
+    public EventCallback<SegmentModel> OnToggleExpand { get; set; }
+
+    [Parameter]
     public bool IsFocused { get; set; }
 
     [Parameter]
@@ -70,11 +73,11 @@
         if (Form.Segments.Count == 0)
         {
             Form.Segments.Add(new SegmentModel()
-            {
-                FormId = Form.FormId,
-                SegmentTitle = "Avsnitt utan namn",
-                SegmentDescription = "Ingen beskrivning"
-            });
+                {
+                    FormId = Form.FormId,
+                    SegmentTitle = "Avsnitt utan namn",
+                    SegmentDescription = "Ingen beskrivning"
+                });
         }
 
         await OnChange.InvokeAsync();
@@ -83,22 +86,44 @@
     private async Task DuplicateSegment(SegmentModel segment)
     {
         SegmentModel newSegment = new()
-        {
-            FormId = segment.FormId,
-            SegmentTitle = segment.SegmentTitle,
-            SegmentDescription = segment.SegmentDescription
-        };
+            {
+                FormId = segment.FormId,
+                SegmentTitle = segment.SegmentTitle,
+                SegmentDescription = segment.SegmentDescription
+            };
 
         foreach (QuestionModel question in segment.Questions)
         {
             QuestionModel newQuestion = new()
                 {
-                    QuestionId = Guid.NewGuid(),
                     SegmentId = question.SegmentId,
                     QuestionTitle = question.QuestionTitle,
                     QuestionOption = question.QuestionOption,
-                    ChoiceOptions = question.ChoiceOptions
+                    ScaleOptions = question.ScaleOptions
                 };
+
+            foreach (ChoiceModel choice in question.ChoiceOptions)
+            {
+                ChoiceModel newChoice = new()
+                    {
+                        QuestionId = choice.QuestionId,
+                        ChoiceTitle = choice.ChoiceTitle
+                    };
+
+                newQuestion.ChoiceOptions.Add(newChoice);
+            }
+
+            ScaleModel newScale = new()
+                {
+                    QuestionId = question.QuestionId,
+                    Low = question.ScaleOptions.Low,
+                    High = question.ScaleOptions.High,
+                    LowLabel = question.ScaleOptions.LowLabel,
+                    HighLabel = question.ScaleOptions.HighLabel
+                };
+
+            newQuestion.ScaleOptions = newScale;
+
             newSegment.Questions.Add(newQuestion);
         }
 
@@ -107,8 +132,9 @@
         await OnChange.InvokeAsync();
     }
 
-    private void ToggleExpandSegment(SegmentModel segment)
+    private async Task ToggleExpandSegment(SegmentModel segment)
     {
         expandSegment = !expandSegment;
+        await OnToggleExpand.InvokeAsync();
     }
 }
