@@ -1,0 +1,86 @@
+﻿@using FormsLibrary.Models;
+
+<FormHeader Form="@Form" />
+
+<Virtualize Items="Form.Segments" Context="segment">
+    <MudContainer Class="d-flex gap-2 mx-0 justify-center">
+        <MudContainer MaxWidth="MaxWidth.Medium" @onclick="@(() => FocusSegment(segment))" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(segment)};")">
+            <SegmentHeader OnToggleExpand="@(() => ToggleSegmentExpand(segment))" OnChange="StateHasChanged" Form="Form" IsFocused="@(currentSegment == segment)" Segment="segment" />
+            <Questions OnChange="StateHasChanged" Segment="segment" Expanded="segmentExpanded" />
+        </MudContainer>
+
+        @if (segment == currentSegment)
+        {
+            <Controls OnQuestionAdded="AddQuestion" OnSegmentAdded="AddSegment" />
+        }
+    </MudContainer>
+</Virtualize>
+
+@code {
+    [Parameter]
+    public FormModel Form { get; set; }
+
+    [Parameter]
+    public int FormId { get; set; }
+
+    private bool segmentExpanded = true;
+    private SegmentModel currentSegment = new();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (Form.FormId != Guid.Empty)
+        {
+            currentSegment = Form.Segments.ToList()[0];
+        }
+    }
+
+    public void AddQuestion()
+    {
+        QuestionModel newQuestion = new()
+            {
+                SegmentId = currentSegment.SegmentId,
+                QuestionTitle = $"Fråga {currentSegment.Questions.Count + 1}"
+            };
+
+        ChoiceModel newChoice = new()
+            {
+                QuestionId = newQuestion.QuestionId,
+                ChoiceTitle = "Alternativ 1"
+            };
+        newQuestion.ChoiceOptions.Add(newChoice);
+
+        currentSegment.Questions.Add(newQuestion);
+    }
+
+    public void AddSegment()
+    {
+        SegmentModel newSegment = new()
+            {
+                FormId = Form.FormId,
+                SegmentTitle = "Avsnitt utan namn",
+                SegmentDescription = "Ingen beskrivning"
+            };
+        Form.Segments.Add(newSegment);
+        currentSegment = newSegment;
+    }
+
+    public void FocusSegment(SegmentModel segment)
+    {
+        currentSegment = segment;
+    }
+
+    public string CheckFocus(SegmentModel segment)
+    {
+        if (currentSegment == segment)
+        {
+            return Colors.Grey.Lighten5;
+        }
+        return Colors.Grey.Darken3;
+    }
+
+    public void ToggleSegmentExpand(SegmentModel segment)
+    {
+        currentSegment = segment;
+        segmentExpanded = !segmentExpanded;
+    }
+}

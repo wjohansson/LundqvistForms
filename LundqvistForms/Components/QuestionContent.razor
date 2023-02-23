@@ -2,132 +2,132 @@
 
 @if (Expanded)
 {
-    <EditForm Model="Question">
-        <DataAnnotationsValidator />
-        <MudCard Elevation="0">
-            <MudCardContent Class="d-flex flex-column pa-2 gap-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
-                @switch (Question.QuestionOption)
+    <MudContainer Class="d-flex flex-column pa-2 gap-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
+        @switch (Question.QuestionOption)
+        {
+            case QuestionOptions.Kort:
+                <MudTextField Label="Kort svar"
+                  @bind-Value="shortAnswer"
+                  Class="px-2"
+                  Style="@($"color: {Colors.Grey.Lighten4};")"
+                  Variant="Variant.Filled"
+                  Clearable="true"
+                  Disabled="true" />
+
+                break;
+            case QuestionOptions.Lång:
+                <MudTextField Label="Långt svar"
+                  @bind-Value="longAnswer"
+                  Class="px-2"
+                  Style="@($" color: {Colors.Grey.Lighten4};")"
+                  Variant="Variant.Filled"
+                  Clearable="true"
+                  Lines="4"
+                  Disabled="true" />
+
+                break;
+            case QuestionOptions.Flerval:
+            case QuestionOptions.Enkelval:
+            case QuestionOptions.Dropdown:
+                @for (var i = 0; i < Question.ChoiceOptions.Count; i++)
                 {
-                    case QuestionOptions.Kort:
-                        <MudTextField Label="Kort svar"
-                          @bind-Value="shortAnswer"
-                          Class="px-2"
-                          Style="@($"color: {Colors.Grey.Lighten4};")"
-                          Variant="Variant.Filled"
-                          Clearable="true"
-                          Disabled="true" />
-
-                        break;
-                    case QuestionOptions.Lång:
-                        <MudTextField Label="Långt svar"
-                          @bind-Value="longAnswer"
-                          Class="px-2"
-                          Style="@($" color: {Colors.Grey.Lighten4};")"
-                          Variant="Variant.Filled"
-                          Clearable="true"
-                          Lines="4"
-                          Disabled="true" />
-
-                        break;
-                    case QuestionOptions.Flerval:
-                    case QuestionOptions.Enkelval:
-                    case QuestionOptions.Dropdown:
-                        @for (var i = 0; i < Question.ChoiceOptions.Count; i++)
-                        {
-                            var index = i;
-
-                            <MudContainer Class="d-flex align-center">
+                    var index = i;
+                    <EditForm Model="Question.ChoiceOptions.ToList()[index]">
+                        <DataAnnotationsValidator />
+                        <MudCard Elevation="0">
+                            <MudCardContent Class="d-flex align-center pa-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
                                 <MudTextField Label="Alternativ"
-                                              @bind-Value="Question.ChoiceOptions.ToList()[index].ChoiceTitle"
-                                              Class="px-2"
-                                              Style="@($" color: {Colors.Grey.Lighten4};")"
-                                              Variant="Variant.Filled"
-                                              Clearable="true" />
+                              @bind-Value="Question.ChoiceOptions.ToList()[index].ChoiceTitle"
+                              Class="px-2"
+                              Style="@($" color: {Colors.Grey.Lighten4};")"
+                              Variant="Variant.Filled"
+                              Clearable="true" />
 
                                 <MudTooltip Text="Ta bort alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Right">
                                     <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="@(() => Question.ChoiceOptions.Remove(Question.ChoiceOptions.ToList()[index]))" Color="Color.Error"></MudIconButton>
                                 </MudTooltip>
-                            </MudContainer>
-                        }
-                        <MudTooltip Text="Lägg till alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Right">
-                            <MudIconButton Size="Size.Large" Icon="@Icons.Material.Filled.AddCircle" OnClick="@AddChoice" Color="Color.Warning"></MudIconButton>
-                        </MudTooltip>
+                            </MudCardContent>
+                        </MudCard>
+                    </EditForm>
 
-                        break;
-                    case QuestionOptions.Datum:
-                        <MudDatePicker Editable="true"
-                           Label="Datum"
-                           @bind-Value="date"
-                           ShowWeekNumbers="true"
-                           DisplayMonths="2"
-                           PickerVariant="PickerVariant.Dialog"
-                           Color="Color.Warning"
-                           Class="px-2"
-                           Variant="Variant.Filled"
-                           Clearable="true"
-                           Disabled="true" />
-                        break;
-                    case QuestionOptions.Tidsintervall:
-                        <MudDateRangePicker Editable="true"
-                                Label="Tidsintervall"
-                                @bind-DateRange="dateRange"
-                                ShowWeekNumbers="true"
-                                PickerVariant="PickerVariant.Dialog"
-                                Color="Color.Warning"
-                                Class="px-2"
-                                Variant="Variant.Filled"
-                                Clearable="true"
-                                Disabled="true" />
-                        break;
-                    case QuestionOptions.Tid:
-                        <MudTimePicker Label="Tid"
-                           @bind-Time="timeSpan"
-                           Editable="true"
-                           PickerVariant="PickerVariant.Dialog"
-                           Color="Color.Warning"
-                           Class="px-2"
-                           Variant="Variant.Filled"
-                           Clearable="true"
-                           Disabled="true" />
-                        break;
-                    case QuestionOptions.Skala:
-                        <MudContainer Class="text-white">
-                            <MudContainer Class="d-flex align-center gap-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
-                                <MudSelect @bind-Value="@(Question.ScaleOptions.Low)" Variant="Variant.Filled">
-                                    <MudSelectItem Value="0" />
-                                    <MudSelectItem Value="1" />
-                                </MudSelect>
-                                <span>till</span>
-                                <MudSelect @bind-Value="@(Question.ScaleOptions.High)" Variant="Variant.Filled">
-                                    @for (int i = 1; i <= 10; i++)
-                                    {
-                                        <MudSelectItem Value="i" />
-                                    }
-                                </MudSelect>
-                            </MudContainer>
-
-                            <MudContainer Class="d-flex flex-column gap-2 mt-4">
-                                <MudContainer Class="d-flex align-center gap-4">
-                                    <MudTextField Label="@($"{Question.ScaleOptions.Low}: Etikett (Valfri)")"
-                                      @bind-Value="@(Question.ScaleOptions.LowLabel)"
-                                      Variant="Variant.Filled"
-                                      Clearable="true" />
-
-                                </MudContainer>
-                                <MudContainer Class="d-flex align-items-center gap-4">
-                                    <MudTextField Label="@($"{Question.ScaleOptions.High}: Etikett (Valfri)")"
-                                      @bind-Value="@(Question.ScaleOptions.HighLabel)"
-                                      Variant="Variant.Filled"
-                                      Clearable="true" />
-                                </MudContainer>
-                            </MudContainer>
-                        </MudContainer>
-                        break;
                 }
-            </MudCardContent>
-        </MudCard>
+                <MudTooltip Text="Lägg till alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Right">
+                    <MudIconButton Size="Size.Large" Icon="@Icons.Material.Filled.AddCircle" OnClick="@AddChoice" Color="Color.Warning"></MudIconButton>
+                </MudTooltip>
 
-    </EditForm>
+                break;
+            case QuestionOptions.Datum:
+                <MudDatePicker Editable="true"
+                   Label="Datum"
+                   @bind-Value="date"
+                   ShowWeekNumbers="true"
+                   DisplayMonths="2"
+                   PickerVariant="PickerVariant.Dialog"
+                   Color="Color.Warning"
+                   Class="px-2"
+                   Variant="Variant.Filled"
+                   Clearable="true"
+                   Disabled="true" />
+                break;
+            case QuestionOptions.Tidsintervall:
+                <MudDateRangePicker Editable="true"
+                        Label="Tidsintervall"
+                        @bind-DateRange="dateRange"
+                        ShowWeekNumbers="true"
+                        PickerVariant="PickerVariant.Dialog"
+                        Color="Color.Warning"
+                        Class="px-2"
+                        Variant="Variant.Filled"
+                        Clearable="true"
+                        Disabled="true" />
+                break;
+            case QuestionOptions.Tid:
+                <MudTimePicker Label="Tid"
+                   @bind-Time="timeSpan"
+                   Editable="true"
+                   PickerVariant="PickerVariant.Dialog"
+                   Color="Color.Warning"
+                   Class="px-2"
+                   Variant="Variant.Filled"
+                   Clearable="true"
+                   Disabled="true" />
+                break;
+            case QuestionOptions.Skala:
+                <MudContainer Class="text-white">
+                    <MudContainer Class="d-flex align-center gap-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
+                        <MudSelect @bind-Value="@(Question.ScaleOptions.Low)" Variant="Variant.Filled">
+                            <MudSelectItem Value="0" />
+                            <MudSelectItem Value="1" />
+                        </MudSelect>
+                        <span>till</span>
+                        <MudSelect @bind-Value="@(Question.ScaleOptions.High)" Variant="Variant.Filled">
+                            @for (int i = 1; i <= 10; i++)
+                            {
+                                <MudSelectItem Value="i" />
+                            }
+                        </MudSelect>
+                    </MudContainer>
+
+                    <MudContainer Class="d-flex flex-column gap-2 mt-4">
+                        <MudContainer Class="d-flex align-center gap-4">
+                            <MudTextField Label="@($"{Question.ScaleOptions.Low}: Etikett (Valfri)")"
+                              @bind-Value="@(Question.ScaleOptions.LowLabel)"
+                              Variant="Variant.Filled"
+                              Clearable="true" />
+
+                        </MudContainer>
+                        <MudContainer Class="d-flex align-items-center gap-4">
+                            <MudTextField Label="@($"{Question.ScaleOptions.High}: Etikett (Valfri)")"
+                              @bind-Value="@(Question.ScaleOptions.HighLabel)"
+                              Variant="Variant.Filled"
+                              Clearable="true" />
+                        </MudContainer>
+                    </MudContainer>
+                </MudContainer>
+                break;
+        }
+    </MudContainer>
+
 }
 
 @code {

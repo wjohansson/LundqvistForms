@@ -7,7 +7,7 @@
         <EditForm Model="question">
             <DataAnnotationsValidator />
             <MudCard Elevation="0">
-                <MudCardContent Class="d-flex gap-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
+                <MudCardContent Class="d-flex gap-2 pa-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
                     <MudTextField Label="Fråga"
                               @bind-Value="question.QuestionTitle"
                               For="@(() => question.QuestionTitle)"
@@ -103,7 +103,6 @@
 
         ScaleModel newScale = new()
             {
-                QuestionId = question.QuestionId,
                 Low = question.ScaleOptions.Low,
                 High = question.ScaleOptions.High,
                 LowLabel = question.ScaleOptions.LowLabel,

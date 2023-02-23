@@ -1,0 +1,43 @@
+﻿@page "/forms/preview/{FormId}"
+
+@using FormsLibrary.Models;
+@using LundqvistForms.Components;
+@using LundqvistForms.Services;
+@inject AnswerServiceUi answerService;
+@inject FormServiceUi formService;
+
+<PageTitle>Lundqvist Forms</PageTitle>
+
+<MudPaper Width="100%" Class="d-flex flex-column align-center gap-2 pb-4" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken4};")">
+    <AnswerForm Form="form" Answers="answers"/>
+    
+</MudPaper>
+
+
+
+@code {
+    [Parameter]
+    public string FormId { get; set; } = "";
+
+    private MudMessageBox? clearBox { get; set; }
+
+    private FormModel form = new();
+    private List<AnswerModel> answers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        form = await formService.GetFormById(Guid.Parse(FormId));
+        foreach (SegmentModel segment in form.Segments.ToList())
+        {
+            foreach (QuestionModel question in segment.Questions.ToList())
+            {
+                AnswerModel newAnswer = new()
+                    {
+                        QuestionId = question.QuestionId,
+                        FormId = Guid.Parse(FormId)
+                    };
+                answers.Add(newAnswer);
+            }
+        }
+    }
+}

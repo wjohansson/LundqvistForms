@@ -1,0 +1,34 @@
+﻿@using FormsLibrary.Models;
+
+<MudCheckBox @onclick="@(() => UpdateMultipleChoice())" @bind-Checked="@isChecked">@Question.ChoiceOptions.ToList()[Index].ChoiceTitle</MudCheckBox>
+
+@code {
+    [Parameter]
+    public AnswerModel Answer { get; set; } = new();
+
+    [Parameter]
+    public QuestionModel Question { get; set; } = new();
+
+    [Parameter]
+    public int Index { get; set; }
+
+    private bool isChecked;
+
+    private void UpdateMultipleChoice()
+    {
+        if (!isChecked)
+        {
+            MultipleChoiceAnswerModel newMultipleChoiceAnswer = new()
+                {
+                    MultipleChoiceTitle = Question.ChoiceOptions.ToList()[Index].ChoiceTitle
+                };
+
+            Answer.MultipleChoice.Add(newMultipleChoiceAnswer);
+        }
+        else
+        {
+            var choiceToRemove = Answer.MultipleChoice.First(x => x.MultipleChoiceTitle == Question.ChoiceOptions.ToList()[Index].ChoiceTitle);
+            Answer.MultipleChoice.Remove(choiceToRemove);
+        }
+    }
+}

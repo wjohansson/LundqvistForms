@@ -13,7 +13,7 @@
         Lundqvist Forms
         <MudSpacer />
         <MudTooltip Text="Förhandsgranska" Arrow="true" Placement="Placement.Bottom">
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Edge="Edge.End" Color="Color.Inherit" Class="mx-2" OnClick="@((e) => ProfileToggle())" />
+            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Edge="Edge.End" Color="Color.Inherit" Class="mx-2" OnClick="@((e) => PreviewToggle())" />
         </MudTooltip>
         <MudTooltip Text="Profil" Arrow="true" Placement="Placement.Bottom">
             <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Edge="Edge.End" Color="Color.Inherit" Class="mx-2" OnClick="@((e) => ProfileToggle())" />
@@ -25,6 +25,7 @@
     <MudDrawer @bind-Open="@_profileOpen" Anchor="Anchor.End" Variant="@DrawerVariant.Temporary">
         <Profile />
     </MudDrawer>
+    
     <MudMainContent>
         <MudMainContent>
             @Body
@@ -39,8 +40,10 @@
 </style>
 
 @code {
+    // TODO: Fixa preview här på hur formuläret set ut hittills
     bool _drawerOpen = false;
     bool _profileOpen = false;
+    bool _previewOpen = false;
 
     void DrawerToggle()
     {
@@ -50,5 +53,10 @@
     void ProfileToggle()
     {
         _profileOpen = !_profileOpen;
+    }
+
+    void PreviewToggle()
+    {
+        _previewOpen = !_previewOpen;
     }
 }

@@ -12,21 +12,8 @@
 <PageTitle>Lundqvist Forms</PageTitle>
 
 <MudPaper Width="100%" Class="d-flex flex-column align-center gap-2 pb-4" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken4};")">
-    <FormHeader Form="@form" />
-
-    <Virtualize Items="form.Segments" Context="segment">
-        <MudContainer Class="d-flex gap-2 mx-0 justify-center">
-            <MudContainer MaxWidth="MaxWidth.Medium" @onclick="@(() => FocusSegment(segment))" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(segment)};")">
-                <SegmentHeader OnToggleExpand="@(() => ToggleSegmentExpand(segment))" OnChange="StateHasChanged" Form="form" IsFocused="@(currentSegment == segment)" Segment="segment" />
-                <Questions OnChange="StateHasChanged" Segment="segment" Expanded="segmentExpanded" />
-            </MudContainer>
-
-            @if (segment == currentSegment)
-            {
-                <Controls OnQuestionAdded="AddQuestion" OnSegmentAdded="AddSegment" />
-            }
-        </MudContainer>
-    </Virtualize>
+    <FormContent Form="form"></FormContent>
+    
 
     <MudContainer Class="d-flex justify-center gap-2">
         <MudTooltip Arrow="true" Placement="Placement.Right">
@@ -34,17 +21,17 @@
                 @if (processing)
                 {
                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">Skapar formulär...</MudText>
+                    <MudText Class="ms-2">SKAPAR FORMULÄR...</MudText>
                 }
                 else
                 {
-                    <MudText>Skapa formulär</MudText>
+                    <MudText>SKAPA FORMULÄR</MudText>
                 }
             </MudButton>
         </MudTooltip>
 
         <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="ClearForm" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Large">Rensa formulär</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="ClearForm" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Large">RENSA FORMULÄR</MudButton>
         </MudTooltip>
     </MudContainer>
 </MudPaper>
@@ -59,12 +46,10 @@
 </MudMessageBox>
 
 @code {
-    // TODO: Fixa vid focus av dropdowns att texten i fälten blir på samma ställe som dropdown
     // TODO: Fixa så att hela formen sparas ifall man skulle refresha sidan
     // TODO: Fixa global ångra knapp, och ctrl y liknande knapp
     // TODO: Lägga till möjlighet att spara versioner av formuläret genom dates, och kunna kolla på gamla versioner av denna genom UserForms tabellen
     // TODO: Få alla select/text fields i question header att bli samma storlek, både på edit och create form
-    // TODO: Dialog rutor som popups vid varje gång delete ---------
     // TODO: Kunna flytta ordning på avsnitt och frågor genom drag and drop (frågor) och välja ordning (avsnitt)
     // TODO: Fixa fokus vid klicka på duplicera mm knappar
     // TODO: Lägg till fler viktiga columner i UserForms, exempelvis antal svar. Sen lägga till knapp för visa resultatet
@@ -73,41 +58,45 @@
     // TODO: Fixa validation på alternativ, måste kanske göra 1 EditForm komponent runt varje case i switchen
     // TODO: Fixa mer responsiv design
     // TODO: Fråga: Vill man ha en delay på progressing vid skapandet av formulär?
+    // TODO: Fixa order på alla frågor i ett avsnitt
+    // TODO: Kolla varför edit form är i collapsed view mode
+    // TODO: Kolla validering på answers, till exempel tid hur högt man kan skriva
+    // TODO: Kolla om edit fungerar på alla sätt, att även frågorna med mera uppdateras
+    // TODO: Fixa så att focus på långt svar även händer då man klickar på "label"
+    // TODO: Se till att all CRUD fungerar på alla nivåer
+    // TODO: På preview sida, fixa så att man ser Avsnitt och Fråga högst upp till höger på varje "Container"
+    // TODO: Möjlighet att göra formulär private eller public
+    // TODO: Gör flera formulär på olika sätt och sen kolla på previews så att allt fungerar som det ska
+    // TODO: Kolla varför det inte går att duplicera scale
+    // TODO: Fixa datenow vid skickande av svar
+    // TODO: Fixa error meddelande på TID vid answers, och kanske även de andra tidsformaten. Dubbelkolla
+    // TODO: Se till att endas scalemodel eller choicemodel delen sparas om frågan har typen av scale enner någon choice
+    // TODO: Bryt ut redigera/ skapa knappar till en komponent 
+    // TODO: Fixa preview labels på scale så att dom är på sidan istället
+    // TODO: Fixa komponenter av confirmbox överallt
+    // TODO: Kolla om man kan återskapa error meddelande vid tillbakanavigering till editform sidan
+    // TODO: Fixa så att det inte går att ha 0 frågor på en fråga
+    // TODO: Fixa så att theninclude även tar med nya lager under answer från form
+    // TODO: Undersök om man måste ha med segment service och allt i question service eftersom allt skapas automatiskt vid skapande av formulär
+    // TODO: Ta bort röd linje på text inputs som att ord är felstavade
+    // TODO: Gör frågor obligatoriska av default. Val för designer att inte göra dom obligatoriska. Sedan validera vid skicka svar eller gå vidare till nästa avsnitt
+    // TODO: Fixa soft deletes med bool IsDeleted i databasen på formulären
 
-
-    public FormModel form { get; set; } = new();
-    private SegmentModel currentSegment = new();
+    private FormModel form { get; set; } = new();
     private MudMessageBox? clearBox { get; set; }
 
     private string errorMessage = "Något obligatoriskt fält är tomt";
     private string successMessage = "Formulär skapat";
     private string clearMessage = "Formulär rensat";
-    private bool segmentExpanded = true;
     private bool processing;
 
     protected override async Task OnInitializedAsync()
     {
         form.FormTitle = "Formulär utan namn";
         form.FormDescription = "Ingen beskrivning";
+
+        FormContent formContent = new();
         AddSegment();
-    }
-
-    public void AddQuestion()
-    {
-        QuestionModel newQuestion = new()
-            {
-                SegmentId = currentSegment.SegmentId,
-                QuestionTitle = $"Fråga {currentSegment.Questions.Count + 1}"
-            };
-
-        ChoiceModel newChoice = new()
-            {
-                QuestionId = newQuestion.QuestionId,
-                ChoiceTitle = "Alternativ 1"
-            };
-        newQuestion.ChoiceOptions.Add(newChoice);
-
-        currentSegment.Questions.Add(newQuestion);
     }
 
     public void AddSegment()
@@ -119,31 +108,28 @@
                 SegmentDescription = "Ingen beskrivning"
             };
         form.Segments.Add(newSegment);
-        currentSegment = newSegment;
     }
 
-    public void FocusSegment(SegmentModel segment)
+    private int CountQuestion(FormModel form)
     {
-        currentSegment = segment;
-    }
+        var count = 0;
 
-    public string CheckFocus(SegmentModel segment)
-    {
-        if (currentSegment == segment)
+        foreach (SegmentModel segment in form.Segments.ToList())
         {
-            return Colors.Grey.Lighten5;
+            count += segment.Questions.Count;
         }
-        return Colors.Grey.Darken3;
-    }
 
-    public void ToggleSegmentExpand(SegmentModel segment)
-    {
-        currentSegment = segment;
-        segmentExpanded = !segmentExpanded;
+        return count;
     }
 
     public async Task CreateForm()
     {
+        if (CountQuestion(form) == 0)
+        {
+            Snackbar.Add("Formuläret måste innehålla minst 1 fråga", Severity.Error);
+            return;
+        }
+
         if (form.FormTitle == "" || form.FormDescription == "")
         {
             Snackbar.Add(errorMessage, Severity.Error);
@@ -206,7 +192,6 @@
             FormTitle = "Formulär utan namn",
             FormDescription = "Ingen beskrivning"
         };
-
         AddSegment();
         Snackbar.Add(clearMessage, Severity.Info);
 

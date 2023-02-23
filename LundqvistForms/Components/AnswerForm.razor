@@ -1,0 +1,130 @@
+﻿@using FormsLibrary.Models;
+@using LundqvistForms.Services;
+@inject ISnackbar Snackbar
+@inject AnswerServiceUi answerService;
+@inject QuestionServiceUi questionService;
+
+<MudText Typo="Typo.h2">@Form.FormTitle</MudText>
+<MudText Typo="Typo.h6">@Form.FormDescription</MudText>
+
+<Virtualize Items="Form.Segments" Context="segment">
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3};")">
+        <MudText Align="Align.Center" Typo="Typo.h4">@segment.SegmentTitle</MudText>
+        <MudText Align="Align.Center" Typo="Typo.h6">@segment.SegmentDescription</MudText>
+
+        <Virtualize Items="segment.Questions" Context="question">
+            <QuestionPreview DateRange="dateRange" Question="question" Answers="Answers"></QuestionPreview>
+        </Virtualize>
+    </MudContainer>
+</Virtualize>
+
+<MudContainer Class="d-flex justify-center gap-2">
+    <MudTooltip Arrow="true" Placement="Placement.Right">
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Warning" OnClick="SendAnswers" StartIcon="@Icons.Material.Filled.AddCircle" Size="Size.Large">
+            @if (processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">SKICKAR SVAR...</MudText>
+            }
+            else
+            {
+                <MudText>SKICKA SVAR</MudText>
+            }
+        </MudButton>
+    </MudTooltip>
+
+    <MudTooltip Arrow="true" Placement="Placement.Right">
+        <MudButton ButtonType="ButtonType.Reset" Variant="Variant.Outlined" Color="Color.Warning" OnClick="ClearAnswers" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Large">RENSA SVAR</MudButton>
+    </MudTooltip>
+</MudContainer>
+
+<MudMessageBox @ref="clearBox" Title="Rensa svar" CancelText="Avbryt">
+    <MessageContent>
+        Är du säker att du vill rensa svaren?
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error">Rensa</MudButton>
+    </YesButton>
+</MudMessageBox>
+
+@code {
+    //FORTSÄTT KLURA PÅ HUR MAN KAN SPARA SVAR PÅ ALLA FRÅGOR.
+    //Vid skicka formulär så lägger man till en ny answermodel i answers, och kopplar den answermodel.answer till privata fälten. Undersök vidare
+    [Parameter]
+    public FormModel Form { get; set; } = new();
+
+    [Parameter]
+    public List<AnswerModel> Answers { get; set; } = new();
+
+    private MudMessageBox? clearBox { get; set; }
+    private bool processing;
+    private DateRange dateRange = new(DateTime.Now.Date, DateTime.Now.AddDays(5).Date);
+
+    private string successMessage = "Svar skickat";
+    private string clearMessage = "Svar rensade";
+
+    private void UpdateDateRange(AnswerModel answer)
+    {
+        try
+        {
+            TimeIntervalAnswerModel newInterval = new()
+                {
+                    StartDate = dateRange.Start,
+                    EndDate = dateRange.End
+                };
+
+            answer.Interval = newInterval;
+        }
+        catch (Exception)
+        {
+            return;
+        }
+    }
+
+    public async Task SendAnswers()
+    {
+        try
+        {
+            processing = true;
+
+            foreach (AnswerModel answer in Answers.ToList())
+            {
+                QuestionModel question = await questionService.GetQuestionById(answer.QuestionId);
+
+                if (question.QuestionOption == QuestionOptions.Tidsintervall)
+                {
+                    UpdateDateRange(answer);
+                }
+
+                await answerService.CreateAnswer(answer);
+            }
+
+            // Töm sedan alla svar efter skickat
+
+            await Task.Delay(500);
+            processing = false;
+            Snackbar.Add(successMessage, Severity.Success);
+        }
+        catch (Exception)
+        {
+            return;
+        }
+    }
+
+    private async void ClearAnswers()
+    {
+        bool? result = await clearBox.Show();
+
+        if (result == null || result == false)
+        {
+            return;
+        }
+
+        // Töm alla lokala svar på denna sida
+
+        Snackbar.Add(clearMessage, Severity.Info);
+
+        StateHasChanged();
+
+    }
+}

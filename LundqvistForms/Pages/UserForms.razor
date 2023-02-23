@@ -8,10 +8,13 @@
 @inject IDialogService DialogService;
 @inject ISnackbar Snackbar
 
-<MudPaper Class="mx-16 pa-10 mb-16">
+<MudPaper Class="mx-16 pa-10 mb-16" Style="@($"background-color: {Colors.Grey.Darken3}")">
     @if (forms == null)
     {
-        <MudText Typo="Typo.h2">Laddar...</MudText>
+        <MudButton Typo="Typo.h2">
+            <MudProgressCircular Class="ms-n1" Size="Size.Large" Indeterminate="true" />
+            <MudText Typo="Typo.h3" Class="ms-2">Laddar...</MudText>
+        </MudButton>
     }
     else if (forms.Count == 0)
     {
@@ -22,13 +25,15 @@
         <MudText Typo="Typo.h2" Class="mb-4">Dina formulär</MudText>
         <MudTable Items="forms" GroupHeaderStyle="@($"background-color: {Colors.Grey.Darken1}")" CustomHeader Hover="true" LoadingProgressColor="Color.Warning" Class="mx-12 pa-4" Style="@($"background-color: {Colors.Grey.Darken2}")">
             <HeaderContent>
-                <MudTh>Titel</MudTh>
-                <MudTh>Antal frågor</MudTh>
+                <MudTh Style="font-size: 24px">Titel</MudTh>
+                <MudTh Style="font-size: 24px">Antal frågor</MudTh>
+                <MudTh Style="font-size: 24px">Antal svar</MudTh>
                 <MudTh Style="width: 200px"></MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Title">@context.FormTitle</MudTd>
-                <MudTd DataLabel="Antal frågor">@CountQuestion(context)</MudTd>
+                <MudTd DataLabel="Antal frågor">@CountQuestions(context)</MudTd>
+                <MudTd DataLabel="Antal frågor">@CountAnswers(context)</MudTd>
                 <MudTd DataLabel="" Class="d-flex justify-end gap-2">
                     <MudTooltip Text="Förhandsgranska" Style="@($"background-color: {Colors.Grey.Darken3}")" Arrow="true" Placement="Placement.Bottom">
                         <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Variant="Variant.Outlined" OnClick="@(() => GoToPreview(context))" Color="Color.Warning"></MudIconButton>
@@ -68,7 +73,7 @@
         forms = await formService.GetAllForms();
     }
 
-    private int CountQuestion(FormModel form)
+    private int CountQuestions(FormModel form)
     {
         var count = 0;
 
@@ -80,6 +85,11 @@
         return count;
     }
 
+    private int CountAnswers(FormModel form)
+    {
+        return form.Answers.Count();
+    }
+
     public void Update()
     {
         this.StateHasChanged();
@@ -87,6 +97,7 @@
 
     private void GoToPreview(FormModel form)
     {
+        navigationManager.NavigateTo($"/forms/preview/{form.FormId}");
 
     }
 
