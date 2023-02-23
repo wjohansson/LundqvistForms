@@ -27,9 +27,14 @@ namespace FormsLibrary.Models
         [JsonPropertyName("segments")]
         public ICollection<SegmentModel> Segments { get; set; }
 
+        [ForeignKey("FormId")]
+        [JsonPropertyName("answers")]
+        public ICollection<AnswerModel> Answers { get; set; }
+
         public FormModel()
         {
             Segments = new List<SegmentModel>();
+            Answers = new List<AnswerModel>();
         }
     }
 }
