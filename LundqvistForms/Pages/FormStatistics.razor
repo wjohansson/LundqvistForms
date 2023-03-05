@@ -1,0 +1,54 @@
+﻿@page "/forms/statistics/{FormId}"
+
+@using FormsLibrary.Models;
+@using LundqvistForms.Components
+@using LundqvistForms.Services;
+@inject FormServiceUi formService;
+
+<MudPaper Width="100%"
+          Class="d-flex flex-column align-center gap-2 pb-4"
+          Elevation="0"
+          Style="@($"background-color: {Colors.Grey.Darken4};")">
+    <MudText Typo="Typo.h2">@form.FormTitle</MudText>
+    <MudText Typo="Typo.h6">Svar: @CountAnswers()</MudText>
+
+    <MudTabs Elevation="0"
+             Color="Color.Warning"
+             Rounded="true"
+             ApplyEffectsToContainer="true"
+             MinimumTabWidth="400px"
+             PanelClass="pa-8"
+             Style="@($"background-color: {Colors.Grey.Darken3}; width: 1200px")">
+        <MudTabPanel Text="Översikt">
+            <OverviewStatistics Form="form"></OverviewStatistics>
+        </MudTabPanel>
+        <MudTabPanel Text="Individuella Frågor">
+            <QuestionStatistics Form="form"></QuestionStatistics>
+        </MudTabPanel>
+        <MudTabPanel Text="Individuella Svar">
+            <AnswerStatistics Form="form"></AnswerStatistics>
+        </MudTabPanel>
+    </MudTabs>
+
+</MudPaper>
+
+@code {
+    [Parameter]
+    public string FormId { get; set; } = "";
+
+    private FormModel form = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        form = await formService.GetFormById(Guid.Parse(FormId));
+    }
+
+    private int CountAnswers()
+    {
+        return form.Answers
+         .AsEnumerable()
+         .Select(x => x.AnswerGroupId)
+         .Distinct()
+         .ToList().Count;
+    }
+}

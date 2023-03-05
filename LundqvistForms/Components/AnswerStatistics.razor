@@ -1,0 +1,197 @@
+﻿@using FormsLibrary.Models;
+@using LundqvistForms.Services
+@inject QuestionServiceUi questionService
+
+@if (Form.Answers.Count == 0)
+{
+    <MudText Align="Align.Center" Typo="Typo.h4">Inga svar registrerade på formuläret</MudText>
+}
+else
+{
+    <MudContainer Class="d-flex gap-8 flex-column">
+        <MudContainer Style="width: 40%">
+            <MudSelect @bind-Value="currentGroupedAnswer" Label="Svar" T="List<AnswerModel>" Variant="Variant.Filled">
+                @for (var i = 0; i < groupedAnswers.Count; i++)
+                {
+                    var index = i;
+                    <MudSelectItem Value="@(groupedAnswers[index].ToList())">Svar @(index + 1)</MudSelectItem>
+                }
+            </MudSelect>
+        </MudContainer>
+
+        @for (var i = 0; i < questions.Count; i++)
+        {
+            var index = i;
+            AnswerModel currentAnswer = currentGroupedAnswer[index];
+            <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded">
+                <MudText Typo="Typo.h6" GutterBottom="true" Style="text-decoration: underline;">@questions[index].QuestionTitle</MudText>
+
+                <EditForm Model="questions[index]">
+                    @switch (questions[index].QuestionOption)
+                    {
+                        case QuestionOptions.Kort:
+                            <MudTextField Label="Kort svar"
+                          Value="currentAnswer.ShortAnswer"
+                          Disabled="true"
+                          Class="px-2"
+                          Style="@($"color: {Colors.Grey.Lighten4};")"
+                          Variant="Variant.Filled"
+                          Clearable="true" />
+
+                            break;
+                        case QuestionOptions.Lång:
+                            <MudTextField Label="Långt svar"
+                          @bind-Value="currentAnswer.LongAnswer"
+                          Disabled="true"
+                          Class="px-2"
+                          Style="@($" color: {Colors.Grey.Lighten4};")"
+                          Variant="Variant.Filled"
+                          Clearable="true"
+                          Lines="3" />
+
+                            break;
+                        case QuestionOptions.Flerval:
+                            @for (var j = 0; j < questions[index].ChoiceOptions.Count; j++)
+                            {
+                                var multipleIndex = j;
+                                <MultipleChoiceAnswer Answer="currentAnswer"
+                                  Question="questions[index]"
+                                  Index="multipleIndex" />
+                            }
+
+                            break;
+                        case QuestionOptions.Enkelval:
+                            <MudRadioGroup @bind-SelectedOption="currentAnswer.SingleChoice" Class="px-2">
+                                @for (var j = 0; j < questions[index].ChoiceOptions.Count; j++)
+                                {
+                                    var singleIndex = j;
+                                    <MudRadio Disabled="true" Option="@questions[index].ChoiceOptions.ToList()[singleIndex].ChoiceTitle">
+                                        <MudText>@questions[index].ChoiceOptions.ToList()[singleIndex].ChoiceTitle</MudText>
+                                    </MudRadio>
+                                    <MudDivider Style="border: none" />
+                                }
+                            </MudRadioGroup>
+
+                            break;
+                        case QuestionOptions.Dropdown:
+                            <MudSelect T="string"
+                       Variant="Variant.Filled"
+                       Disabled="true"
+                       Class="px-2"
+                       Label="Svar" @bind-Value="currentAnswer.DropdownChoice"
+                       AnchorOrigin="Origin.BottomCenter">
+
+                                @for (var j = 0; j < questions[index].ChoiceOptions.Count; j++)
+                                {
+                                    var dropdownIndex = j;
+
+                                    <MudSelectItem Value="questions[index].ChoiceOptions.ToList()[dropdownIndex].ChoiceTitle" />
+                                }
+                            </MudSelect>
+
+                            break;
+                        case QuestionOptions.Datum:
+                            <MudDatePicker Editable="true"
+                           Label="Datum"
+                           @bind-Date="currentAnswer.Date"
+                           ShowWeekNumbers="true"
+                           DisplayMonths="2"
+                           PickerVariant="PickerVariant.Dialog"
+                           Color="Color.Warning"
+                           Disabled="true"
+                           Class="px-2"
+                           Variant="Variant.Filled"
+                           Clearable="true" />
+                            break;
+                        case QuestionOptions.Tidsintervall:
+                            DateRange dateRange = new();
+
+                            if (currentAnswer.Interval != null &&
+                                currentAnswer.Interval.StartDate != null &&
+                                currentAnswer.Interval.EndDate != null)
+                            {
+                                dateRange.Start = currentAnswer.Interval.StartDate;
+                                dateRange.End = currentAnswer.Interval.EndDate;
+                            }
+
+                            <MudDateRangePicker Label="Tidsintervall"
+                                ShowWeekNumbers="true"
+                                @bind-DateRange="dateRange"
+                                PickerVariant="PickerVariant.Dialog"
+                                Color="Color.Warning"
+                                Disabled="true"
+                                Class="px-2"
+                                Variant="Variant.Filled"
+                                Clearable="true" />
+
+
+                            break;
+                        case QuestionOptions.Tid:
+                            <MudTimePicker Label="Tid"
+                           @bind-Time="currentAnswer.Time"
+                           PickerVariant="PickerVariant.Dialog"
+                           Color="Color.Warning"
+                           Disabled="true"
+                           Class="px-2"
+                           Variant="Variant.Filled"
+                           Clearable="true" />
+
+                            break;
+                        case QuestionOptions.Skala:
+                            <MudContainer Class="text-white d-flex align-center gap-2">
+                                <MudRadioGroup @bind-SelectedOption="@currentAnswer.Scale" Class="d-flex gap-0">
+                                    <MudContainer Style="width: 100%" Class="d-flex justify-space-between pa-0 ml-2">
+                                        @if (questions[index].ScaleOptions.LowLabel != "")
+                                        {
+                                            <MudText Align="Align.Start" Class="pa-0">@questions[index].ScaleOptions.LowLabel</MudText>
+                                        }
+                                        @if (questions[index].ScaleOptions.HighLabel != "")
+                                        {
+                                            <MudText Align="Align.End" Class="pa-0">@questions[index].ScaleOptions.HighLabel</MudText>
+                                        }
+                                    </MudContainer>
+                                    @for (int j = questions[index].ScaleOptions.Low; j <= questions[index].ScaleOptions.High; j++)
+                                    {
+                                        int? scaleIndex = j;
+
+                                        <MudRadio Disabled="true" Option="@scaleIndex" Placement="Placement.Bottom">
+                                            @scaleIndex
+                                        </MudRadio>
+                                    }
+                                </MudRadioGroup>
+                            </MudContainer>
+                            break;
+                    }
+                </EditForm>
+                <MudDivider Style="border: 2px solid #ffa800" Class="border my-4"></MudDivider>
+
+            </MudContainer>
+        }
+
+
+    </MudContainer>
+}
+
+@code {
+    // TODO: Bryt ut denna till komponent tillsammans med preview question komponenten, med disabled som parameter
+    [Parameter]
+    public FormModel Form { get; set; } = new();
+
+    private List<IGrouping<Guid, AnswerModel>> groupedAnswers = new();
+    private List<AnswerModel> currentGroupedAnswer = new();
+    private List<QuestionModel> questions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        groupedAnswers = Form.Answers.GroupBy(x => x.AnswerGroupId).ToList();
+        currentGroupedAnswer = groupedAnswers[0].ToList();
+
+        foreach (SegmentModel segment in Form.Segments)
+        {
+            foreach (QuestionModel question in segment.Questions)
+            {
+                questions.Add(question);
+            }
+        }
+    }
+}

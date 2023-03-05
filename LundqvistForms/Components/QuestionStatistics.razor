@@ -1,0 +1,305 @@
+﻿@using FormsLibrary.Models;
+
+<MudContainer Class="d-flex flex-column gap-2 ">
+    @if (Form.Answers.Count == 0)
+    {
+        <MudText Align="Align.Center" Typo="Typo.h4">Inga svar registrerade på formuläret</MudText>
+    }
+    else
+    {
+        <MudContainer Class="d-flex gap-8 flex-column">
+            <MudContainer Style="width: 40%">
+                <MudSelect Label="Fråga"
+                       T="QuestionModel"
+                       @bind-Value="currentQuestion"
+                       Variant="Variant.Filled"
+                       Style="width: 10%">
+                    @foreach (QuestionModel question in questions)
+                    {
+                        <MudSelectItem Value="question">@question.QuestionTitle</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudContainer>
+
+            <MudContainer Class="d-flex flex-column gap-2">
+                @switch (currentQuestion.QuestionOption)
+                {
+                    case QuestionOptions.Kort:
+                        List<string> shortAnswers = currentQuestion.Answers.Select(x => x.ShortAnswer).Distinct().ToList();
+
+                        foreach (string answer in shortAnswers)
+                        {
+                            <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                <MudText Typo="Typo.h5" Style="@($"font-style: {answer ?? "italic"}; font-size: {answer ?? "16px"}")">
+                                    @(answer ?? "Frågan lämnades tom")
+                                </MudText>
+                                <MudDivider />
+                                <MudText Style="opacity: 0.6">
+                                    @currentQuestion.Answers.Where(x => x.ShortAnswer == answer).Count() Svar
+                                </MudText>
+                            </MudContainer>
+                        }
+
+                        break;
+                    case QuestionOptions.Lång:
+                        List<string> longAnswers = currentQuestion.Answers.Select(x => x.LongAnswer).Distinct().ToList();
+
+                        foreach (string answer in longAnswers)
+                        {
+                            <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                <MudText Typo="Typo.h5" Style="@($"font-style: {answer ?? "italic"}; font-size: {answer ?? "16px"}")">
+                                    @(answer ?? "Frågan lämnades tom")
+                                </MudText>
+                                <MudDivider />
+                                <MudText Style="opacity: 0.6">
+                                    @currentQuestion.Answers.Where(x => x.LongAnswer == answer).Count() Svar
+                                </MudText>
+                            </MudContainer>
+                        }
+
+                        break;
+                    case QuestionOptions.Flerval:
+                        List<List<string?>?> multipleChoiceAnswersList = currentQuestion.Answers.Select(x => x.MultipleChoice?.Select(x => x.MultipleChoiceTitle).ToList()).ToList();
+                        List<List<string?>?> distinctAnswersList = new();
+
+                        foreach (List<string?>? answers in multipleChoiceAnswersList)
+                        {
+                            bool isDistinct = true;
+
+                            if (distinctAnswersList.Count == 0)
+                            {
+                                distinctAnswersList.Add(answers);
+                            }
+                            else
+                            {
+                                foreach (List<string?>? distinctAnswers in distinctAnswersList)
+                                {
+                                    if (answers.OrderBy(x => x).SequenceEqual(distinctAnswers.OrderBy(x => x)))
+                                    {
+                                        isDistinct = false;
+                                        break;
+                                    }
+                                }
+
+                                if (isDistinct)
+                                {
+                                    distinctAnswersList.Add(answers);
+                                }
+                            }
+                        }
+
+                        foreach (List<string?>? answer in distinctAnswersList)
+                        {
+                            if (answer?.Count != 0)
+                            {
+                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                    @foreach (string? choice in answer)
+                                    {
+                                        <MudCheckBox Checked="true" Disabled="true">
+                                            @choice
+                                        </MudCheckBox>
+                                    }
+
+                                    <MudDivider />
+                                    <MudText Style="opacity: 0.6">
+                                        @currentQuestion.Answers.Where(x => x.MultipleChoice.Select(x => x.MultipleChoiceTitle).OrderBy(x => x).SequenceEqual(answer.OrderBy(x => x))).Count() Svar
+                                    </MudText>
+                                </MudContainer>
+                            }
+                            else
+                            {
+                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                    <MudText Typo="Typo.h5" Style="font-style: italic; font-size: 16px">
+                                        Frågan lämnades tom
+                                    </MudText>
+                                    <MudDivider />
+                                    <MudText Style="opacity: 0.6">
+                                        @currentQuestion.Answers.Where(x => x.MultipleChoice.Count == 0).Count() Svar
+                                    </MudText>
+                                </MudContainer>
+                            }
+                        }
+
+                        break;
+                    case QuestionOptions.Enkelval:
+                        List<string?> singleChoicesAnswers = currentQuestion.Answers.Select(x => x.SingleChoice).Distinct().ToList();
+
+                        foreach (string? answer in singleChoicesAnswers)
+                        {
+                            if (answer != null)
+                            {
+                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                    <MudRadioGroup SelectedOption="true">
+                                        <MudRadio Disabled="true" Option="true">
+                                            @answer
+                                        </MudRadio>
+                                    </MudRadioGroup>
+                                    <MudDivider />
+                                    <MudText Style="opacity: 0.6">
+                                        @currentQuestion.Answers.Where(x => x.SingleChoice == answer).Count() Svar
+                                    </MudText>
+                                </MudContainer>
+                            }
+                            else
+                            {
+                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                    <MudText Typo="Typo.h5" Style="font-style: italic; font-size: 16px">
+                                        Frågan lämnades tom
+                                    </MudText>
+                                    <MudDivider />
+                                    <MudText Style="opacity: 0.6">
+                                        @currentQuestion.Answers.Where(x => x.SingleChoice == null).Count() Svar
+                                    </MudText>
+                                </MudContainer>
+                            }
+                        }
+
+                        break;
+                    case QuestionOptions.Dropdown:
+                        List<string?> dropdownChoiceAnswers = currentQuestion.Answers.Select(x => x.DropdownChoice).Distinct().ToList();
+
+                        foreach (string? answer in dropdownChoiceAnswers)
+                        {
+                            <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                <MudText Typo="Typo.h5" Style="@($"font-style: {(answer == null ? "italic" : "")}; font-size: {(answer == null ? "16px" : "")}")">
+                                    @(answer == null ? "Frågan lämnades tom" : answer)
+                                </MudText>
+                                <MudDivider />
+                                <MudText Style="opacity: 0.6">
+                                    @currentQuestion.Answers.Where(x => x.DropdownChoice == answer).Count() Svar
+                                </MudText>
+                            </MudContainer>
+                        }
+
+                        break;
+                    case QuestionOptions.Datum:
+                        List<DateTime?> dateAnswers = currentQuestion.Answers.Select(x => x.Date).Distinct().ToList();
+
+                        foreach (DateTime? answer in dateAnswers)
+                        {
+                            <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                <MudText Typo="Typo.h5" Style="@($"font-style: {(answer == null ? "italic" : "")}; font-size: {(answer == null ? "16px" : "")}")">
+                                    @(answer == null ? "Frågan lämnades tom" : answer.Value.Date.ToString("yyyy-MM-dd"))
+                                </MudText>
+                                <MudDivider />
+                                <MudText Style="opacity: 0.6">
+                                    @currentQuestion.Answers.Where(x => x.Date == answer).Count() Svar
+                                </MudText>
+                            </MudContainer>
+                        }
+
+                        break;
+                    case QuestionOptions.Tidsintervall:
+                        List<TimeIntervalAnswerModel?> intervalAnswers = currentQuestion.Answers.Select(x => x.Interval).Distinct().ToList();
+
+                        foreach (TimeIntervalAnswerModel? answer in intervalAnswers)
+                        {
+                            if (answer != null)
+                            {
+                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                    <MudText Typo="Typo.h5">
+                                        Från: @answer.StartDate.Value.Date.ToString("yyyy-MM-dd")
+                                        <MudSpacer />
+                                        Till: @answer.EndDate.Value.Date.ToString("yyyy-MM-dd")
+                                    </MudText>
+                                    <MudDivider />
+                                    <MudText Style="opacity: 0.6">
+                                        @currentQuestion.Answers.Where(x => x.Interval?.StartDate == answer.StartDate && x.Interval?.EndDate == answer.EndDate).Count() Svar
+                                    </MudText>
+                                </MudContainer>
+                            }
+                            else
+                            {
+                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                    <MudText Typo="Typo.h5" Style="font-style: italic; font-size: 16px">
+                                        Frågan lämnades tom
+                                    </MudText>
+                                    <MudDivider />
+                                    <MudText Style="opacity: 0.6">
+                                        @currentQuestion.Answers.Where(x => x.Interval == null).Count() Svar
+                                    </MudText>
+                                </MudContainer>
+                            }
+                        }
+
+                        break;
+                    case QuestionOptions.Tid:
+                        List<TimeSpan?> timeAnswers = currentQuestion.Answers.Select(x => x.Time).Distinct().ToList();
+
+                        foreach (TimeSpan? answer in timeAnswers)
+                        {
+                            if (answer != null)
+                            {
+                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                    <MudText Typo="Typo.h5">
+                                        @answer.Value.Hours:@answer.Value.Minutes
+                                    </MudText>
+                                    <MudDivider />
+                                    <MudText Style="opacity: 0.6">
+                                        @currentQuestion.Answers.Where(x => x.Time == answer).Count() Svar
+                                    </MudText>
+                                </MudContainer>
+                            }
+                            else
+                            {
+                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                    <MudText Typo="Typo.h5" Style="font-style: italic; font-size: 16px">
+                                        Frågan lämnades tom
+                                    </MudText>
+                                    <MudDivider />
+                                    <MudText Style="opacity: 0.6">
+                                        @currentQuestion.Answers.Where(x => x.Time == answer).Count() Svar
+                                    </MudText>
+                                </MudContainer>
+                            }
+                        }
+
+                        break;
+                    case QuestionOptions.Skala:
+                        List<int?> scaleAnswers = currentQuestion.Answers.Select(x => x.Scale).Distinct().ToList();
+
+                        foreach (int? answer in scaleAnswers)
+                        {
+                            <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                <MudText Typo="Typo.h5" Style="@($"font-style: {(answer == null ? "italic" : "")}; font-size: {(answer == null ? "16px" : "")}")">
+                                    @(answer == null ? "Frågan lämnades tom" : answer)
+                                </MudText>
+                                <MudDivider />
+                                <MudText Style="opacity: 0.6">
+                                    @currentQuestion.Answers.Where(x => x.Scale == answer).Count() Svar
+                                </MudText>
+                            </MudContainer>
+                        }
+
+                        break;
+                }
+            </MudContainer>
+        </MudContainer>
+
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public FormModel Form { get; set; }
+
+    private List<QuestionModel> questions = new();
+    private QuestionModel currentQuestion = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        foreach (SegmentModel segment in Form.Segments)
+        {
+            foreach (QuestionModel question in segment.Questions)
+            {
+                questions.Add(question);
+            }
+        }
+        currentQuestion = questions[0];
+    }
+
+    private void UpdateCurrentQuestion(QuestionModel question)
+    {
+        currentQuestion = question;
+    }
+}

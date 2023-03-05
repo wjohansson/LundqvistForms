@@ -1,0 +1,158 @@
+﻿@using FormsLibrary.Models;
+
+@if (Form.Answers.Count == 0)
+{
+    <MudText Align="Align.Center" Typo="Typo.h4">Inga svar registrerade på formuläret</MudText>
+}
+else
+{
+    <MudContainer>
+        <Virtualize Items="Form.Segments" Context="segment">
+            <MudContainer Class="pa-4 d-flex flex-column gap-2 rounded">
+                <MudText Typo="Typo.h3" Align="Align.Center">@segment.SegmentTitle</MudText>
+                <Virtualize Items="segment.Questions" Context="question">
+                    <MudContainer Style="@($"background-color: {Colors.Grey.Darken3}")" Class=" d-flex flex-column gap-2 pa-2 rounded">
+                        <MudText Typo="Typo.h4">@question.QuestionTitle</MudText>
+
+                        @switch (question.QuestionOption)
+                        {
+                            case QuestionOptions.Kort:
+                                if (question.Answers.All(x => x.ShortAnswer == null))
+                                {
+                                    <MudText>Inga svar på frågan än</MudText>
+                                }
+                                else
+                                {
+                                    foreach (AnswerModel answer in question.Answers)
+                                    {
+                                        if (answer.ShortAnswer != null)
+                                        {
+                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                @answer.ShortAnswer
+                                            </MudText>
+                                        }
+                                    }
+                                }
+
+                                break;
+                            case QuestionOptions.Lång:
+                                if (question.Answers.All(x => x.LongAnswer == null))
+                                {
+                                    <MudText>Inga svar på frågan än</MudText>
+                                }
+                                else
+                                {
+                                    foreach (AnswerModel answer in question.Answers)
+                                    {
+                                        if (answer.LongAnswer != null)
+                                        {
+                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                @answer.LongAnswer
+                                            </MudText>
+                                        }
+                                    }
+                                }
+
+                                break;
+                            case QuestionOptions.Flerval:
+                                <ChoiceOverviewStatistics Question="question" ChoiceType="Multiple" />
+
+                                break;
+                            case QuestionOptions.Enkelval:
+                                <ChoiceOverviewStatistics Question="question" ChoiceType="Single" />
+
+                                break;
+                            case QuestionOptions.Dropdown:
+                                <ChoiceOverviewStatistics Question="question" ChoiceType="Dropdown" />
+
+                                break;
+                            case QuestionOptions.Datum:
+                                if (question.Answers.All(x => x.Date == null))
+                                {
+                                    <MudText>Inga svar på frågan än</MudText>
+                                }
+                                else
+                                {
+                                    foreach (AnswerModel answer in question.Answers)
+                                    {
+                                        if (answer.Date != null)
+                                        {
+                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                @answer.Date.Value.Date.ToString("yyyy-MM-dd")
+                                            </MudText>
+                                        }
+                                    }
+                                }
+
+                                break;
+                            case QuestionOptions.Tidsintervall:
+                                if (question.Answers.All(x => x.Interval == null))
+                                {
+                                    <MudText>Inga svar på frågan än</MudText>
+                                }
+                                else
+                                {
+                                    foreach (AnswerModel answer in question.Answers)
+                                    {
+                                        if (answer.Interval != null && answer.Interval.StartDate != null && answer.Interval.EndDate != null)
+                                        {
+                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                Från: @answer.Interval.StartDate.Value.Date.ToString("yyyy-MM-dd")
+                                                <MudDivider Style="border: none"></MudDivider>
+                                                Till: @answer.Interval.EndDate.Value.Date.ToString("yyyy-MM-dd")
+                                            </MudText>
+                                        }
+                                    }
+                                }
+
+                                break;
+                            case QuestionOptions.Tid:
+                                if (question.Answers.All(x => x.Time == null))
+                                {
+                                    <MudText>Inga svar på frågan än</MudText>
+                                }
+                                else
+                                {
+                                    foreach (AnswerModel answer in question.Answers)
+                                    {
+                                        if (answer.Time != null)
+                                        {
+                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                @answer.Time.Value.Hours:@answer.Time.Value.Minutes
+                                            </MudText>
+                                        }
+                                    }
+                                }
+
+                                break;
+                            case QuestionOptions.Skala:
+                                if (question.Answers.All(x => x.Scale == null))
+                                {
+                                    <MudText>Inga svar på frågan än</MudText>
+                                }
+                                else
+                                {
+                                    foreach (AnswerModel answer in question.Answers)
+                                    {
+                                        if (answer.Scale != null)
+                                        {
+                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                @answer.Scale
+                                            </MudText>
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                        <MudDivider Style="border: 2px solid #ffa800" Class="border my-4"></MudDivider>
+                    </MudContainer>
+                </Virtualize>
+            </MudContainer>
+        </Virtualize>
+    </MudContainer>
+}
+
+@code {
+    [Parameter]
+    public FormModel Form { get; set; }
+}

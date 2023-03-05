@@ -1,0 +1,85 @@
+﻿@using FormsLibrary.Models;
+
+<MudContainer Class="d-flex flex-column">
+    @if (Question != null)
+    {
+        if ((ChoiceType == "Multiple" && Question.Answers.All(x => x.MultipleChoice?.Count == 0)) ||
+            (ChoiceType == "Single" && Question.Answers.All(x => x.SingleChoice == null)) ||
+            (ChoiceType == "Dropdown" && Question.Answers.All(x => x.DropdownChoice == null)))
+        {
+            <MudText>Inga svar på frågan än</MudText>
+        }
+        else
+        {
+            ResetData();
+            @for (var i = 0; i < Question.ChoiceOptions.Count; i++)
+            {
+                choices[i] = Question.ChoiceOptions.ToList()[i].ChoiceTitle;
+
+                for (var j = 0; j < Question.Answers.Count; j++)
+                {
+                    if (ChoiceType == "Dropdown")
+                    {
+                        if (choices[i] == Question.Answers.ToList()[j].DropdownChoice)
+                        {
+                            data[i]++;
+                        }
+                    }
+                    else if (ChoiceType == "Single")
+                    {
+                        if (choices[i] == Question.Answers.ToList()[j].SingleChoice)
+                        {
+                            data[i]++;
+                        }
+                    }
+                    else if (ChoiceType == "Multiple")
+                    {
+                        for (var k = 0; k < Question.Answers.ToList()[j].MultipleChoice?.ToList().Count; k++)
+                        {
+                            if (choices[i] == Question.Answers.ToList()[j].MultipleChoice?.ToList()[k].MultipleChoiceTitle)
+                            {
+                                data[i]++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            <MudChart ChartType="ChartType.Donut" Width="300px" Height="300px" @bind-SelectedIndex="index" InputData="@data" InputLabels="@choices"></MudChart>
+            @if (index != -1)
+            {
+                <MudText Align="Align.Center" Typo="Typo.h6" Class="pa-2 rounded align-self-center" Style="@($"background-color: {Colors.Grey.Darken2}; width: 50%")">@Question.ChoiceOptions.ToList()[index].ChoiceTitle: @data[index] svar </MudText>
+            }
+            else
+            {
+                <MudText Align="Align.Center" Typo="Typo.h6" Class="pa-2 rounded align-self-center" Style="@($"background-color: {Colors.Grey.Darken2}; width: 50%")">Markera en sektion för att se statistiken</MudText>
+            }
+        }
+    }
+</MudContainer>
+
+
+@code {
+    [Parameter]
+    public string ChoiceType { get; set; }
+
+    [Parameter]
+    public QuestionModel? Question { get; set; }
+
+    private double[] data;
+    private string[] choices;
+    private int index = -1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        data = new double[Question.ChoiceOptions.Count];
+        choices = new string[Question.ChoiceOptions.Count];
+    }
+
+    private void ResetData()
+    {
+        data = new double[Question.ChoiceOptions.Count];
+        choices = new string[Question.ChoiceOptions.Count];
+    }
+
+}
