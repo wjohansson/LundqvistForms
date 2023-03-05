@@ -13,7 +13,7 @@ namespace FormsLibrary.Models
     {
         [Key]
         [JsonPropertyName("timeIntervalId")]
-        public Guid TimeIntervalId { get; set; } = Guid.NewGuid();
+        public Guid TimeIntervalId { get; set; } =Guid.NewGuid();
 
         [JsonPropertyName("startDate")]
         public DateTime? StartDate { get; set; }

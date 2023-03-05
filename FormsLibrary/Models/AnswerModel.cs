@@ -11,6 +11,9 @@ namespace FormsLibrary.Models
         [JsonPropertyName("answerId")]
         public Guid AnswerId { get; set; } = Guid.NewGuid();
 
+        [JsonPropertyName("answerGroupId")]
+        public Guid AnswerGroupId { get; set; } = Guid.NewGuid();
+
         [JsonPropertyName("shortAnswer")]
         public string? ShortAnswer { get; set; }
 
@@ -22,13 +25,13 @@ namespace FormsLibrary.Models
         public ICollection<MultipleChoiceAnswerModel>? MultipleChoice { get; set; }
 
         [JsonPropertyName("singleCoice")]
-        public string? SingleCoice { get; set; }
+        public string? SingleChoice { get; set; }
 
         [JsonPropertyName("dropdown")]
         public string? DropdownChoice { get; set; }
 
         [JsonPropertyName("scale")]
-        public int Scale { get; set; }
+        public int? Scale { get; set; }
 
         [JsonPropertyName("date")]
         public DateTime? Date { get; set; }
