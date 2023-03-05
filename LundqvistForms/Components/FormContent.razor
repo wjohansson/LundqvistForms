@@ -1,12 +1,18 @@
 ﻿@using FormsLibrary.Models;
 
-<FormHeader Form="@Form" />
+<FormHeader FormType="@FormType" Form="Form" />
 
 <Virtualize Items="Form.Segments" Context="segment">
     <MudContainer Class="d-flex gap-2 mx-0 justify-center">
-        <MudContainer MaxWidth="MaxWidth.Medium" @onclick="@(() => FocusSegment(segment))" Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(segment)};")">
-            <SegmentHeader OnToggleExpand="@(() => ToggleSegmentExpand(segment))" OnChange="StateHasChanged" Form="Form" IsFocused="@(currentSegment == segment)" Segment="segment" />
-            <Questions OnChange="StateHasChanged" Segment="segment" Expanded="segmentExpanded" />
+        <MudContainer MaxWidth="MaxWidth.Medium"
+                      @onclick="@(() => FocusSegment(segment))"
+                      Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded"
+                      Style="@($"background-color: {Colors.Grey.Darken3}; border-left: 4px solid {CheckFocus(segment)};")">
+            <SegmentHeader OnToggleExpand="@(() => ToggleSegmentExpand(segment))"
+                           OnChange="Update"
+                           Form="Form"
+                           IsFocused="@(currentSegment == segment)" Segment="segment" />
+            <Questions FormType="@FormType" Form="Form" OnChange="Update" Segment="segment" Expanded="segmentExpanded" />
         </MudContainer>
 
         @if (segment == currentSegment)
@@ -18,7 +24,13 @@
 
 @code {
     [Parameter]
+    public EventCallback<FormModel> OnChange { get; set; }
+
+    [Parameter]
     public FormModel Form { get; set; }
+
+    [Parameter]
+    public string FormType { get; set; }
 
     [Parameter]
     public int FormId { get; set; }
@@ -26,15 +38,15 @@
     private bool segmentExpanded = true;
     private SegmentModel currentSegment = new();
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (Form.FormId != Guid.Empty)
+        if (Form.FormTitle != "")
         {
             currentSegment = Form.Segments.ToList()[0];
         }
     }
 
-    public void AddQuestion()
+    public async void AddQuestion()
     {
         QuestionModel newQuestion = new()
             {
@@ -50,9 +62,11 @@
         newQuestion.ChoiceOptions.Add(newChoice);
 
         currentSegment.Questions.Add(newQuestion);
+        await OnChange.InvokeAsync();
+
     }
 
-    public void AddSegment()
+    public async void AddSegment()
     {
         SegmentModel newSegment = new()
             {
@@ -62,6 +76,8 @@
             };
         Form.Segments.Add(newSegment);
         currentSegment = newSegment;
+
+        await OnChange.InvokeAsync();
     }
 
     public void FocusSegment(SegmentModel segment)
@@ -82,5 +98,11 @@
     {
         currentSegment = segment;
         segmentExpanded = !segmentExpanded;
+    }
+
+    private async void Update()
+    {
+        StateHasChanged();
+        await OnChange.InvokeAsync();
     }
 }

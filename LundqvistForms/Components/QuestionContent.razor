@@ -1,4 +1,6 @@
-﻿@using FormsLibrary.Models;
+﻿@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@using FormsLibrary.Models;
+@inject ProtectedLocalStorage BrowserStorage;
 
 @if (Expanded)
 {
@@ -29,22 +31,33 @@
             case QuestionOptions.Flerval:
             case QuestionOptions.Enkelval:
             case QuestionOptions.Dropdown:
-                @for (var i = 0; i < Question.ChoiceOptions.Count; i++)
+                foreach (ChoiceModel choice in Question.ChoiceOptions)
+                //@for (var i = 0; i < Question.ChoiceOptions.Count; i++)
                 {
-                    var index = i;
-                    <EditForm Model="Question.ChoiceOptions.ToList()[index]">
+                    //var index = i;
+                    <EditForm Model="choice">
                         <DataAnnotationsValidator />
                         <MudCard Elevation="0">
                             <MudCardContent Class="d-flex align-center pa-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
-                                <MudTextField Label="Alternativ"
-                              @bind-Value="Question.ChoiceOptions.ToList()[index].ChoiceTitle"
-                              Class="px-2"
-                              Style="@($" color: {Colors.Grey.Lighten4};")"
-                              Variant="Variant.Filled"
-                              Clearable="true" />
+                                <MudContainer Class="d-flex flex-column">
+                                    <MudTextField Label="Alternativ"
+                                  @bind-Value="choice.ChoiceTitle"
+                                  Class="px-2"
+                                  Style="@($" color: {Colors.Grey.Lighten4};")"
+                                  Variant="Variant.Filled"
+                                  Clearable="true" />
+
+                                    @if (String.IsNullOrWhiteSpace(choice.ChoiceTitle))
+                                    {
+                                        <MudText Class="px-2" Color="Color.Error" Typo="Typo.caption">Alternativet kan inte vara tomt</MudText>
+                                    }
+                                </MudContainer>
 
                                 <MudTooltip Text="Ta bort alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Right">
-                                    <MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" OnClick="@(() => Question.ChoiceOptions.Remove(Question.ChoiceOptions.ToList()[index]))" Color="Color.Error"></MudIconButton>
+                                    <MudIconButton Size="Size.Small"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   OnClick="@(() => Question.ChoiceOptions.Remove(choice))"
+                                   Color="Color.Error" />
                                 </MudTooltip>
                             </MudCardContent>
                         </MudCard>
@@ -52,7 +65,10 @@
 
                 }
                 <MudTooltip Text="Lägg till alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Right">
-                    <MudIconButton Size="Size.Large" Icon="@Icons.Material.Filled.AddCircle" OnClick="@AddChoice" Color="Color.Warning"></MudIconButton>
+                    <MudIconButton Size="Size.Large"
+                       Icon="@Icons.Material.Filled.AddCircle"
+                       OnClick="@AddChoice"
+                       Color="Color.Warning" />
                 </MudTooltip>
 
                 break;
@@ -133,9 +149,13 @@
 @code {
     // TODO: Fixa TimeSpan så att det hämtar in nuvarande tid som standard värde plus att den inte ska PM/AM
     // TODO: Fixa utseendemässiga av att bocka för. Ta bort blå focus indikatorn. Outline och border?
-    // TODO: Fixa en obligatorisk toggle på alla svar för att välja om ett det krävs ett svar på den frågan. Som standard borde alla svar vara obligatoriska, men man får välja om det ska vara frivilligt
+    // TODO: Fixa en obligatorisk toggle på alla svar för att välja om ett det krävs ett svar på den frågan.
+    //          Som standard borde alla svar vara obligatoriska, men man får välja om det ska vara frivilligt
     // TODO: Fixa sätt att duplicera fråga, avsnitt och helt form
     // TODO: Fixa så att standard färgen är gul istället för blå vid focus states
+
+    [Parameter]
+    public EventCallback<QuestionModel> OnChange { get; set; }
 
     [Parameter]
     public QuestionModel Question { get; set; } = new();
@@ -143,24 +163,52 @@
     [Parameter]
     public bool Expanded { get; set; }
 
+    [Parameter]
+    public string FormType { get; set; }
+
+    [Parameter]
+    public FormModel Form { get; set; }
+
     private string? shortAnswer;
     private string? longAnswer;
     private DateTime? date;
     private DateRange? dateRange;
     private TimeSpan? timeSpan;
 
-    private void AddChoice()
+    private async void AddChoice()
     {
         ChoiceModel choice = new()
             {
                 QuestionId = Question.QuestionId,
                 ChoiceTitle = $"Alternativ {Question.ChoiceOptions.Count + 1}"
             };
+
         Question.ChoiceOptions.Add(choice);
+
+        if (FormType == "LundqvistForms.Pages.Index")
+        {
+            await BrowserStorage.SetAsync("form", Form);
+        }
+        else if (FormType == "LundqvistForms.Pages.EditCurrentForm")
+        {
+            await BrowserStorage.SetAsync("editForm", Form);
+        }
+
+        await OnChange.InvokeAsync();
     }
 
-    private void RemoveChoice(ChoiceModel choice)
+    private async void RemoveChoice(ChoiceModel choice)
     {
         Question.ChoiceOptions.Remove(choice);
+
+        if (FormType == "LundqvistForms.Pages.Index")
+        {
+            await BrowserStorage.SetAsync("form", Form);
+        }
+        else if (FormType == "LundqvistForms.Pages.EditCurrentForm")
+        {
+            await BrowserStorage.SetAsync("editForm", Form);
+        }
+        await OnChange.InvokeAsync();
     }
 }

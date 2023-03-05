@@ -1,7 +1,12 @@
 ﻿@using FormsLibrary.Models;
-@inject ISnackbar Snackbar
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@inject ISnackbar Snackbar;
+@inject ProtectedLocalStorage BrowserStorage;
 
-<MudPaper @onfocusin="@(() => borderColor = Colors.Grey.Lighten5)" @onfocusout="@(() => borderColor = Colors.Grey.Darken2)" Class="text-white pa-2 d-flex justify-space-between" Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {borderColor};")">
+<MudPaper @onfocusin="@(() => borderColor = Colors.Grey.Lighten5)"
+          @onfocusout="@(() => borderColor = Colors.Grey.Darken2)"
+          Class="text-white pa-2 d-flex justify-space-between"
+          Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {borderColor};")">
     <MudContainer>
         <EditForm Model="@Segment">
             <DataAnnotationsValidator />
@@ -24,10 +29,15 @@
     </MudContainer>
 
     <MudContainer Class="d-flex align-center gap-2 ma-0" Style="width: fit-content">
-        <MudTooltip Text="@(expandSegment ? "Utvidga" : "Minska")" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+        <MudTooltip Text="@(expandSegment ? "Utvidga" : "Minska")"
+                    Arrow="true"
+                    Color="Color.Warning"
+                    Placement="Placement.Bottom">
             <MudIconButton Color="Color.Warning"
                            OnClick="@(() => ToggleExpandSegment(Segment))"
-                           Icon="@(expandSegment ? @Icons.Material.Filled.ExpandMore : @Icons.Material.Filled.ExpandLess)"
+                           Icon="@(expandSegment
+                                    ? @Icons.Material.Filled.ExpandMore
+                                    : @Icons.Material.Filled.ExpandLess)"
                            Size="Size.Large"></MudIconButton>
         </MudTooltip>
 
@@ -77,6 +87,14 @@
     private string deleteSegmentMessage = "Avsnitt borttaget";
     private bool expandSegment;
     private string borderColor = Colors.Grey.Darken2;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            await BrowserStorage.SetAsync("form", Form);
+        }
+    }
 
     private async Task DeleteSegment(SegmentModel segment)
     {

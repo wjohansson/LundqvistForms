@@ -1,10 +1,17 @@
-﻿@using FormsLibrary.Models;
+﻿@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@using FormsLibrary.Models;
+@inject ProtectedLocalStorage BrowserStorage
 
-<MudCheckBox @onclick="@(() => UpdateMultipleChoice())" @bind-Checked="@isChecked">@Question.ChoiceOptions.ToList()[Index].ChoiceTitle</MudCheckBox>
+<MudCheckBox @onclick="@(() => UpdateMultipleChoice())" @bind-Checked="@isChecked">
+    @Question.ChoiceOptions.ToList()[Index].ChoiceTitle
+</MudCheckBox>
 
 @code {
     [Parameter]
     public AnswerModel Answer { get; set; } = new();
+
+    [Parameter]
+    public List<AnswerModel> Answers { get; set; } = new();
 
     [Parameter]
     public QuestionModel Question { get; set; } = new();
@@ -14,7 +21,16 @@
 
     private bool isChecked;
 
-    private void UpdateMultipleChoice()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Answer.MultipleChoice.Any(x => x.MultipleChoiceTitle == Question.ChoiceOptions.ToList()[Index].ChoiceTitle))
+        {
+            isChecked = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task UpdateMultipleChoice()
     {
         if (!isChecked)
         {
@@ -24,11 +40,14 @@
                 };
 
             Answer.MultipleChoice.Add(newMultipleChoiceAnswer);
+            await BrowserStorage.SetAsync("answers", Answers);
         }
         else
         {
             var choiceToRemove = Answer.MultipleChoice.First(x => x.MultipleChoiceTitle == Question.ChoiceOptions.ToList()[Index].ChoiceTitle);
             Answer.MultipleChoice.Remove(choiceToRemove);
+            await BrowserStorage.SetAsync("answers", Answers);
+
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿@using FormsLibrary.Models;
+﻿@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@using FormsLibrary.Models;
+@inject ProtectedLocalStorage BrowserStorage;
 
 <MudContainer MaxWidth="MaxWidth.Medium">
     <EditForm Model="Form">
@@ -23,4 +25,27 @@
 @code {
     [Parameter]
     public FormModel Form { get; set; } = new();
+
+    [Parameter]
+    public string FormType { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && FormType == "LundqvistForms.Pages.Index")
+        {
+            await BrowserStorage.GetAsync<FormModel>("form");
+        }
+        else if (firstRender && FormType == "LundqvistForms.Pages.EditCurrentForm")
+        {
+            await BrowserStorage.GetAsync<FormModel>("editForm");
+        }
+        else if (FormType == "LundqvistForms.Pages.Index")
+        {
+            await BrowserStorage.SetAsync("form", Form);
+        }
+        else if (FormType == "LundqvistForms.Pages.EditCurrentForm")
+        {
+            await BrowserStorage.SetAsync("editForm", Form);
+        }
+    }
 }

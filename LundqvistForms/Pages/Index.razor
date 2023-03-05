@@ -3,21 +3,29 @@
 @using FormsLibrary.Models;
 @using LundqvistForms.Components;
 @using LundqvistForms.Services;
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @inject FormServiceUi formService;
 @inject SegmentServiceUi segmentService;
 @inject QuestionServiceUi questionService;
 @inject IDialogService DialogService;
 @inject ISnackbar Snackbar
+@inject ProtectedLocalStorage BrowserStorage
 
 <PageTitle>Lundqvist Forms</PageTitle>
 
-<MudPaper Width="100%" Class="d-flex flex-column align-center gap-2 pb-4" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken4};")">
-    <FormContent Form="form"></FormContent>
-    
+<MudPaper Width="100%"
+          Class="d-flex flex-column align-center gap-2 pb-4"
+          Elevation="0"
+          Style="@($"background-color: {Colors.Grey.Darken4};")">
+    <FormContent FormType="@this.GetType().ToString()" OnChange="SaveState" Form="form"></FormContent>
+
 
     <MudContainer Class="d-flex justify-center gap-2">
         <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="CreateForm" StartIcon="@Icons.Material.Filled.AddCircle" Size="Size.Large">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Warning"
+                       OnClick="CreateForm"
+                       StartIcon="@Icons.Material.Filled.AddCircle" Size="Size.Large">
                 @if (processing)
                 {
                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
@@ -31,7 +39,11 @@
         </MudTooltip>
 
         <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="ClearForm" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Large">RENSA FORMULÄR</MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Warning"
+                       OnClick="ClearForm"
+                       StartIcon="@Icons.Material.Filled.Delete"
+                       Size="Size.Large">RENSA FORMULÄR</MudButton>
         </MudTooltip>
     </MudContainer>
 </MudPaper>
@@ -46,41 +58,48 @@
 </MudMessageBox>
 
 @code {
-    // TODO: Fixa så att hela formen sparas ifall man skulle refresha sidan
-    // TODO: Fixa global ångra knapp, och ctrl y liknande knapp
-    // TODO: Lägga till möjlighet att spara versioner av formuläret genom dates, och kunna kolla på gamla versioner av denna genom UserForms tabellen
-    // TODO: Få alla select/text fields i question header att bli samma storlek, både på edit och create form
-    // TODO: Kunna flytta ordning på avsnitt och frågor genom drag and drop (frågor) och välja ordning (avsnitt)
-    // TODO: Fixa fokus vid klicka på duplicera mm knappar
-    // TODO: Lägg till fler viktiga columner i UserForms, exempelvis antal svar. Sen lägga till knapp för visa resultatet
-    // TODO: Från UserForms kunna markera flera formulär och sedan köra delete all marked.
-    // TODO: Undersök möjlighet att ha en delete all older than... knapp på UserForms
-    // TODO: Fixa validation på alternativ, måste kanske göra 1 EditForm komponent runt varje case i switchen
-    // TODO: Fixa mer responsiv design
-    // TODO: Fråga: Vill man ha en delay på progressing vid skapandet av formulär?
-    // TODO: Fixa order på alla frågor i ett avsnitt
-    // TODO: Kolla varför edit form är i collapsed view mode
-    // TODO: Kolla validering på answers, till exempel tid hur högt man kan skriva
-    // TODO: Kolla om edit fungerar på alla sätt, att även frågorna med mera uppdateras
-    // TODO: Fixa så att focus på långt svar även händer då man klickar på "label"
-    // TODO: Se till att all CRUD fungerar på alla nivåer
-    // TODO: På preview sida, fixa så att man ser Avsnitt och Fråga högst upp till höger på varje "Container"
-    // TODO: Möjlighet att göra formulär private eller public
-    // TODO: Gör flera formulär på olika sätt och sen kolla på previews så att allt fungerar som det ska
-    // TODO: Kolla varför det inte går att duplicera scale
-    // TODO: Fixa datenow vid skickande av svar
-    // TODO: Fixa error meddelande på TID vid answers, och kanske även de andra tidsformaten. Dubbelkolla
-    // TODO: Se till att endas scalemodel eller choicemodel delen sparas om frågan har typen av scale enner någon choice
-    // TODO: Bryt ut redigera/ skapa knappar till en komponent 
-    // TODO: Fixa preview labels på scale så att dom är på sidan istället
-    // TODO: Fixa komponenter av confirmbox överallt
-    // TODO: Kolla om man kan återskapa error meddelande vid tillbakanavigering till editform sidan
-    // TODO: Fixa så att det inte går att ha 0 frågor på en fråga
-    // TODO: Fixa så att theninclude även tar med nya lager under answer från form
-    // TODO: Undersök om man måste ha med segment service och allt i question service eftersom allt skapas automatiskt vid skapande av formulär
-    // TODO: Ta bort röd linje på text inputs som att ord är felstavade
-    // TODO: Gör frågor obligatoriska av default. Val för designer att inte göra dom obligatoriska. Sedan validera vid skicka svar eller gå vidare till nästa avsnitt
-    // TODO: Fixa soft deletes med bool IsDeleted i databasen på formulären
+    // 5 TODO: Fixa så att inputs sparas vid reload även om inte något annat som triggar save gjort innan reload. Går det att göra vid OnAFterRender? 
+    //          Borde komma in i den funktionen vid varje input ändring
+    // 5 TODO: Fixa global ångra knapp, och ctrl y liknande knapp
+    // 5 TODO: Lägga till möjlighet att spara versioner av formuläret genom dates, och kunna kolla på gamla
+    //          versioner av denna genom UserForms tabellen
+    // 3 TODO: Kunna flytta ordning på avsnitt och frågor genom drag and drop (frågor) och välja ordning (avsnitt)
+    // 5 TODO: Fixa fokus vid klicka på duplicera mm knappar
+    // 2 TODO: Från UserForms kunna markera flera formulär och sedan köra delete all marked.
+    // 4 TODO: Undersök möjlighet att ha en delete all older than... knapp på UserForms
+    // 5 TODO: Fixa mer responsiv design
+    // 2 TODO: Fråga: Vill man ha en delay på progressing vid skapandet av formulär?
+    // 1 TODO: Fixa order på alla frågor i ett avsnitt
+    // 5 TODO: Fixa så att focus på långt svar även händer då man klickar på "label"
+    // 5 TODO: Möjlighet att göra formulär private eller public
+    // 5 TODO: Fixa error meddelande på TID vid answers, och kanske även de andra tidsformaten. Dubbelkolla
+    // 5 TODO: Se till att endas scalemodel eller choicemodel delen sparas om frågan har typen av scale eller 
+    //          någon choice
+    // 5 TODO: Bryt ut redigera/ skapa knappar till en komponent
+    // 2 TODO: Fixa komponenter av confirmbox överallt
+    // 4 TODO: Kolla om man kan återskapa error meddelande vid tillbakanavigering till editform sidan
+    // 2 TODO: Undersök om man måste ha med segment service och allt i question service eftersom allt skapas
+    //          automatiskt vid skapande av formulär
+    // 3 TODO: Gör frågor obligatoriska av default. Val för designer att inte göra dom obligatoriska. Sedan validera vid
+    //          skicka svar eller gå vidare till nästa avsnitt
+    // 2 TODO: Fixa soft deletes med bool IsDeleted i databasen på formulären
+    // 3 TODO: Kolla möjlighet att koppla till användarsystemet
+    // 1 TODO: Statistik, lägg till översikt, per fråga och per enskilt svar
+    // 3 TODO: Fixa tema valmöjligheter på sidan som sparas i formuläret så att det följer med då användaren ska svara på fråga,
+    //          använd color picker för att få till färg
+    // 1 TODO: Göra om table till data grid?
+    // TODO: Fixa pagination för att hoppa mellan avsnitten
+    // TODO: Fixa if satser runt hela sidor för att förhindra att man får error vid navigering tillbaka efter
+    //          borttagande av formulär och liknande
+    // TODO: Fixa så att det står "inget svar på den här frågan" om det behövs
+    // TODO: Fixa så att man inte kan skicka in ett interval med endast start eller end date och så att det 
+    //          visas endast datum
+    // TODO: Fixa så att man kan välja timma och minut på interval? Optional
+    // TODO: Fixa skala vy på statistics så att den är mer visuell
+    // TODO: Varje avsnitt måste ha en fråga då man skapar / redigerar formuläret
+    // TODO: Lägg till datum order på allt. Avsnitt, frågor, svar osv
+    // TODO: Färdigställ enskild svar vy
+    // TODO: Kolla varför rensa knappen inte rensar helt
 
     private FormModel form { get; set; } = new();
     private MudMessageBox? clearBox { get; set; }
@@ -90,13 +109,16 @@
     private string clearMessage = "Formulär rensat";
     private bool processing;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        form.FormTitle = "Formulär utan namn";
-        form.FormDescription = "Ingen beskrivning";
-
-        FormContent formContent = new();
-        AddSegment();
+        if (firstRender)
+        {
+            await ReadState();
+        }
+        else
+        {
+            await SaveState();
+        }
     }
 
     public void AddSegment()
@@ -167,6 +189,7 @@
                 };
 
             AddSegment();
+            await SaveState();
 
             await Task.Delay(500);
             processing = false;
@@ -174,6 +197,8 @@
         }
         catch (Exception)
         {
+            Snackbar.Add(errorMessage, Severity.Error);
+            processing = false;
             return;
         }
     }
@@ -188,14 +213,40 @@
         }
 
         form = new()
-        {
-            FormTitle = "Formulär utan namn",
-            FormDescription = "Ingen beskrivning"
-        };
+            {
+                FormTitle = "Formulär utan namn",
+                FormDescription = "Ingen beskrivning"
+            };
         AddSegment();
+        await BrowserStorage.DeleteAsync("editedForm");
+
         Snackbar.Add(clearMessage, Severity.Info);
 
         StateHasChanged();
-
     }
+
+    private async Task SaveState()
+    {
+        await BrowserStorage.SetAsync("form", form);
+    }
+
+    private async Task ReadState()
+    {
+        var result = await BrowserStorage.GetAsync<FormModel>("form");
+
+        if (result.Success)
+        {
+            form = result.Value;
+            StateHasChanged();
+        }
+        else
+        {
+            form = new();
+            form.FormTitle = "Formulär utan namn";
+            form.FormDescription = "Ingen beskrivning";
+            AddSegment();
+            StateHasChanged();
+        }
+    }
+
 }

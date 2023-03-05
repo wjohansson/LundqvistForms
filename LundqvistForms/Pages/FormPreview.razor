@@ -3,14 +3,19 @@
 @using FormsLibrary.Models;
 @using LundqvistForms.Components;
 @using LundqvistForms.Services;
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @inject AnswerServiceUi answerService;
 @inject FormServiceUi formService;
+@inject ProtectedLocalStorage BrowserStorage
 
 <PageTitle>Lundqvist Forms</PageTitle>
 
-<MudPaper Width="100%" Class="d-flex flex-column align-center gap-2 pb-4" Elevation="0" Style="@($"background-color: {Colors.Grey.Darken4};")">
-    <AnswerForm Form="form" Answers="answers"/>
-    
+<MudPaper Width="100%"
+          Class="d-flex flex-column align-center gap-2 pb-4"
+          Elevation="0"
+          Style="@($"background-color: {Colors.Grey.Darken4};")">
+    <AnswerForm OnChange="SaveState" Form="form" Answers="answers" />
+
 </MudPaper>
 
 
@@ -19,25 +24,65 @@
     [Parameter]
     public string FormId { get; set; } = "";
 
-    private MudMessageBox? clearBox { get; set; }
-
     private FormModel form = new();
     private List<AnswerModel> answers = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        form = await formService.GetFormById(Guid.Parse(FormId));
-        foreach (SegmentModel segment in form.Segments.ToList())
+        if (firstRender)
         {
-            foreach (QuestionModel question in segment.Questions.ToList())
+            await ReadState();
+        }
+        else
+        {
+            await SaveState();
+        }
+    }
+
+    private async Task SaveState()
+    {
+        await BrowserStorage.SetAsync("answerForm", form);
+        await BrowserStorage.SetAsync("answers", answers);
+    }
+
+    private async Task ReadState()
+    {
+        var formResult = await BrowserStorage.GetAsync<FormModel>("answerForm");
+
+        if (formResult.Success && formResult.Value.FormId == Guid.Parse(FormId))
+        {
+            form = formResult.Value;
+        }
+        else
+        {
+            form = await formService.GetFormById(Guid.Parse(FormId));
+        }
+
+        var answersResult = await BrowserStorage.GetAsync<List<AnswerModel>>("answers");
+
+        if (answersResult.Success && formResult.Value.FormId == Guid.Parse(FormId))
+        {
+            answers = answersResult.Value;
+        }
+        else
+        {
+            Guid answerGroupId = Guid.NewGuid();
+            foreach (SegmentModel segment in form.Segments.ToList())
             {
-                AnswerModel newAnswer = new()
-                    {
-                        QuestionId = question.QuestionId,
-                        FormId = Guid.Parse(FormId)
-                    };
-                answers.Add(newAnswer);
+                foreach (QuestionModel question in segment.Questions.ToList())
+                {
+                    AnswerModel newAnswer = new()
+                        {
+                            AnswerGroupId = answerGroupId,
+                            QuestionId = question.QuestionId,
+                            FormId = Guid.Parse(FormId)
+                        };
+
+                    answers.Add(newAnswer);
+                }
             }
         }
+
+        StateHasChanged();
     }
 }

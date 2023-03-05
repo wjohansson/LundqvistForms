@@ -1,4 +1,7 @@
-﻿@using FormsLibrary.Models;
+﻿@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@using FormsLibrary.Models;
+@inject ProtectedLocalStorage BrowserStorage
+
 <MudContainer Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded" Style="@($"background-color: {Colors.Grey.Darken2};")">
 
     <MudText Typo="Typo.h6" GutterBottom="true" Style="text-decoration: underline;">@Question.QuestionTitle</MudText>
@@ -25,15 +28,14 @@
 
                 break;
             case QuestionOptions.Flerval:
-                //FIXA EN NY COMPONENT HÄR FÖR VARJE VAL SOM FINNS. KANSKE ÄVEN PÅ VARJE ANNAN CASE
                 @for (var i = 0; i < Question.ChoiceOptions.Count; i++)
                 {
-                    <MultipleChoiceAnswer Answer="answer" Question="Question" Index="i"></MultipleChoiceAnswer>
+                    <MultipleChoiceAnswer Answers="Answers" Answer="answer" Question="Question" Index="i"></MultipleChoiceAnswer>
                 }
 
                 break;
             case QuestionOptions.Enkelval:
-                <MudRadioGroup @bind-SelectedOption="answer.SingleCoice" Class="px-2">
+                <MudRadioGroup @bind-SelectedOption="answer.SingleChoice" Class="px-2">
                     @for (var i = 0; i < Question.ChoiceOptions.Count; i++)
                     {
                         var index = i;
@@ -57,14 +59,12 @@
                         var index = i;
 
                         <MudSelectItem Value="Question.ChoiceOptions.ToList()[index].ChoiceTitle" />
-
                     }
                 </MudSelect>
 
                 break;
             case QuestionOptions.Datum:
-                <MudDatePicker Editable="true"
-                       Label="Datum"
+                <MudDatePicker Label="Datum"
                        @bind-Date="answer.Date"
                        ShowWeekNumbers="true"
                        DisplayMonths="2"
@@ -75,8 +75,7 @@
                        Clearable="true" />
                 break;
             case QuestionOptions.Tidsintervall:
-                <MudDateRangePicker Editable="true"
-                            Label="Tidsintervall"
+                <MudDateRangePicker Label="Tidsintervall"
                             @bind-DateRange="DateRange"
                             ShowWeekNumbers="true"
                             PickerVariant="PickerVariant.Dialog"
@@ -89,16 +88,16 @@
             case QuestionOptions.Tid:
                 <MudTimePicker Label="Tid"
                        @bind-Time="answer.Time"
-                       Editable="true"
                        PickerVariant="PickerVariant.Dialog"
                        Color="Color.Warning"
                        Class="px-2"
                        Variant="Variant.Filled"
                        Clearable="true" />
+
                 break;
             case QuestionOptions.Skala:
                 <MudContainer Class="text-white d-flex align-center gap-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
-                    <MudRadioGroup @bind-SelectedOption="@answer.Scale" Class="d-flex gap-0 align-end">
+                    <MudRadioGroup @bind-SelectedOption="@answer.Scale" Class="d-flex gap-0">
                         <MudContainer Style="width: 100%" Class="d-flex justify-space-between pa-0 ml-2">
                             @if (Question.ScaleOptions.LowLabel != "")
                             {
@@ -111,7 +110,7 @@
                         </MudContainer>
                         @for (int i = Question.ScaleOptions.Low; i <= Question.ScaleOptions.High; i++)
                         {
-                            var index = i;
+                            int? index = i;
 
                             <MudRadio Option="@index" Placement="Placement.Bottom">
                                 @index
@@ -125,8 +124,6 @@
 </MudContainer>
 
 @code {
-    //FORTSÄTT KLURA PÅ HUR MAN KAN SPARA SVAR PÅ ALLA FRÅGOR.
-    //Vid skicka formulär så lägger man till en ny answermodel i answers, oh kopplar den answermodel.answer till privata fälten. Undersök vidare
     [Parameter]
     public QuestionModel Question { get; set; } = new();
 
@@ -138,9 +135,49 @@
 
     private AnswerModel answer = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async void OnAfterRender(bool firstRender)
     {
-        answer = Answers.First(x => x.QuestionId == Question.QuestionId);
+        if (firstRender)
+        {
+            await ReadState();
+        }
+        else if (!firstRender)
+        {
+            await SaveState();
+        }
     }
 
+    private async Task SaveState()
+    {
+        if (answer.Interval != null && DateRange != null)
+        {
+            answer.Interval.StartDate = DateRange.Start ?? answer.Interval.StartDate;
+            answer.Interval.EndDate = DateRange.End ?? answer.Interval.EndDate;
+        }
+
+        await BrowserStorage.SetAsync("answers", Answers);
+    }
+
+    private async Task ReadState()
+    {
+        var result = await BrowserStorage.GetAsync<List<AnswerModel>>("answers");
+
+        if (result.Success)
+        {
+            Answers = result.Value;
+            answer = Answers.First(x => x.QuestionId == Question.QuestionId);
+
+            if (Question.QuestionOption == QuestionOptions.Tidsintervall &&
+                answer.Interval != null &&
+                answer.Interval.StartDate != null &&
+                answer.Interval.EndDate != null &&
+                DateRange != null)
+            {
+                DateRange.Start = answer.Interval.StartDate;
+                DateRange.End = answer.Interval.EndDate;
+            }
+        }
+        StateHasChanged();
+
+    }
 }
