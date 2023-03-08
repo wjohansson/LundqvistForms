@@ -4,6 +4,26 @@
 
 <Virtualize Items="Form.Segments" Context="segment">
     <MudContainer Class="d-flex gap-2 mx-0 justify-center">
+        <MudContainer Class="d-flex flex-column gap-2 ma-0 mt-3 pa-0" Style="width: 48px">
+            <MudTooltip Text="Flytta upp avsnitt" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                <MudIconButton Class="mt-3"
+                               Color="Color.Warning"
+                               OnClick="@(() => OrderUp(segment))"
+                               Icon="@Icons.Material.Filled.ArrowUpward"
+                               Size="Size.Medium"
+                               Disabled="segment.SegmentOrder == 1" />
+            </MudTooltip>
+
+            <MudTooltip Text="Flytta ner avsnitt" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                <MudIconButton Class="mt-3"
+                               Color="Color.Warning"
+                               OnClick="@(() => OrderDown(segment))"
+                               Icon="@Icons.Material.Filled.ArrowDownward"
+                               Size="Size.Medium"
+                               Disabled="segment.SegmentOrder == Form.Segments.Count()" />
+            </MudTooltip>
+        </MudContainer>
+
         <MudContainer MaxWidth="MaxWidth.Medium"
                       @onclick="@(() => FocusSegment(segment))"
                       Class="d-flex flex-column gap-2 rounded-3 pa-4 ma-0 rounded"
@@ -12,12 +32,18 @@
                            OnChange="Update"
                            Form="Form"
                            IsFocused="@(currentSegment == segment)" Segment="segment" />
+
             <Questions FormType="@FormType" Form="Form" OnChange="Update" Segment="segment" Expanded="segmentExpanded" />
         </MudContainer>
 
         @if (segment == currentSegment)
         {
             <Controls OnQuestionAdded="AddQuestion" OnSegmentAdded="AddSegment" />
+        }
+        else
+        {
+            <MudContainer MaxWidth="MaxWidth.ExtraSmall"
+              Class="d-flex flex-column gap-2 pa-2 ma-0 rounded" Style="width: 58px"></MudContainer>
         }
     </MudContainer>
 </Virtualize>
@@ -38,7 +64,7 @@
     private bool segmentExpanded = true;
     private SegmentModel currentSegment = new();
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync (bool firstRender)
     {
         if (Form.FormTitle != "")
         {
@@ -46,46 +72,47 @@
         }
     }
 
-    public async void AddQuestion()
+    public async void AddQuestion ()
     {
         QuestionModel newQuestion = new()
             {
                 SegmentId = currentSegment.SegmentId,
-                QuestionTitle = $"Fråga {currentSegment.Questions.Count + 1}"
+                QuestionTitle = $"Fråga {currentSegment.Questions.Count + 1}",
+                QuestionOrder = currentSegment.Questions.Count + 1
             };
 
         ChoiceModel newChoice = new()
             {
                 QuestionId = newQuestion.QuestionId,
-                ChoiceTitle = "Alternativ 1"
+                ChoiceTitle = "Alternativ 1",
+                ChoiceOrder = newQuestion.ChoiceOptions.Count + 1
             };
         newQuestion.ChoiceOptions.Add(newChoice);
 
         currentSegment.Questions.Add(newQuestion);
-        await OnChange.InvokeAsync();
-
+        Update();
     }
 
-    public async void AddSegment()
+    public async void AddSegment ()
     {
         SegmentModel newSegment = new()
             {
                 FormId = Form.FormId,
                 SegmentTitle = "Avsnitt utan namn",
-                SegmentDescription = "Ingen beskrivning"
+                SegmentDescription = "Ingen beskrivning",
+                SegmentOrder = Form.Segments.Count + 1
             };
         Form.Segments.Add(newSegment);
         currentSegment = newSegment;
-
-        await OnChange.InvokeAsync();
+        Update();
     }
 
-    public void FocusSegment(SegmentModel segment)
+    public void FocusSegment (SegmentModel segment)
     {
         currentSegment = segment;
     }
 
-    public string CheckFocus(SegmentModel segment)
+    public string CheckFocus (SegmentModel segment)
     {
         if (currentSegment == segment)
         {
@@ -94,15 +121,33 @@
         return Colors.Grey.Darken3;
     }
 
-    public void ToggleSegmentExpand(SegmentModel segment)
+    public void ToggleSegmentExpand (SegmentModel segment)
     {
         currentSegment = segment;
         segmentExpanded = !segmentExpanded;
     }
 
-    private async void Update()
+    private async void Update ()
     {
         StateHasChanged();
+        await OnChange.InvokeAsync();
+    }
+
+    private async Task OrderUp (SegmentModel segment)
+    {
+        SegmentModel segmentBefore = Form.Segments.First(x => x.SegmentOrder == segment.SegmentOrder - 1);
+        segmentBefore.SegmentOrder++;
+        segment.SegmentOrder--;
+        Form.Segments = Form.Segments.OrderBy(x => x.SegmentOrder).ToList();
+        await OnChange.InvokeAsync();
+    }
+
+    private async Task OrderDown (SegmentModel segment)
+    {
+        SegmentModel segmentAfter = Form.Segments.First(x => x.SegmentOrder == segment.SegmentOrder + 1);
+        segmentAfter.SegmentOrder--;
+        segment.SegmentOrder++;
+        Form.Segments = Form.Segments.OrderBy(x => x.SegmentOrder).ToList();
         await OnChange.InvokeAsync();
     }
 }

@@ -31,14 +31,34 @@
             case QuestionOptions.Flerval:
             case QuestionOptions.Enkelval:
             case QuestionOptions.Dropdown:
+
                 foreach (ChoiceModel choice in Question.ChoiceOptions)
-                //@for (var i = 0; i < Question.ChoiceOptions.Count; i++)
                 {
-                    //var index = i;
+
                     <EditForm Model="choice">
                         <DataAnnotationsValidator />
                         <MudCard Elevation="0">
                             <MudCardContent Class="d-flex align-center pa-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
+                                <MudContainer Class="d-flex flex-column gap-2 ma-0 pa-0" Style="width: 48px">
+                                    <MudTooltip Text="Flytta upp alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                                        <MudIconButton Class="mt-3"
+                                       Color="Color.Warning"
+                                       OnClick="@(() => OrderUp(choice))"
+                                       Icon="@Icons.Material.Filled.ArrowUpward"
+                                       Size="Size.Small"
+                                       Disabled="choice.ChoiceOrder == 1" />
+                                    </MudTooltip>
+
+                                    <MudTooltip Text="Flytta ner alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                                        <MudIconButton Class="mt-3"
+                                       Color="Color.Warning"
+                                       OnClick="@(() => OrderDown(choice))"
+                                       Icon="@Icons.Material.Filled.ArrowDownward"
+                                       Size="Size.Small"
+                                       Disabled="choice.ChoiceOrder == Question.ChoiceOptions.Count()" />
+                                    </MudTooltip>
+                                </MudContainer>
+
                                 <MudContainer Class="d-flex flex-column">
                                     <MudTextField Label="Alternativ"
                                   @bind-Value="choice.ChoiceTitle"
@@ -62,8 +82,10 @@
                             </MudCardContent>
                         </MudCard>
                     </EditForm>
-
                 }
+
+
+
                 <MudTooltip Text="Lägg till alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Right">
                     <MudIconButton Size="Size.Large"
                        Icon="@Icons.Material.Filled.AddCircle"
@@ -175,12 +197,13 @@
     private DateRange? dateRange;
     private TimeSpan? timeSpan;
 
-    private async void AddChoice()
+    private async void AddChoice ()
     {
         ChoiceModel choice = new()
             {
                 QuestionId = Question.QuestionId,
-                ChoiceTitle = $"Alternativ {Question.ChoiceOptions.Count + 1}"
+                ChoiceTitle = $"Alternativ {Question.ChoiceOptions.Count + 1}",
+                ChoiceOrder = Question.ChoiceOptions.Count + 1
             };
 
         Question.ChoiceOptions.Add(choice);
@@ -197,8 +220,15 @@
         await OnChange.InvokeAsync();
     }
 
-    private async void RemoveChoice(ChoiceModel choice)
+    private async void RemoveChoice (ChoiceModel choice)
     {
+        List<ChoiceModel> choicesAfterCurrent = Question.ChoiceOptions.Where(x => x.ChoiceOrder > choice.ChoiceOrder).ToList();
+
+        foreach (ChoiceModel afterChoice in choicesAfterCurrent)
+        {
+            afterChoice.ChoiceOrder--;
+        }
+
         Question.ChoiceOptions.Remove(choice);
 
         if (FormType == "LundqvistForms.Pages.Index")
@@ -209,6 +239,24 @@
         {
             await BrowserStorage.SetAsync("editForm", Form);
         }
+        await OnChange.InvokeAsync();
+    }
+
+    private async Task OrderUp (ChoiceModel choice)
+    {
+        ChoiceModel choiceBefore = Question.ChoiceOptions.First(x => x.ChoiceOrder == choice.ChoiceOrder - 1);
+        choiceBefore.ChoiceOrder++;
+        choice.ChoiceOrder--;
+        Question.ChoiceOptions = Question.ChoiceOptions.OrderBy(x => x.ChoiceOrder).ToList();
+        await OnChange.InvokeAsync();
+    }
+
+    private async Task OrderDown (ChoiceModel choice)
+    {
+        ChoiceModel segmentAfter = Question.ChoiceOptions.First(x => x.ChoiceOrder == choice.ChoiceOrder + 1);
+        segmentAfter.ChoiceOrder--;
+        choice.ChoiceOrder++;
+        Question.ChoiceOptions = Question.ChoiceOptions.OrderBy(x => x.ChoiceOrder).ToList();
         await OnChange.InvokeAsync();
     }
 }

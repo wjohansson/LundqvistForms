@@ -25,6 +25,12 @@ namespace FormsLibrary.Models
         [JsonPropertyName("scaleOptions")]
         public ScaleModel ScaleOptions { get; set; }
 
+        [JsonPropertyName("questionOrder")]
+        public int QuestionOrder { get; set; }
+
+        [JsonPropertyName("questionDate")]
+        public DateTime QuestionDate { get; set; }
+
         [JsonPropertyName("segmentId")]
         public Guid SegmentId { get; set; }
 

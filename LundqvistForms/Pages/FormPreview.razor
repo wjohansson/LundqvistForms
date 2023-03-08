@@ -60,7 +60,7 @@
 
         var answersResult = await BrowserStorage.GetAsync<List<AnswerModel>>("answers");
 
-        if (answersResult.Success && formResult.Value.FormId == Guid.Parse(FormId))
+        if (answersResult.Success && formResult.Success && formResult.Value.FormId == Guid.Parse(FormId))
         {
             answers = answersResult.Value;
         }

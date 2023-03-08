@@ -18,6 +18,12 @@ namespace FormsLibrary.Models
         [Required(ErrorMessage = "Alternativet kan inte vara tomt")]
         public string ChoiceTitle { get; set; } = "";
 
+        [JsonPropertyName("choiceOrder")]
+        public int ChoiceOrder { get; set; }
+
+        [JsonPropertyName("choiceDate")]
+        public DateTime ChoiceDate { get; set; }
+
         [JsonPropertyName("questionId")]
         public Guid QuestionId { get; set; }
     }

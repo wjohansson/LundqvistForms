@@ -25,7 +25,8 @@
             <MudButton Variant="Variant.Filled"
                        Color="Color.Warning"
                        OnClick="CreateForm"
-                       StartIcon="@Icons.Material.Filled.AddCircle" Size="Size.Large">
+                       StartIcon="@Icons.Material.Filled.AddCircle"
+                       Size="Size.Large">
                 @if (processing)
                 {
                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
@@ -43,7 +44,9 @@
                        Color="Color.Warning"
                        OnClick="ClearForm"
                        StartIcon="@Icons.Material.Filled.Delete"
-                       Size="Size.Large">RENSA FORMULÄR</MudButton>
+                       Size="Size.Large">
+                RENSA FORMULÄR
+            </MudButton>
         </MudTooltip>
     </MudContainer>
 </MudPaper>
@@ -58,7 +61,7 @@
 </MudMessageBox>
 
 @code {
-    // 5 TODO: Fixa så att inputs sparas vid reload även om inte något annat som triggar save gjort innan reload. Går det att göra vid OnAFterRender? 
+    // 5 TODO: Fixa så att inputs sparas vid reload även om inte något annat som triggar save gjort innan reload. Går det att göra vid OnAFterRender?
     //          Borde komma in i den funktionen vid varje input ändring
     // 5 TODO: Fixa global ångra knapp, och ctrl y liknande knapp
     // 5 TODO: Lägga till möjlighet att spara versioner av formuläret genom dates, och kunna kolla på gamla
@@ -69,11 +72,10 @@
     // 4 TODO: Undersök möjlighet att ha en delete all older than... knapp på UserForms
     // 5 TODO: Fixa mer responsiv design
     // 2 TODO: Fråga: Vill man ha en delay på progressing vid skapandet av formulär?
-    // 1 TODO: Fixa order på alla frågor i ett avsnitt
     // 5 TODO: Fixa så att focus på långt svar även händer då man klickar på "label"
     // 5 TODO: Möjlighet att göra formulär private eller public
     // 5 TODO: Fixa error meddelande på TID vid answers, och kanske även de andra tidsformaten. Dubbelkolla
-    // 5 TODO: Se till att endas scalemodel eller choicemodel delen sparas om frågan har typen av scale eller 
+    // 5 TODO: Se till att endas scalemodel eller choicemodel delen sparas om frågan har typen av scale eller
     //          någon choice
     // 5 TODO: Bryt ut redigera/ skapa knappar till en komponent
     // 2 TODO: Fixa komponenter av confirmbox överallt
@@ -88,18 +90,14 @@
     // 3 TODO: Fixa tema valmöjligheter på sidan som sparas i formuläret så att det följer med då användaren ska svara på fråga,
     //          använd color picker för att få till färg
     // 1 TODO: Göra om table till data grid?
-    // TODO: Fixa pagination för att hoppa mellan avsnitten
-    // TODO: Fixa if satser runt hela sidor för att förhindra att man får error vid navigering tillbaka efter
-    //          borttagande av formulär och liknande
-    // TODO: Fixa så att det står "inget svar på den här frågan" om det behövs
-    // TODO: Fixa så att man inte kan skicka in ett interval med endast start eller end date och så att det 
-    //          visas endast datum
-    // TODO: Fixa så att man kan välja timma och minut på interval? Optional
-    // TODO: Fixa skala vy på statistics så att den är mer visuell
-    // TODO: Varje avsnitt måste ha en fråga då man skapar / redigerar formuläret
-    // TODO: Lägg till datum order på allt. Avsnitt, frågor, svar osv
-    // TODO: Färdigställ enskild svar vy
-    // TODO: Kolla varför rensa knappen inte rensar helt
+    // 5 TODO: Fixa pagination för att hoppa mellan avsnitten
+    // 1 TODO: Fixa skala vy på statistics så att den är mer visuell
+    // 1 TODO: Lägg till datum order på allt. Avsnitt, frågor, svar osv
+    // 1 TODO: Färdigställ enskild svar vy
+    // 1 TODO: Kolla varför rensa knappen inte rensar helt, försök återskapa felet, går inte varje gång
+    // 1 TODO: Kolla varför Flerval inte visas i statistiken
+    // 1 TODO: Se till att vid edit så sparas inte form som en create då man kommer tillbaka på startsidan
+    // 5 TODO: Kolla ifall det går att fixa drag and drop mellan olika avsnitt
 
     private FormModel form { get; set; } = new();
     private MudMessageBox? clearBox { get; set; }
@@ -109,7 +107,7 @@
     private string clearMessage = "Formulär rensat";
     private bool processing;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync (bool firstRender)
     {
         if (firstRender)
         {
@@ -121,18 +119,19 @@
         }
     }
 
-    public void AddSegment()
+    public void AddSegment ()
     {
         SegmentModel newSegment = new()
             {
                 FormId = form.FormId,
                 SegmentTitle = "Avsnitt utan namn",
-                SegmentDescription = "Ingen beskrivning"
+                SegmentDescription = "Ingen beskrivning",
+                SegmentOrder = form.Segments.Count + 1
             };
         form.Segments.Add(newSegment);
     }
 
-    private int CountQuestion(FormModel form)
+    private int CountQuestion (FormModel form)
     {
         var count = 0;
 
@@ -144,7 +143,7 @@
         return count;
     }
 
-    public async Task CreateForm()
+    public async Task CreateForm ()
     {
         if (CountQuestion(form) == 0)
         {
@@ -203,7 +202,7 @@
         }
     }
 
-    private async void ClearForm()
+    private async void ClearForm ()
     {
         bool? result = await clearBox.Show();
 
@@ -225,19 +224,18 @@
         StateHasChanged();
     }
 
-    private async Task SaveState()
+    private async Task SaveState ()
     {
         await BrowserStorage.SetAsync("form", form);
     }
 
-    private async Task ReadState()
+    private async Task ReadState ()
     {
         var result = await BrowserStorage.GetAsync<FormModel>("form");
 
         if (result.Success)
         {
             form = result.Value;
-            StateHasChanged();
         }
         else
         {
@@ -245,8 +243,9 @@
             form.FormTitle = "Formulär utan namn";
             form.FormDescription = "Ingen beskrivning";
             AddSegment();
-            StateHasChanged();
         }
+
+        StateHasChanged();
     }
 
 }

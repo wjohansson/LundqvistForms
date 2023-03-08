@@ -5,57 +5,79 @@
 
 @foreach (QuestionModel question in Segment.Questions)
 {
-    <MudPaper Width="90%"
-          @onfocusin="@(() => currentQuestion = question)"
-          @onfocusout="@(() => currentQuestion = new QuestionModel())"
-          Class="align-self-center pa-2"
-          Elevation="0"
-          Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {CheckFocus(question)}")">
-        <EditForm Model="question">
-            <DataAnnotationsValidator />
-            <MudCard Elevation="0">
-                <MudCardContent Class="d-flex gap-2 pa-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
-                    <MudTextField Label="Fråga"
-                              @bind-Value="question.QuestionTitle"
-                              For="@(() => question.QuestionTitle)"
-                              Style="@($"color: {Colors.Grey.Lighten4}")"
-                              Clearable="true"
-                              Variant="Variant.Filled" />
+    <MudContainer Class="d-flex gap-2 ma-0 align-center">
+        <MudContainer Class="d-flex flex-column gap-2 ma-0 pa-0" Style="width: 48px">
+            <MudTooltip Text="Flytta upp fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                <MudIconButton Class="mt-3"
+                           Color="Color.Warning"
+                           OnClick="@(() => OrderUp(question))"
+                           Icon="@Icons.Material.Filled.ArrowUpward"
+                           Size="Size.Medium"
+                           Disabled="question.QuestionOrder == 1" />
+            </MudTooltip>
 
-                    <MudContainer Style="width:30%">
-                        <MudSelect Placeholder="Typ av fråga..."
-                               @bind-Value="question.QuestionOption"
-                               For="@(() => question.QuestionOption)"
-                               Style="@($"color: {Colors.Grey.Lighten5}; ")"
-                               Variant="Variant.Outlined">
-                            @foreach (QuestionOptions option in Enum.GetValues(typeof(QuestionOptions)))
-                            {
-                                <MudSelectItem Value="@option">@option</MudSelectItem>
-                            }
-                        </MudSelect>
-                    </MudContainer>
+            <MudTooltip Text="Flytta ner fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                <MudIconButton Class="mt-3"
+                           Color="Color.Warning"
+                           OnClick="@(() => OrderDown(question))"
+                           Icon="@Icons.Material.Filled.ArrowDownward"
+                           Size="Size.Medium"
+                           Disabled="question.QuestionOrder == Segment.Questions.Count()" />
+            </MudTooltip>
+        </MudContainer>
 
-                    <MudTooltip Text="Duplicera fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
-                        <MudIconButton Class="mt-3"
-                                   Color="Color.Warning"
-                                   OnClick="@(() => DuplicateQuestion(question))"
-                                   Icon="@Icons.Material.Filled.ContentCopy"
-                                   Size="Size.Medium"></MudIconButton>
-                    </MudTooltip>
-                    <MudTooltip Text="Ta bort fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
-                        <MudIconButton Class="mt-3"
-                                   Color="Color.Error"
-                                   OnClick="@(() => DeleteQuestion(question))"
-                                   Icon="@Icons.Material.Filled.Delete"
-                                   Size="Size.Medium"></MudIconButton>
-                    </MudTooltip>
+        <MudPaper Width="90%"
+              @onfocusin="@(() => currentQuestion = question)"
+              @onfocusout="@(() => currentQuestion = new QuestionModel())"
+              Class="align-self-center pa-2"
+              Elevation="0"
+              Style="@($"background-color: {Colors.Grey.Darken2}; border-left: 4px solid {CheckFocus(question)}")">
+            <EditForm Model="question" Context="editForm">
+                <DataAnnotationsValidator />
+                <MudCard Elevation="0">
+                    <MudCardContent Class="d-flex gap-2 pa-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
+                        <MudTextField Label="Fråga"
+                                  @bind-Value="question.QuestionTitle"
+                                  For="@(() => question.QuestionTitle)"
+                                  Style="@($"color: {Colors.Grey.Lighten4}")"
+                                  Clearable="true"
+                                  Variant="Variant.Filled" />
 
-                </MudCardContent>
+                        <MudContainer Style="width:30%">
+                            <MudSelect Placeholder="Typ av fråga..."
+                                   @bind-Value="question.QuestionOption"
+                                   For="@(() => question.QuestionOption)"
+                                   Style="@($"color: {Colors.Grey.Lighten5}; ")"
+                                   Variant="Variant.Outlined">
+                                @foreach (QuestionOptions option in Enum.GetValues(typeof(QuestionOptions)))
+                                {
+                                    <MudSelectItem Value="@option">@option</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudContainer>
 
-                <QuestionContent FormType="@FormType" Form="Form" OnChange="OnChange.InvokeAsync" Expanded="Expanded" Question="question" />
-            </MudCard>
-        </EditForm>
-    </MudPaper>
+                        <MudTooltip Text="Duplicera fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                            <MudIconButton Class="mt-3"
+                                       Color="Color.Warning"
+                                       OnClick="@(() => DuplicateQuestion(question))"
+                                       Icon="@Icons.Material.Filled.ContentCopy"
+                                       Size="Size.Medium"></MudIconButton>
+                        </MudTooltip>
+                        <MudTooltip Text="Ta bort fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                            <MudIconButton Class="mt-3"
+                                       Color="Color.Error"
+                                       OnClick="@(() => DeleteQuestion(question))"
+                                       Icon="@Icons.Material.Filled.Delete"
+                                       Size="Size.Medium"></MudIconButton>
+                        </MudTooltip>
+
+                    </MudCardContent>
+
+                    <QuestionContent FormType="@FormType" Form="Form" OnChange="OnChange.InvokeAsync" Expanded="Expanded" Question="question" />
+                </MudCard>
+            </EditForm>
+        </MudPaper>
+    </MudContainer>
 }
 
 <MudMessageBox @ref="deleteQuestionBox" Title="Ta bort fråga" CancelText="Avbryt">
@@ -87,15 +109,23 @@
     private string deleteQuestionMessage = "Frågan borttagen";
     private QuestionModel currentQuestion = new();
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync (bool firstRender)
     {
         if (firstRender && FormType == "LundqvistForms.Pages.Index")
         {
-            await BrowserStorage.GetAsync<FormModel>("form");
+            var result = await BrowserStorage.GetAsync<FormModel>("form");
+            if (result.Success)
+            {
+                Form = result.Value;
+            }
         }
         else if (firstRender && FormType == "LundqvistForms.Pages.EditCurrentForm")
         {
-            await BrowserStorage.GetAsync<FormModel>("editForm");
+            var result = await BrowserStorage.GetAsync<FormModel>("editForm");
+            if (result.Success)
+            {
+                Form = result.Value;
+            }
         }
         else if (FormType == "LundqvistForms.Pages.Index")
         {
@@ -107,7 +137,7 @@
         }
     }
 
-    public string CheckFocus(QuestionModel question)
+    public string CheckFocus (QuestionModel question)
     {
         if (currentQuestion == question)
         {
@@ -117,13 +147,14 @@
         return Colors.Grey.Darken2;
     }
 
-    private async Task DuplicateQuestion(QuestionModel question)
+    private async Task DuplicateQuestion (QuestionModel question)
     {
         QuestionModel newQuestion = new()
             {
                 SegmentId = question.SegmentId,
                 QuestionTitle = question.QuestionTitle,
                 QuestionOption = question.QuestionOption,
+                QuestionOrder = Segment.Questions.Count + 1
             };
 
         foreach (ChoiceModel choice in question.ChoiceOptions)
@@ -131,7 +162,8 @@
             ChoiceModel newChoice = new()
                 {
                     QuestionId = choice.QuestionId,
-                    ChoiceTitle = choice.ChoiceTitle
+                    ChoiceTitle = choice.ChoiceTitle,
+                    ChoiceOrder = choice.ChoiceOrder
                 };
 
             newQuestion.ChoiceOptions.Add(newChoice);
@@ -152,7 +184,7 @@
         await OnChange.InvokeAsync();
     }
 
-    private async Task DeleteQuestion(QuestionModel question)
+    private async Task DeleteQuestion (QuestionModel question)
     {
         bool? result = await deleteQuestionBox.Show();
 
@@ -161,9 +193,34 @@
             return;
         }
 
+        List<QuestionModel> questionsAfterCurrent = Segment.Questions.Where(x => x.QuestionOrder > question.QuestionOrder).ToList();
+
+        foreach (QuestionModel afterQuestion in questionsAfterCurrent)
+        {
+            afterQuestion.QuestionOrder--;
+        }
+
         Segment.Questions.Remove(question);
         Snackbar.Add(deleteQuestionMessage, Severity.Info);
 
+        await OnChange.InvokeAsync();
+    }
+
+    private async Task OrderUp (QuestionModel question)
+    {
+        QuestionModel questionBefore = Segment.Questions.First(x => x.QuestionOrder == question.QuestionOrder - 1);
+        questionBefore.QuestionOrder++;
+        question.QuestionOrder--;
+        Segment.Questions = Segment.Questions.OrderBy(x => x.QuestionOrder).ToList();
+        await OnChange.InvokeAsync();
+    }
+
+    private async Task OrderDown (QuestionModel question)
+    {
+        QuestionModel questionAfter = Segment.Questions.First(x => x.QuestionOrder == question.QuestionOrder + 1);
+        questionAfter.QuestionOrder--;
+        question.QuestionOrder++;
+        Segment.Questions = Segment.Questions.OrderBy(x => x.QuestionOrder).ToList();
         await OnChange.InvokeAsync();
     }
 }

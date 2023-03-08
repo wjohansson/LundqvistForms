@@ -105,6 +105,13 @@
             return;
         }
 
+        List<SegmentModel> segmentsAfterCurrent = Form.Segments.Where(x => x.SegmentOrder > segment.SegmentOrder).ToList();
+
+        foreach (SegmentModel afterSegment in segmentsAfterCurrent)
+        {
+            afterSegment.SegmentOrder--;
+        }
+
         Form.Segments.Remove(segment);
 
         if (Form.Segments.Count == 0)
@@ -113,7 +120,8 @@
                 {
                     FormId = Form.FormId,
                     SegmentTitle = "Avsnitt utan namn",
-                    SegmentDescription = "Ingen beskrivning"
+                    SegmentDescription = "Ingen beskrivning",
+                    SegmentOrder = Form.Segments.Count + 1
                 });
         }
         Snackbar.Add(deleteSegmentMessage, Severity.Info);
@@ -127,7 +135,8 @@
             {
                 FormId = segment.FormId,
                 SegmentTitle = segment.SegmentTitle,
-                SegmentDescription = segment.SegmentDescription
+                SegmentDescription = segment.SegmentDescription,
+                SegmentOrder = Form.Segments.Count + 1
             };
 
         foreach (QuestionModel question in segment.Questions)
@@ -137,7 +146,8 @@
                     SegmentId = question.SegmentId,
                     QuestionTitle = question.QuestionTitle,
                     QuestionOption = question.QuestionOption,
-                    ScaleOptions = question.ScaleOptions
+                    ScaleOptions = question.ScaleOptions,
+                    QuestionOrder = question.QuestionOrder
                 };
 
             foreach (ChoiceModel choice in question.ChoiceOptions)
@@ -145,7 +155,8 @@
                 ChoiceModel newChoice = new()
                     {
                         QuestionId = choice.QuestionId,
-                        ChoiceTitle = choice.ChoiceTitle
+                        ChoiceTitle = choice.ChoiceTitle,
+                        ChoiceOrder = choice.ChoiceOrder
                     };
 
                 newQuestion.ChoiceOptions.Add(newChoice);

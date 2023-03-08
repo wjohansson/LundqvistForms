@@ -20,8 +20,8 @@ namespace FormsLibrary.Models
         [JsonPropertyName("formDescription")]
         public string FormDescription { get; set; } = "";
 
-        [JsonPropertyName("dateCreated")]
-        public DateTime DateCreated { get; set; }
+        [JsonPropertyName("formDate")]
+        public DateTime FormDate { get; set; }
 
         [ForeignKey("FormId")]
         [JsonPropertyName("segments")]

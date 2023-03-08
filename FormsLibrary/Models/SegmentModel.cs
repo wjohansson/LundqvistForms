@@ -18,6 +18,12 @@ namespace FormsLibrary.Models
         [JsonPropertyName("segmentDescription")]
         public string SegmentDescription { get; set; } = "";
 
+        [JsonPropertyName("segmentOrder")]
+        public int SegmentOrder { get; set; }
+
+        [JsonPropertyName("segmentDate")]
+        public DateTime SegmentDate { get; set; }
+
         [JsonPropertyName("formId")]
         public Guid FormId { get; set; }
 
