@@ -1,6 +1,6 @@
 ﻿@using FormsLibrary.Models;
 
-<MudContainer Class="d-flex flex-column">
+<MudContainer Class="d-flex flex-column pa-0">
     @if (Question != null)
     {
         if ((ChoiceType == "Multiple" && Question.Answers.All(x => x.MultipleChoice?.Count == 0)) ||

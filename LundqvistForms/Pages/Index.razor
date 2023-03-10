@@ -89,15 +89,15 @@
     // 1 TODO: Statistik, lägg till översikt, per fråga och per enskilt svar
     // 3 TODO: Fixa tema valmöjligheter på sidan som sparas i formuläret så att det följer med då användaren ska svara på fråga,
     //          använd color picker för att få till färg
-    // 1 TODO: Göra om table till data grid?
+    // 3 TODO: Göra om table till data grid?
     // 5 TODO: Fixa pagination för att hoppa mellan avsnitten
     // 1 TODO: Fixa skala vy på statistics så att den är mer visuell
-    // 1 TODO: Lägg till datum order på allt. Avsnitt, frågor, svar osv
     // 1 TODO: Färdigställ enskild svar vy
-    // 1 TODO: Kolla varför rensa knappen inte rensar helt, försök återskapa felet, går inte varje gång
-    // 1 TODO: Kolla varför Flerval inte visas i statistiken
+    // 1 TODO: Kolla varför rensa knappen inte rensar helt, försök återskapa felet, går inte varje gång. INTE LYCKATS ÅTERSKAPA 
+    // 1 TODO: Kolla varför Flerval inte visas i statistiken. INGET AV SVAR SPARAS
     // 1 TODO: Se till att vid edit så sparas inte form som en create då man kommer tillbaka på startsidan
     // 5 TODO: Kolla ifall det går att fixa drag and drop mellan olika avsnitt
+    // 1 TODO: Se till att rensa svar fungerar
 
     private FormModel form { get; set; } = new();
     private MudMessageBox? clearBox { get; set; }
@@ -217,8 +217,8 @@
                 FormDescription = "Ingen beskrivning"
             };
         AddSegment();
-        await BrowserStorage.DeleteAsync("editedForm");
-
+        await SaveState();
+        
         Snackbar.Add(clearMessage, Severity.Info);
 
         StateHasChanged();
