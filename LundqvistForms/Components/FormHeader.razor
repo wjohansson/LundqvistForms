@@ -31,13 +31,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && FormType == "LundqvistForms.Pages.Index")
+        if (firstRender)
         {
-            await BrowserStorage.GetAsync<FormModel>("form");
-        }
-        else if (firstRender && FormType == "LundqvistForms.Pages.EditCurrentForm")
-        {
-            await BrowserStorage.GetAsync<FormModel>("editForm");
+            return;
         }
         else if (FormType == "LundqvistForms.Pages.Index")
         {

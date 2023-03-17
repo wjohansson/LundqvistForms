@@ -169,11 +169,8 @@
 }
 
 @code {
-    // TODO: Fixa TimeSpan så att det hämtar in nuvarande tid som standard värde plus att den inte ska PM/AM
-    // TODO: Fixa utseendemässiga av att bocka för. Ta bort blå focus indikatorn. Outline och border?
     // TODO: Fixa en obligatorisk toggle på alla svar för att välja om ett det krävs ett svar på den frågan.
     //          Som standard borde alla svar vara obligatoriska, men man får välja om det ska vara frivilligt
-    // TODO: Fixa sätt att duplicera fråga, avsnitt och helt form
     // TODO: Fixa så att standard färgen är gul istället för blå vid focus states
 
     [Parameter]
@@ -203,7 +200,8 @@
             {
                 QuestionId = Question.QuestionId,
                 ChoiceTitle = $"Alternativ {Question.ChoiceOptions.Count + 1}",
-                ChoiceOrder = Question.ChoiceOptions.Count + 1
+                ChoiceOrder = Question.ChoiceOptions.Count + 1,
+                ChoiceDate = DateTime.Now
             };
 
         Question.ChoiceOptions.Add(choice);

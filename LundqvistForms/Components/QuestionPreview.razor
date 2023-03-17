@@ -10,7 +10,12 @@
         {
             case QuestionOptions.Kort:
                 <MudTextField Label="Kort svar"
-                      @bind-Value="answer.ShortAnswer"
+                      Value="Answers.First(x => x.QuestionId == Question.QuestionId).ShortAnswer"
+                      ValueChanged="@(async (string? newAnswer) =>
+                                        {
+                                            Answers.First(x => x.QuestionId == Question.QuestionId).ShortAnswer = newAnswer;
+                                            await BrowserStorage.SetAsync("answers", Answers);
+                                        })"
                       Class="px-2"
                       Style="@($"color: {Colors.Grey.Lighten4};")"
                       Variant="Variant.Filled"
@@ -18,8 +23,15 @@
 
                 break;
             case QuestionOptions.Lång:
+                answer.LongAnswer = Answers.First(x => x.QuestionId == Question.QuestionId).LongAnswer;
+
                 <MudTextField Label="Långt svar"
-                      @bind-Value="answer.LongAnswer"
+                      Value="Answers.First(x => x.QuestionId == Question.QuestionId).LongAnswer"
+                      ValueChanged="@(async (string? newAnswer) =>
+                                        {
+                                            Answers.First(x => x.QuestionId == Question.QuestionId).LongAnswer = newAnswer;
+                                            await BrowserStorage.SetAsync("answers", Answers);
+                                        })"
                       Class="px-2"
                       Style="@($" color: {Colors.Grey.Lighten4};")"
                       Variant="Variant.Filled"
@@ -30,12 +42,18 @@
             case QuestionOptions.Flerval:
                 @for (var i = 0; i < Question.ChoiceOptions.Count; i++)
                 {
-                    <MultipleChoiceAnswer Answers="Answers" Answer="answer" Question="Question" Index="i"></MultipleChoiceAnswer>
+                    <MultipleChoiceAnswer Answers="Answers" Answer="answer" Question="Question" Index="i" Disabled="false"></MultipleChoiceAnswer>
                 }
 
                 break;
             case QuestionOptions.Enkelval:
-                <MudRadioGroup @bind-SelectedOption="answer.SingleChoice" Class="px-2">
+                <MudRadioGroup SelectedOption="Answers.First(x => x.QuestionId == Question.QuestionId).SingleChoice"
+                       SelectedOptionChanged="@(async (string? newAnswer) =>
+                                                {
+                                                    Answers.First(x => x.QuestionId == Question.QuestionId).SingleChoice = newAnswer;
+                                                    await BrowserStorage.SetAsync("answers", Answers);
+                                                })"
+                       Class="px-2">
                     @for (var i = 0; i < Question.ChoiceOptions.Count; i++)
                     {
                         var index = i;
@@ -51,7 +69,13 @@
                 <MudSelect T="string"
                    Variant="Variant.Filled"
                    Class="px-2"
-                   Label="Svar" @bind-Value="answer.DropdownChoice"
+                   Label="Svar"
+                   Value="Answers.First(x => x.QuestionId == Question.QuestionId).DropdownChoice"
+                   ValueChanged="@(async (string newAnswer) =>
+                                    {
+                                        Answers.First(x => x.QuestionId == Question.QuestionId).DropdownChoice = newAnswer;
+                                        await BrowserStorage.SetAsync("answers", Answers);
+                                    })"
                    AnchorOrigin="Origin.BottomCenter">
 
                     @for (var i = 0; i < Question.ChoiceOptions.Count; i++)
@@ -65,7 +89,12 @@
                 break;
             case QuestionOptions.Datum:
                 <MudDatePicker Label="Datum"
-                       @bind-Date="answer.Date"
+                       Date="Answers.First(x => x.QuestionId == Question.QuestionId).Date"
+                       DateChanged="@(async (DateTime? newAnswer) =>
+                                        {
+                                            Answers.First(x => x.QuestionId == Question.QuestionId).Date = newAnswer;
+                                            await BrowserStorage.SetAsync("answers", Answers);
+                                        })"
                        ShowWeekNumbers="true"
                        DisplayMonths="2"
                        PickerVariant="PickerVariant.Dialog"
@@ -75,8 +104,30 @@
                        Clearable="true" />
                 break;
             case QuestionOptions.Tidsintervall:
+                AnswerModel currentAnswer = Answers.First(x => x.QuestionId == Question.QuestionId);
+                if (currentAnswer.Interval != null && currentAnswer.Interval.StartDate != null && currentAnswer.Interval.EndDate != null)
+                {
+                    DateRange.Start = currentAnswer.Interval.StartDate;
+                    DateRange.End = currentAnswer.Interval.EndDate;
+                }
+                else
+                {
+                    DateRange = new();
+                }
                 <MudDateRangePicker Label="Tidsintervall"
-                            @bind-DateRange="DateRange"
+                            DateRange="DateRange"
+                            DateRangeChanged="@(async (DateRange newAnswer) =>
+                                {
+                                    DateRange = newAnswer;
+                                    AnswerModel currentAnswer = Answers.First(x => x.QuestionId == Question.QuestionId);
+                                    currentAnswer.Interval = new()
+                                        {
+                                            StartDate = newAnswer.Start,
+                                            EndDate = newAnswer.End,
+                                            AnswerId = Answers.First(x => x.QuestionId == Question.QuestionId).AnswerId
+                                        };
+                                    await BrowserStorage.SetAsync("answers", Answers);
+                                })"
                             ShowWeekNumbers="true"
                             PickerVariant="PickerVariant.Dialog"
                             Color="Color.Warning"
@@ -87,7 +138,12 @@
                 break;
             case QuestionOptions.Tid:
                 <MudTimePicker Label="Tid"
-                       @bind-Time="answer.Time"
+                       Time="Answers.First(x => x.QuestionId == Question.QuestionId).Time"
+                       TimeChanged="@(async (TimeSpan? newAnswer) =>
+                                        {
+                                            Answers.First(x => x.QuestionId == Question.QuestionId).Time = newAnswer;
+                                            await BrowserStorage.SetAsync("answers", Answers);
+                                        })"
                        PickerVariant="PickerVariant.Dialog"
                        Color="Color.Warning"
                        Class="px-2"
@@ -97,7 +153,13 @@
                 break;
             case QuestionOptions.Skala:
                 <MudContainer Class="text-white d-flex align-center gap-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
-                    <MudRadioGroup @bind-SelectedOption="@answer.Scale" Class="d-flex gap-0">
+                    <MudRadioGroup SelectedOption="Answers.First(x => x.QuestionId == Question.QuestionId).Scale"
+                           SelectedOptionChanged="@(async (int? newAnswer) =>
+                                                    {
+                                                        Answers.First(x => x.QuestionId == Question.QuestionId).Scale = newAnswer;
+                                                        await BrowserStorage.SetAsync("answers", Answers);
+                                                    })"
+                           Class="d-flex gap-0">
                         <MudContainer Style="width: 100%" Class="d-flex justify-space-between pa-0 ml-2">
                             @if (Question.ScaleOptions.LowLabel != "")
                             {
@@ -134,50 +196,4 @@
     public List<AnswerModel> Answers { get; set; } = new();
 
     private AnswerModel answer = new();
-
-    protected override async void OnAfterRender(bool firstRender)
-    {
-        //if (firstRender)
-        //{
-        //    await ReadState();
-        //}
-        //else if (!firstRender)
-        //{
-        //    await SaveState();
-        //}
-    }
-
-    private async Task SaveState()
-    {
-        if (answer.Interval != null && DateRange != null)
-        {
-            answer.Interval.StartDate = DateRange.Start ?? answer.Interval.StartDate;
-            answer.Interval.EndDate = DateRange.End ?? answer.Interval.EndDate;
-        }
-
-        await BrowserStorage.SetAsync("answers", Answers);
-    }
-
-    private async Task ReadState()
-    {
-        var result = await BrowserStorage.GetAsync<List<AnswerModel>>("answers");
-
-        if (result.Success)
-        {
-            Answers = result.Value;
-            answer = Answers.First(x => x.QuestionId == Question.QuestionId);
-
-            if (Question.QuestionOption == QuestionOptions.Tidsintervall &&
-                answer.Interval != null &&
-                answer.Interval.StartDate != null &&
-                answer.Interval.EndDate != null &&
-                DateRange != null)
-            {
-                DateRange.Start = answer.Interval.StartDate;
-                DateRange.End = answer.Interval.EndDate;
-            }
-        }
-        StateHasChanged();
-
-    }
 }

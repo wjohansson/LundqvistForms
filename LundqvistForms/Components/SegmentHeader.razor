@@ -82,6 +82,9 @@
     [Parameter]
     public FormModel Form { get; set; } = new();
 
+    [Parameter]
+    public string FormType { get; set; }
+
     private MudMessageBox? deleteSegmentBox { get; set; }
 
     private string deleteSegmentMessage = "Avsnitt borttaget";
@@ -90,9 +93,17 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
+        if (firstRender)
+        {
+            return;
+        }
+        else if (FormType == "LundqvistForms.Pages.Index")
         {
             await BrowserStorage.SetAsync("form", Form);
+        }
+        else if (FormType == "LundqvistForms.Pages.EditCurrentForm")
+        {
+            await BrowserStorage.SetAsync("editForm", Form);
         }
     }
 
@@ -121,7 +132,8 @@
                     FormId = Form.FormId,
                     SegmentTitle = "Avsnitt utan namn",
                     SegmentDescription = "Ingen beskrivning",
-                    SegmentOrder = Form.Segments.Count + 1
+                    SegmentOrder = Form.Segments.Count + 1,
+                    SegmentDate = DateTime.Now
                 });
         }
         Snackbar.Add(deleteSegmentMessage, Severity.Info);
@@ -156,7 +168,8 @@
                     {
                         QuestionId = choice.QuestionId,
                         ChoiceTitle = choice.ChoiceTitle,
-                        ChoiceOrder = choice.ChoiceOrder
+                        ChoiceOrder = choice.ChoiceOrder,
+                        ChoiceDate = DateTime.Now
                     };
 
                 newQuestion.ChoiceOptions.Add(newChoice);

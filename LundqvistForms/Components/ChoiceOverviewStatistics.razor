@@ -7,7 +7,9 @@
             (ChoiceType == "Single" && Question.Answers.All(x => x.SingleChoice == null)) ||
             (ChoiceType == "Dropdown" && Question.Answers.All(x => x.DropdownChoice == null)))
         {
-            <MudText>Inga svar på frågan än</MudText>
+            <MudText Typo="Typo.h6" Style="font-style: italic">
+                Inga svar på frågan än
+            </MudText>
         }
         else
         {

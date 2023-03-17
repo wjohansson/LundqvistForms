@@ -1,6 +1,6 @@
 ﻿@using FormsLibrary.Models;
 
-@if (Form.Answers.Count == 0)
+@if (Answers.Count == 0)
 {
     <MudText Align="Align.Center" Typo="Typo.h4">Inga svar registrerade på formuläret</MudText>
 }
@@ -12,139 +12,216 @@ else
                 <MudText Typo="Typo.h3" Align="Align.Center">@segment.SegmentTitle</MudText>
                 <Virtualize Items="segment.Questions" Context="question">
                     <MudContainer Style="@($"background-color: {Colors.Grey.Darken3}")" Class=" d-flex flex-column gap-2 pa-2 rounded">
+                        <MudDivider Style="border: 2px solid #ffa800" Class="border my-4"></MudDivider>
                         <MudText Typo="Typo.h4">@question.QuestionTitle</MudText>
 
-                        @switch (question.QuestionOption)
+                        @if (question != null)
                         {
-                            case QuestionOptions.Kort:
-                                if (question.Answers.All(x => x.ShortAnswer == null))
-                                {
-                                    <MudText>Inga svar på frågan än</MudText>
-                                }
-                                else
-                                {
-                                    foreach (AnswerModel answer in question.Answers)
+                            question.Answers = Answers.Where(x => x.QuestionId == question.QuestionId).ToList();
+                            @switch (question.QuestionOption)
+                            {
+                                case QuestionOptions.Kort:
+                                    if (question.Answers.All(x => x.ShortAnswer == null))
                                     {
-                                        if (answer.ShortAnswer != null)
+                                        <MudText Typo="Typo.h6" Style="font-style: italic">
+                                            Inga svar på frågan än
+                                        </MudText>
+                                    }
+                                    else
+                                    {
+                                        foreach (AnswerModel answer in question.Answers.DistinctBy(x => x.ShortAnswer))
                                         {
-                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
-                                                @answer.ShortAnswer
-                                            </MudText>
+                                            if (answer.ShortAnswer != null)
+                                            {
+                                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                    <MudText Typo="Typo.h5">
+                                                        @answer.ShortAnswer
+                                                    </MudText>
+                                                    <MudDivider />
+                                                    <MudText Style="opacity: 0.6">@question.Answers.Where(x => x.ShortAnswer == answer.ShortAnswer).ToList().Count Svar</MudText>
+                                                </MudContainer>
+
+                                            }
                                         }
                                     }
-                                }
 
-                                break;
-                            case QuestionOptions.Lång:
-                                if (question.Answers.All(x => x.LongAnswer == null))
-                                {
-                                    <MudText>Inga svar på frågan än</MudText>
-                                }
-                                else
-                                {
-                                    foreach (AnswerModel answer in question.Answers)
+                                    break;
+                                case QuestionOptions.Lång:
+                                    if (question.Answers.All(x => x.LongAnswer == null))
                                     {
-                                        if (answer.LongAnswer != null)
+                                        <MudText Typo="Typo.h6" Style="font-style: italic">
+                                            Inga svar på frågan än
+                                        </MudText>
+                                    }
+                                    else
+                                    {
+                                        foreach (AnswerModel answer in question.Answers.DistinctBy(x => x.LongAnswer))
                                         {
-                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
-                                                @answer.LongAnswer
-                                            </MudText>
+                                            if (answer.LongAnswer != null)
+                                            {
+                                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                    <MudText Typo="Typo.h5">
+                                                        @answer.LongAnswer
+                                                    </MudText>
+                                                    <MudDivider />
+                                                    <MudText Style="opacity: 0.6">@question.Answers.Where(x => x.LongAnswer == answer.LongAnswer).ToList().Count Svar</MudText>
+                                                </MudContainer>
+                                            }
                                         }
                                     }
-                                }
 
-                                break;
-                            case QuestionOptions.Flerval:
-                                <ChoiceOverviewStatistics Question="question" ChoiceType="Multiple" />
+                                    break;
+                                case QuestionOptions.Flerval:
+                                    <ChoiceOverviewStatistics Question="question" ChoiceType="Multiple" />
 
-                                break;
-                            case QuestionOptions.Enkelval:
-                                <ChoiceOverviewStatistics Question="question" ChoiceType="Single" />
+                                    break;
+                                case QuestionOptions.Enkelval:
+                                    <ChoiceOverviewStatistics Question="question" ChoiceType="Single" />
 
-                                break;
-                            case QuestionOptions.Dropdown:
-                                <ChoiceOverviewStatistics Question="question" ChoiceType="Dropdown" />
+                                    break;
+                                case QuestionOptions.Dropdown:
+                                    <ChoiceOverviewStatistics Question="question" ChoiceType="Dropdown" />
 
-                                break;
-                            case QuestionOptions.Datum:
-                                if (question.Answers.All(x => x.Date == null))
-                                {
-                                    <MudText>Inga svar på frågan än</MudText>
-                                }
-                                else
-                                {
-                                    foreach (AnswerModel answer in question.Answers)
+                                    break;
+                                case QuestionOptions.Datum:
+                                    if (question.Answers.All(x => x.Date == null))
                                     {
-                                        if (answer.Date != null)
+                                        <MudText Typo="Typo.h6" Style="font-style: italic">
+                                            Inga svar på frågan än
+                                        </MudText>
+                                    }
+                                    else
+                                    {
+                                        foreach (AnswerModel answer in question.Answers.DistinctBy(x => x.Date))
                                         {
-                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
-                                                @answer.Date.Value.Date.ToString("yyyy-MM-dd")
-                                            </MudText>
+                                            if (answer.Date != null)
+                                            {
+                                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                    <MudText Typo="Typo.h5">
+                                                        @answer.Date.Value.Date.ToString("yyyy-MM-dd")
+                                                    </MudText>
+                                                    <MudDivider />
+                                                    <MudText Style="opacity: 0.6">@question.Answers.Where(x => x.Date == answer.Date).ToList().Count Svar</MudText>
+                                                </MudContainer>
+                                            }
                                         }
                                     }
-                                }
 
-                                break;
-                            case QuestionOptions.Tidsintervall:
-                                if (question.Answers.All(x => x.Interval == null))
-                                {
-                                    <MudText>Inga svar på frågan än</MudText>
-                                }
-                                else
-                                {
-                                    foreach (AnswerModel answer in question.Answers)
+                                    break;
+                                case QuestionOptions.Tidsintervall:
+                                    if (question.Answers.All(x => x.Interval == null))
                                     {
-                                        if (answer.Interval != null && answer.Interval.StartDate != null && answer.Interval.EndDate != null)
+                                        <MudText Typo="Typo.h6" Style="font-style: italic">
+                                            Inga svar på frågan än
+                                        </MudText>
+                                    }
+                                    else
+                                    {
+                                        List<AnswerModel> answers = new();
+
+                                        foreach (AnswerModel answer in question.Answers)
                                         {
-                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
-                                                Från: @answer.Interval.StartDate.Value.Date.ToString("yyyy-MM-dd")
-                                                <MudDivider Style="border: none"></MudDivider>
-                                                Till: @answer.Interval.EndDate.Value.Date.ToString("yyyy-MM-dd")
-                                            </MudText>
+                                            if (!answers.Any(x => x.Interval?.StartDate == answer.Interval?.StartDate && x.Interval?.EndDate == answer.Interval?.EndDate))
+                                            {
+                                                answers.Add(answer);
+                                            }
+                                        }
+
+                                        foreach (AnswerModel answer in answers)
+                                        {
+                                            if (answer.Interval != null && answer.Interval.StartDate != null && answer.Interval.EndDate != null)
+                                            {
+                                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                    <MudText Class="d-flex gap-2" Typo="Typo.h5">
+                                                        @answer.Interval.StartDate.Value.Date.ToString("yyyy-MM-dd")
+                                                        <MudIcon Class="mt-1" Icon="@Icons.Material.Filled.ArrowForward" Color="Color.Warning"></MudIcon>
+                                                        @answer.Interval.EndDate.Value.Date.ToString("yyyy-MM-dd")
+                                                    </MudText>
+                                                    <MudDivider />
+                                                    <MudText Style="opacity: 0.6">
+                                                        @question.Answers.Where(x =>
+                            x.Interval?.StartDate == answer.Interval?.StartDate &&
+                            x.Interval?.EndDate == answer.Interval?.EndDate).ToList().Count Svar
+                                                    </MudText>
+                                                </MudContainer>
+
+                                            }
                                         }
                                     }
-                                }
 
-                                break;
-                            case QuestionOptions.Tid:
-                                if (question.Answers.All(x => x.Time == null))
-                                {
-                                    <MudText>Inga svar på frågan än</MudText>
-                                }
-                                else
-                                {
-                                    foreach (AnswerModel answer in question.Answers)
+                                    break;
+                                case QuestionOptions.Tid:
+                                    if (question.Answers.All(x => x.Time == null))
                                     {
-                                        if (answer.Time != null)
+                                        <MudText Typo="Typo.h6" Style="font-style: italic">
+                                            Inga svar på frågan än
+                                        </MudText>
+                                    }
+                                    else
+                                    {
+                                        foreach (AnswerModel answer in question.Answers.DistinctBy(x => x.Time))
                                         {
-                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
-                                                @answer.Time.Value.Hours:@answer.Time.Value.Minutes
-                                            </MudText>
+                                            if (answer.Time != null)
+                                            {
+                                                <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
+                                                    <MudText Typo="Typo.h5">
+                                                        @answer.Time.Value.Hours:@answer.Time.Value.Minutes
+                                                    </MudText>
+                                                    <MudDivider />
+                                                    <MudText Style="opacity: 0.6">@question.Answers.Where(x => x.Time == answer.Time).ToList().Count Svar</MudText>
+                                                </MudContainer>
+                                            }
+                                        }
+                                        foreach (AnswerModel answer in question.Answers)
+                                        {
+                                            if (answer.Time != null)
+                                            {
+
+                                            }
                                         }
                                     }
-                                }
 
-                                break;
-                            case QuestionOptions.Skala:
-                                if (question.Answers.All(x => x.Scale == null))
-                                {
-                                    <MudText>Inga svar på frågan än</MudText>
-                                }
-                                else
-                                {
-                                    foreach (AnswerModel answer in question.Answers)
+                                    break;
+                                case QuestionOptions.Skala:
+                                    if (question.Answers.All(x => x.Scale == null))
                                     {
-                                        if (answer.Scale != null)
-                                        {
-                                            <MudText Class="pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
-                                                @answer.Scale
-                                            </MudText>
-                                        }
+                                        <MudText Typo="Typo.h6" Style="font-style: italic">
+                                            Inga svar på frågan än
+                                        </MudText>
                                     }
-                                }
-                                break;
+                                    else
+                                    {
+                                        List<string> XAxisLabels = new();
+                                        double[] Data = new double[question.ScaleOptions.High - question.ScaleOptions.Low + 1];
+
+                                        for (int i = question.ScaleOptions.Low; i <= question.ScaleOptions.High; i++)
+                                        {
+                                            XAxisLabels.Add(i.ToString());
+                                            Data[i] = question.Answers.Where(x => x.Scale == i).ToList().Count;
+
+                                        }
+
+
+                                        List<ChartSeries> Series = new();
+
+                                        Series.Add(new ChartSeries()
+                                                {
+                                                    Name = "Antal svar",
+                                                    Data = Data
+                                                });
+
+                                        ChartOptions chartOptions = new()
+                                                {
+                                                    YAxisTicks = question.Answers.Count > 10 ? 5 : 2,
+                                                    DisableLegend = true,
+                                                };
+
+                                        <MudChart ChartType="ChartType.Bar" ChartOptions="chartOptions" ChartSeries="Series" XAxisLabels="XAxisLabels.ToArray()" Width="100%" Height="350px" />
+                                    }
+
+                                    break;
+                            }
                         }
-                        <MudDivider Style="border: 2px solid #ffa800" Class="border my-4"></MudDivider>
                     </MudContainer>
                 </Virtualize>
             </MudContainer>
@@ -155,4 +232,7 @@ else
 @code {
     [Parameter]
     public FormModel Form { get; set; }
+
+    [Parameter]
+    public List<AnswerModel> Answers { get; set; }
 }

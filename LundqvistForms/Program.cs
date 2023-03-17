@@ -4,14 +4,9 @@ using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using MudBlazor.Services;
 
-// TODO: Lägg till preview av hur färdiga formuläret ser ut
 // TODO: Lägg till möhlighet att välja färgtema
-// TODO: Lägg till charts med statistik på svarade formulär
 // TODO: Kolla om man kan använda await istället för att köra .Result
-// TODO: Fixa preserved state vid reload och kanske även vid byte av session
 // TODO: Kunna dela alla mallar mellan varadra, kan göras genom att alla får se alla formulär och skapa en kopia på sin egen användare
-
-// SIDA: Se det färdiga formuläret, förhandsgranskning
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +24,11 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.HideTransitionDuration = 500;
     config.SnackbarConfiguration.ShowTransitionDuration = 500;
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+});
+
+builder.Services.AddSignalR(e => {
+    e.MaximumReceiveMessageSize = 10000; // Tillåter mellan 50 och 100 frågor på ett formulär beroende på frågornas storlek
+    e.EnableDetailedErrors = true;
 });
 
 builder.Services.AddHttpClient<HttpClientWrapper>(client =>

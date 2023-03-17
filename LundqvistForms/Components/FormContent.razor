@@ -31,7 +31,9 @@
             <SegmentHeader OnToggleExpand="@(() => ToggleSegmentExpand(segment))"
                            OnChange="Update"
                            Form="Form"
-                           IsFocused="@(currentSegment == segment)" Segment="segment" />
+                           IsFocused="@(currentSegment == segment)" 
+                           Segment="segment" 
+                           FormType="@FormType" />
 
             <Questions FormType="@FormType" Form="Form" OnChange="Update" Segment="segment" Expanded="segmentExpanded" />
         </MudContainer>
@@ -58,13 +60,10 @@
     [Parameter]
     public string FormType { get; set; }
 
-    [Parameter]
-    public int FormId { get; set; }
-
     private bool segmentExpanded = true;
     private SegmentModel currentSegment = new();
 
-    protected override async Task OnAfterRenderAsync (bool firstRender)
+    protected override async Task OnParametersSetAsync ()
     {
         if (Form.FormTitle != "")
         {
@@ -78,14 +77,16 @@
             {
                 SegmentId = currentSegment.SegmentId,
                 QuestionTitle = $"Fråga {currentSegment.Questions.Count + 1}",
-                QuestionOrder = currentSegment.Questions.Count + 1
+                QuestionOrder = currentSegment.Questions.Count + 1,
+                QuestionDate = DateTime.Now
             };
 
         ChoiceModel newChoice = new()
             {
                 QuestionId = newQuestion.QuestionId,
                 ChoiceTitle = "Alternativ 1",
-                ChoiceOrder = newQuestion.ChoiceOptions.Count + 1
+                ChoiceOrder = newQuestion.ChoiceOptions.Count + 1,
+                ChoiceDate = DateTime.Now
             };
         newQuestion.ChoiceOptions.Add(newChoice);
 
@@ -100,7 +101,8 @@
                 FormId = Form.FormId,
                 SegmentTitle = "Avsnitt utan namn",
                 SegmentDescription = "Ingen beskrivning",
-                SegmentOrder = Form.Segments.Count + 1
+                SegmentOrder = Form.Segments.Count + 1,
+                SegmentDate = DateTime.Now
             };
         Form.Segments.Add(newSegment);
         currentSegment = newSegment;

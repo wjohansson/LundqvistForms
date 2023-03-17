@@ -34,9 +34,11 @@ namespace LundqvistForms.Services
             return await _clientWrapper.PutAsync<AnswerModel>($"/Answer/Edit", data);
         }
 
-        public async Task<List<AnswerModel>?> GetAllAnswers()
+        public async Task<List<AnswerModel>?> GetAllAnswers(Guid formId)
         {
-            return await _clientWrapper.GetAsync<List<AnswerModel>>($"/Answer/Current");
+            var stringContent = JsonSerializer.Serialize(formId);
+            var data = new StringContent(stringContent, Encoding.UTF8, "application/json");
+            return await _clientWrapper.PutAsync<List<AnswerModel>?>($"/Answer/Current", data);
         }
 
         public async Task<AnswerModel?> GetAnswer(AnswerModel answer)

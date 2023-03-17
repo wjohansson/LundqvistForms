@@ -69,6 +69,9 @@
     public EventCallback<AnswerModel> OnChange { get; set; }
 
     [Parameter]
+    public EventCallback<AnswerModel> OnClear { get; set; }
+
+    [Parameter]
     public FormModel Form { get; set; } = new();
 
     [Parameter]
@@ -90,15 +93,6 @@
 
             foreach (AnswerModel answer in Answers)
             {
-                if (answer.Interval != null && answer.Interval.StartDate == null && answer.Interval.EndDate == null)
-                {
-                    answer.Interval = null;
-                }
-                else if (answer.Interval != null && (answer.Interval.StartDate == null || answer.Interval.EndDate == null))
-                {
-                    Snackbar.Add(intervalErrorMessage, Severity.Error);
-                    return;
-                }
                 await answerService.CreateAnswer(answer);
             }
 
@@ -130,10 +124,27 @@
         // TODO: Töm alla lokala svar på denna sida, kolla om raden under fungerar
         Answers = new();
 
-        Snackbar.Add(clearMessage, Severity.Info);
-        await BrowserStorage.DeleteAsync("answerForm");
-        await BrowserStorage.DeleteAsync("answers");
-        StateHasChanged();
+        Guid answerGroupId = Guid.NewGuid();
+        foreach (SegmentModel segment in Form.Segments.ToList())
+        {
+            foreach (QuestionModel question in segment.Questions.ToList())
+            {
+                AnswerModel newAnswer = new()
+                    {
+                        AnswerGroupId = answerGroupId,
+                        QuestionId = question.QuestionId,
+                        FormId = Form.FormId,
+                        AnswerDate = DateTime.Now
+                    };
 
+                Answers.Add(newAnswer);
+            }
+        }
+
+        Snackbar.Add(clearMessage, Severity.Info);
+        await BrowserStorage.SetAsync("answerForm", Form);
+        await BrowserStorage.SetAsync("answers", Answers);
+
+        StateHasChanged();
     }
 }

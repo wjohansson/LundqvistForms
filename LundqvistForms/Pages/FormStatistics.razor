@@ -4,6 +4,7 @@
 @using LundqvistForms.Components
 @using LundqvistForms.Services;
 @inject FormServiceUi formService;
+@inject AnswerServiceUi answerService;
 
 <MudPaper Width="100%"
           Class="d-flex flex-column align-center gap-2 pb-4"
@@ -20,13 +21,13 @@
              PanelClass="pa-8"
              Style="@($"background-color: {Colors.Grey.Darken3}; width: 1200px")">
         <MudTabPanel Text="Översikt">
-            <OverviewStatistics Form="form"></OverviewStatistics>
+            <OverviewStatistics Form="form" Answers="answers"></OverviewStatistics>
         </MudTabPanel>
         <MudTabPanel Text="Individuella Frågor">
-            <QuestionStatistics Form="form"></QuestionStatistics>
+            <QuestionStatistics Form="form" Answers="answers"></QuestionStatistics>
         </MudTabPanel>
         <MudTabPanel Text="Individuella Svar">
-            <AnswerStatistics Form="form"></AnswerStatistics>
+            <AnswerStatistics Form="form" Answers="answers"></AnswerStatistics>
         </MudTabPanel>
     </MudTabs>
 </MudPaper>
@@ -36,15 +37,17 @@
     public string FormId { get; set; } = "";
 
     private FormModel form = new();
+    private List<AnswerModel> answers = new();
 
     protected override async Task OnInitializedAsync()
     {
         form = await formService.GetFormById(Guid.Parse(FormId));
+        answers = await answerService.GetAllAnswers(Guid.Parse(FormId));
     }
 
     private int CountAnswers()
     {
-        return form.Answers
+        return answers
          .AsEnumerable()
          .Select(x => x.AnswerGroupId)
          .Distinct()

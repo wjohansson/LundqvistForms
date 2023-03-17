@@ -14,11 +14,8 @@
           Class="d-flex flex-column align-center gap-2 pb-4"
           Elevation="0"
           Style="@($"background-color: {Colors.Grey.Darken4};")">
-    <AnswerForm OnChange="SaveState" Form="form" Answers="answers" />
-
+    <AnswerForm OnChange="SaveState" OnClear="StateHasChanged" Form="form" Answers="answers" />
 </MudPaper>
-
-
 
 @code {
     [Parameter]
@@ -75,7 +72,8 @@
                         {
                             AnswerGroupId = answerGroupId,
                             QuestionId = question.QuestionId,
-                            FormId = Guid.Parse(FormId)
+                            FormId = Guid.Parse(FormId),
+                            AnswerDate = DateTime.Now
                         };
 
                     answers.Add(newAnswer);

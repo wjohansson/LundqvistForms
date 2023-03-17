@@ -111,21 +111,9 @@
 
     protected override async Task OnAfterRenderAsync (bool firstRender)
     {
-        if (firstRender && FormType == "LundqvistForms.Pages.Index")
+        if (firstRender)
         {
-            var result = await BrowserStorage.GetAsync<FormModel>("form");
-            if (result.Success)
-            {
-                Form = result.Value;
-            }
-        }
-        else if (firstRender && FormType == "LundqvistForms.Pages.EditCurrentForm")
-        {
-            var result = await BrowserStorage.GetAsync<FormModel>("editForm");
-            if (result.Success)
-            {
-                Form = result.Value;
-            }
+            return;
         }
         else if (FormType == "LundqvistForms.Pages.Index")
         {
@@ -163,7 +151,8 @@
                 {
                     QuestionId = choice.QuestionId,
                     ChoiceTitle = choice.ChoiceTitle,
-                    ChoiceOrder = choice.ChoiceOrder
+                    ChoiceOrder = choice.ChoiceOrder,
+                    ChoiceDate = DateTime.Now
                 };
 
             newQuestion.ChoiceOptions.Add(newChoice);

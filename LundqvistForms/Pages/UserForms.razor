@@ -26,61 +26,66 @@
     else
     {
         <MudText Typo="Typo.h2" Class="mb-4">Dina formulär</MudText>
-        <MudTable Items="forms" 
-            GroupHeaderStyle="@($"background-color: {Colors.Grey.Darken1}")" 
-            CustomHeader 
-            Hover="true" 
-            LoadingProgressColor="Color.Warning" 
-            Class="mx-12 pa-4" 
-            Style="@($"background-color: {Colors.Grey.Darken2}")">
-            <HeaderContent>
-                <MudTh Style="font-size: 24px">Titel</MudTh>
-                <MudTh Style="font-size: 24px">Antal frågor</MudTh>
-                <MudTh Style="font-size: 24px">Antal svar</MudTh>
-                <MudTh Style="width: 200px"></MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Title">@context.FormTitle</MudTd>
-                <MudTd DataLabel="Antal frågor">@CountQuestions(context)</MudTd>
-                <MudTd DataLabel="Antal frågor">@CountAnswers(context)</MudTd>
-                <MudTd DataLabel="" Class="d-flex justify-end gap-2">
-                    <MudTooltip Text="Statistik"
+        <MudTable Items="forms"
+              GroupHeaderStyle="@($"background-color: {Colors.Grey.Darken1}")"
+                CustomHeader
+              Hover="true"
+              LoadingProgressColor="Color.Warning"
+              Class="mx-12 pa-4"
+              Style="@($"background-color: {Colors.Grey.Darken2}")">
+        <HeaderContent>
+            <MudTh Style="font-size: 24px">Titel</MudTh>
+            <MudTh Style="font-size: 24px">Antal frågor</MudTh>
+            <MudTh Style="font-size: 24px">Antal svar</MudTh>
+            <MudTh Style="width: 200px"></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            @if (context != null)
+                {
+                    CountAnswers(context);
+                    <MudTd DataLabel="Title">@context.FormTitle</MudTd>
+                    <MudTd DataLabel="Antal frågor">@CountQuestions(context)</MudTd>
+                    <MudTd DataLabel="Antal svar">@CountAnswers(context)</MudTd>
+                    <MudTd DataLabel="" Class="d-flex justify-end gap-2">
+                        <MudTooltip Text="Statistik"
                             Style="@($"background-color: {Colors.Grey.Darken3}")"
                             Arrow="true"
                             Placement="Placement.Bottom">
-                        <MudIconButton Icon="@Icons.Material.Filled.InsertChart"
+                            <MudIconButton Icon="@Icons.Material.Filled.InsertChart"
                                    Variant="Variant.Outlined"
                                    OnClick="@(() => GoToStatistics(context))"
                                    Color="Color.Default" />
-                    </MudTooltip>
-                    <MudTooltip Text="Förhandsgranska"
+                        </MudTooltip>
+                        <MudTooltip Text="Förhandsgranska"
                             Style="@($"background-color: {Colors.Grey.Darken3}")"
                             Arrow="true"
                             Placement="Placement.Bottom">
-                        <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye"
+                            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye"
                                    Variant="Variant.Outlined"
                                    OnClick="@(() => GoToPreview(context))"
                                    Color="Color.Warning" />
-                    </MudTooltip>
-                    <MudTooltip Text="Regidera"
+                        </MudTooltip>
+                        <MudTooltip Text="Regidera"
                             Style="@($"background-color: {Colors.Grey.Darken3}")"
                             Arrow="true"
                             Placement="Placement.Bottom">
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                    Variant="Variant.Filled"
                                    OnClick="@(() => EditForm(context))"
                                    Color="Color.Warning" />
-                    </MudTooltip>
-                    <MudTooltip Text="Ta bort"
+                        </MudTooltip>
+                        <MudTooltip Text="Ta bort"
                             Style="@($"background-color: {Colors.Grey.Darken3}")"
                             Arrow="true"
                             Placement="Placement.Bottom">
-                        <MudIconButton Icon="@Icons.Material.Filled.DeleteForever"
+                            <MudIconButton Icon="@Icons.Material.Filled.DeleteForever"
                                    Variant="Variant.Filled"
                                    OnClick="@(() => DeleteForm(context))"
                                    Color="Color.Error" />
-                    </MudTooltip>
-                </MudTd>
+                        </MudTooltip>
+                    </MudTd>
+                }
+
             </RowTemplate>
         </MudTable>
     }
@@ -99,17 +104,20 @@
 @code {
     // TODO: Kolla table filtrering med mera
     // TODO: Fixa sortering på användares formulär på UserForms
-    // TODO: Kolla ifall man måste göra om strukturen för att hämta ut antalet svar.
-    //          Går inte att kolla på tid eftersom det kan hända på samma millisekund
 
     public List<FormModel>? forms = null;
     private MudMessageBox? deleteFormBox { get; set; }
+    private Dictionary<Guid, int?> answersCount = new();
     private string deleteFormMessage = "Formulär borttaget";
 
     protected override async Task OnInitializedAsync()
     {
         forms = await formService.GetAllForms();
 
+        foreach (FormModel form in forms)
+        {
+            answersCount[form.FormId] = await formService.CountAnswers(form);
+        }
     }
 
     private int CountQuestions(FormModel form)
@@ -124,18 +132,9 @@
         return count;
     }
 
-    private int CountAnswers(FormModel form)
+    private int? CountAnswers(FormModel form)
     {
-        return form.Answers
-         .AsEnumerable()
-         .Select(x => x.AnswerGroupId)
-         .Distinct()
-         .ToList().Count;
-    }
-
-    public void Update()
-    {
-        StateHasChanged();
+        return answersCount[form.FormId];
     }
 
     private void GoToStatistics(FormModel form)

@@ -2,7 +2,29 @@
 @using FormsLibrary.Models;
 @inject ProtectedLocalStorage BrowserStorage
 
-<MudCheckBox @onclick="@(() => UpdateMultipleChoice())" @bind-Checked="@isChecked">
+<MudCheckBox Checked="@isChecked"
+             CheckedChanged="@(async (bool newChoice) =>
+                {
+                    if (newChoice)
+                    {
+                        MultipleChoiceAnswerModel newMultipleChoiceAnswer = new()
+                            {
+                                MultipleChoiceTitle = Question.ChoiceOptions.ToList()[Index].ChoiceTitle,
+                                AnswerId = Answers.First(x => x.QuestionId == Question.QuestionId).AnswerId
+                            };
+
+                        Answers.First(x => x.QuestionId == Question.QuestionId).MultipleChoice.Add(newMultipleChoiceAnswer);
+                    }
+                    else
+                    {
+                        var choiceToRemove = Answers.First(x => x.QuestionId == Question.QuestionId).MultipleChoice.First(x => x.MultipleChoiceTitle == Question.ChoiceOptions.ToList()[Index].ChoiceTitle);
+                        Answers.First(x => x.QuestionId == Question.QuestionId).MultipleChoice.Remove(choiceToRemove);
+                    }
+
+                    await BrowserStorage.SetAsync("answers", Answers);
+
+                })"
+             Disabled="Disabled">
     @Question.ChoiceOptions.ToList()[Index].ChoiceTitle
 </MudCheckBox>
 
@@ -19,35 +41,23 @@
     [Parameter]
     public int Index { get; set; }
 
+    [Parameter]
+    public bool Disabled { get; set; }
+
     private bool isChecked;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (Answer.MultipleChoice.Any(x => x.MultipleChoiceTitle == Question.ChoiceOptions.ToList()[Index].ChoiceTitle))
+        bool currentCheck = isChecked;
+
+        isChecked = Disabled ?
+                        Answer.MultipleChoice.Any(x => x.MultipleChoiceTitle == Question.ChoiceOptions.ToList()[Index].ChoiceTitle) :
+                        Answers.First(x => x.QuestionId == Question.QuestionId).MultipleChoice.Any(x => x.MultipleChoiceTitle == Question.ChoiceOptions.ToList()[Index].ChoiceTitle);
+
+        if (currentCheck != isChecked)
         {
-            isChecked = true;
+            await BrowserStorage.SetAsync("answers", Answers);
             StateHasChanged();
-        }
-    }
-
-    private async Task UpdateMultipleChoice()
-    {
-        if (!isChecked)
-        {
-            MultipleChoiceAnswerModel newMultipleChoiceAnswer = new()
-                {
-                    MultipleChoiceTitle = Question.ChoiceOptions.ToList()[Index].ChoiceTitle
-                };
-
-            Answer.MultipleChoice.Add(newMultipleChoiceAnswer);
-            await BrowserStorage.SetAsync("answers", Answers);
-        }
-        else
-        {
-            var choiceToRemove = Answer.MultipleChoice.First(x => x.MultipleChoiceTitle == Question.ChoiceOptions.ToList()[Index].ChoiceTitle);
-            Answer.MultipleChoice.Remove(choiceToRemove);
-            await BrowserStorage.SetAsync("answers", Answers);
-
         }
     }
 }

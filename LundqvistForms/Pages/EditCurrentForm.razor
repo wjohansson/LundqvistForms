@@ -138,12 +138,12 @@
             Snackbar.Add(successMessage, Severity.Success);
             await BrowserStorage.DeleteAsync("editForm");
 
-            var result = await BrowserStorage.GetAsync<FormModel>("answerForm");
+            //var result = await BrowserStorage.GetAsync<FormModel>("answerForm");
 
-            if (result.Value.FormId == form.FormId)
-            {
-                await BrowserStorage.SetAsync("answerForm", form);
-            }
+            //if (result.Value.FormId == form.FormId)
+            //{
+            //    await BrowserStorage.SetAsync("answerForm", form);
+            //}
             navigationManager.NavigateTo("/forms");
         }
         catch (Exception)
@@ -176,17 +176,28 @@
 
     private async Task ReadState()
     {
-        var result = await BrowserStorage.GetAsync<FormModel>("editForm");
+        try
+        {
 
-        if (result.Success && result.Value.FormId == Guid.Parse(FormId))
-        {
-            form = result.Value;
-            StateHasChanged();
+            var result = await BrowserStorage.GetAsync<FormModel>("editForm");
+            if (result.Success && result.Value.FormId == Guid.Parse(FormId))
+            {
+                form = result.Value;
+            }
+            else
+            {
+                form = await formService.GetFormById(Guid.Parse(FormId));
+            }
+
         }
-        else
+        catch (Exception ex)
         {
-            form = await formService.GetFormById(Guid.Parse(FormId));
-            StateHasChanged();
+            var y = ex;
+            throw;
         }
+
+
+
+        StateHasChanged();
     }
 }

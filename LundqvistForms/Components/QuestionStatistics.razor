@@ -1,7 +1,7 @@
 ﻿@using FormsLibrary.Models;
 
 <MudContainer Class="d-flex flex-column gap-2 ">
-    @if (Form.Answers.Count == 0)
+    @if (Answers.Count == 0)
     {
         <MudText Align="Align.Center" Typo="Typo.h4">Inga svar registrerade på formuläret</MudText>
     }
@@ -190,21 +190,29 @@
 
                         break;
                     case QuestionOptions.Tidsintervall:
-                        List<TimeIntervalAnswerModel?> intervalAnswers = currentQuestion.Answers.Select(x => x.Interval).Distinct().ToList();
+                        List<AnswerModel> intervalAnswers = new();
 
-                        foreach (TimeIntervalAnswerModel? answer in intervalAnswers)
+                        foreach (AnswerModel answer in currentQuestion.Answers)
                         {
-                            if (answer != null)
+                            if (!intervalAnswers.Any(x => x.Interval?.StartDate == answer.Interval?.StartDate && x.Interval?.EndDate == answer.Interval?.EndDate))
+                            {
+                                intervalAnswers.Add(answer);
+                            }
+                        }
+
+                        foreach (AnswerModel answer in intervalAnswers)
+                        {
+                            if (answer.Interval != null)
                             {
                                 <MudContainer Class="d-flex flex-column gap-2 pa-2 rounded" Style="@($"background-color: {Colors.Grey.Darken2}")">
                                     <MudText Typo="Typo.h5">
-                                        Från: @answer.StartDate.Value.Date.ToString("yyyy-MM-dd")
+                                        Från: @answer.Interval?.StartDate.Value.Date.ToString("yyyy-MM-dd")
                                         <MudSpacer />
-                                        Till: @answer.EndDate.Value.Date.ToString("yyyy-MM-dd")
+                                        Till: @answer.Interval?.EndDate.Value.Date.ToString("yyyy-MM-dd")
                                     </MudText>
                                     <MudDivider />
                                     <MudText Style="opacity: 0.6">
-                                        @currentQuestion.Answers.Where(x => x.Interval?.StartDate == answer.StartDate && x.Interval?.EndDate == answer.EndDate).Count() Svar
+                                        @currentQuestion.Answers.Where(x => x.Interval?.StartDate == answer.Interval?.StartDate && x.Interval?.EndDate == answer.Interval?.EndDate).Count() Svar
                                     </MudText>
                                 </MudContainer>
                             }
@@ -282,6 +290,9 @@
 @code {
     [Parameter]
     public FormModel Form { get; set; }
+
+    [Parameter]
+    public List<AnswerModel> Answers { get; set; }
 
     private List<QuestionModel> questions = new();
     private QuestionModel currentQuestion = new();

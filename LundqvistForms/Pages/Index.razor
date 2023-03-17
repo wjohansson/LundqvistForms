@@ -61,43 +61,26 @@
 </MudMessageBox>
 
 @code {
-    // 5 TODO: Fixa så att inputs sparas vid reload även om inte något annat som triggar save gjort innan reload. Går det att göra vid OnAFterRender?
-    //          Borde komma in i den funktionen vid varje input ändring
     // 5 TODO: Fixa global ångra knapp, och ctrl y liknande knapp
-    // 5 TODO: Lägga till möjlighet att spara versioner av formuläret genom dates, och kunna kolla på gamla
-    //          versioner av denna genom UserForms tabellen
-    // 3 TODO: Kunna flytta ordning på avsnitt och frågor genom drag and drop (frågor) och välja ordning (avsnitt)
     // 5 TODO: Fixa fokus vid klicka på duplicera mm knappar
-    // 2 TODO: Från UserForms kunna markera flera formulär och sedan köra delete all marked.
+    // 3 TODO: Från UserForms kunna markera flera formulär och sedan köra delete all marked.
     // 4 TODO: Undersök möjlighet att ha en delete all older than... knapp på UserForms
     // 5 TODO: Fixa mer responsiv design
-    // 2 TODO: Fråga: Vill man ha en delay på progressing vid skapandet av formulär?
     // 5 TODO: Fixa så att focus på långt svar även händer då man klickar på "label"
-    // 5 TODO: Möjlighet att göra formulär private eller public
-    // 5 TODO: Fixa error meddelande på TID vid answers, och kanske även de andra tidsformaten. Dubbelkolla
-    // 5 TODO: Se till att endas scalemodel eller choicemodel delen sparas om frågan har typen av scale eller
-    //          någon choice
-    // 5 TODO: Bryt ut redigera/ skapa knappar till en komponent
-    // 2 TODO: Fixa komponenter av confirmbox överallt
-    // 4 TODO: Kolla om man kan återskapa error meddelande vid tillbakanavigering till editform sidan
-    // 2 TODO: Undersök om man måste ha med segment service och allt i question service eftersom allt skapas
-    //          automatiskt vid skapande av formulär
-    // 3 TODO: Gör frågor obligatoriska av default. Val för designer att inte göra dom obligatoriska. Sedan validera vid
+    // 5 TODO: Möjlighet att göra formulär private eller public för möjlighet att använda andra användares formulär
+    // 2 TODO: Gör frågor obligatoriska av default. Val för designer att inte göra dom obligatoriska. Sedan validera vid
     //          skicka svar eller gå vidare till nästa avsnitt
     // 2 TODO: Fixa soft deletes med bool IsDeleted i databasen på formulären
     // 3 TODO: Kolla möjlighet att koppla till användarsystemet
-    // 1 TODO: Statistik, lägg till översikt, per fråga och per enskilt svar
     // 3 TODO: Fixa tema valmöjligheter på sidan som sparas i formuläret så att det följer med då användaren ska svara på fråga,
     //          använd color picker för att få till färg
     // 3 TODO: Göra om table till data grid?
     // 5 TODO: Fixa pagination för att hoppa mellan avsnitten
-    // 1 TODO: Fixa skala vy på statistics så att den är mer visuell
-    // 1 TODO: Färdigställ enskild svar vy
-    // 1 TODO: Kolla varför rensa knappen inte rensar helt, försök återskapa felet, går inte varje gång. INTE LYCKATS ÅTERSKAPA 
-    // 1 TODO: Kolla varför Flerval inte visas i statistiken. INGET AV SVAR SPARAS
-    // 1 TODO: Se till att vid edit så sparas inte form som en create då man kommer tillbaka på startsidan
     // 5 TODO: Kolla ifall det går att fixa drag and drop mellan olika avsnitt
-    // 1 TODO: Se till att rensa svar fungerar
+    // 1 TODO: Fixa sätt att duplicera ett helt form för att göra exempelvis veckovis utskick av formulär eller för att skapa nya versioner av formulär
+    // 2 TODO: Mixtra med max size på formulär
+    // 2 TODO: Kolla vilka API funktioner som används, ta bort de som inte används
+    // 1 TODO: Fixa versionshantering på fomrulären till tidigare versioner för att spara de gamla svaren som finns lagrade så att dom inte försvinner
 
     private FormModel form { get; set; } = new();
     private MudMessageBox? clearBox { get; set; }
@@ -107,7 +90,7 @@
     private string clearMessage = "Formulär rensat";
     private bool processing;
 
-    protected override async Task OnAfterRenderAsync (bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
@@ -119,19 +102,21 @@
         }
     }
 
-    public void AddSegment ()
+    public void AddSegment()
     {
         SegmentModel newSegment = new()
             {
                 FormId = form.FormId,
                 SegmentTitle = "Avsnitt utan namn",
                 SegmentDescription = "Ingen beskrivning",
-                SegmentOrder = form.Segments.Count + 1
+                SegmentOrder = form.Segments.Count + 1,
+                SegmentDate = DateTime.Now
             };
+
         form.Segments.Add(newSegment);
     }
 
-    private int CountQuestion (FormModel form)
+    private int CountQuestion(FormModel form)
     {
         var count = 0;
 
@@ -143,7 +128,7 @@
         return count;
     }
 
-    public async Task CreateForm ()
+    public async Task CreateForm()
     {
         if (CountQuestion(form) == 0)
         {
@@ -202,7 +187,7 @@
         }
     }
 
-    private async void ClearForm ()
+    private async void ClearForm()
     {
         bool? result = await clearBox.Show();
 
@@ -218,18 +203,18 @@
             };
         AddSegment();
         await SaveState();
-        
+
         Snackbar.Add(clearMessage, Severity.Info);
 
         StateHasChanged();
     }
 
-    private async Task SaveState ()
+    private async Task SaveState()
     {
         await BrowserStorage.SetAsync("form", form);
     }
 
-    private async Task ReadState ()
+    private async Task ReadState()
     {
         var result = await BrowserStorage.GetAsync<FormModel>("form");
 

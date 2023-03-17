@@ -15,6 +15,13 @@ namespace LundqvistForms.Services
             _clientWrapper = clientWrapper;
         }
 
+        public async Task<int?> CountAnswers(FormModel form)
+        {
+            var stringContent = JsonSerializer.Serialize(form);
+            var data = new StringContent(stringContent, Encoding.UTF8, "application/json");
+            return await _clientWrapper.PutAsync<int>($"/Form/CountAnswers", data);
+        }
+
         public async Task<FormModel?> CreateForm(FormModel form)
         {
             var stringContent = JsonSerializer.Serialize(form);
