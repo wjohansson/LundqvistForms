@@ -60,7 +60,6 @@
 
 @code {
     // 5 TODO: Fixa global ångra knapp, och ctrl y liknande knapp
-    // 5 TODO: Fixa fokus vid klicka på duplicera mm knappar
     // 3 TODO: Från UserForms kunna markera flera formulär och sedan köra delete all marked.
     // 4 TODO: Undersök möjlighet att ha en delete all older than... knapp på UserForms
     // 5 TODO: Fixa mer responsiv design
@@ -83,7 +82,13 @@
     // 2 TODO: Fixa dropdown på userforms för att se gamla versioner. Även dropdown för att se gamla versioner på statistics view. 
     //          MÅSTE då fixa ny databasstruktur så att varje form får ett formgroupid där man kan se vilket "form" den tillhör
     // 1 TODO: Lägg till intervall på utskick möjlighet
+    // 2 TODO: Fixa en obligatorisk toggle på alla svar för att välja om ett det krävs ett svar på den frågan.
+    //          Som standard borde alla svar vara obligatoriska, men man får välja om det ska vara frivilligt
+    // 3 TODO: Kunna dela alla mallar mellan varadra så att en annan användare ska kunna använda allas mallar, kan göras genom att alla får se alla formulär och skapa en kopia på sin egen användare
+
     // FRÅGA: Bör man kunna redigera frågornas typ eftersom det stör statistiken som redan finns på formuläret
+    // Fråga: Ska det finnas edit funktion så att det gamla formuläret sparas som en "gammal version"
+
 
     private FormModel form { get; set; } = new();
     private MudMessageBox? clearBox { get; set; }

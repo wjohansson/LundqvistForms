@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using MudBlazor.Services;
 
-// TODO: Lägg till möhlighet att välja färgtema
-// TODO: Kolla om man kan använda await istället för att köra .Result
-// TODO: Kunna dela alla mallar mellan varadra, kan göras genom att alla får se alla formulär och skapa en kopia på sin egen användare
 
 var builder = WebApplication.CreateBuilder(args);
 

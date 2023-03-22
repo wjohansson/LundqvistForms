@@ -6,7 +6,6 @@ namespace FormsLibrary.Models
 {
     public class FormModel
     {
-        // TODO: Fixa edit funktion så att det gamla formuläret sparas som en "gammal version"
         [Key]
         [JsonPropertyName("formId")]
         public Guid FormId { get; set; } = Guid.NewGuid();
