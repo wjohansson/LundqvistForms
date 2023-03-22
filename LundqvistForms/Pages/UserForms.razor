@@ -11,7 +11,7 @@
 @inject ProtectedLocalStorage BrowserStorage
 
 
-<MudPaper Class="mx-16 pa-10 mb-16" Style="@($"background-color: {Colors.Grey.Darken3}")">
+<MudPaper Class="mx-16 pa-10 mb-16" Style="@($"background-color: {Colors.Grey.Darken3}; padding-bottom: 100px !important")">
     @if (forms == null)
     {
         <MudButton Typo="Typo.h2">
@@ -34,10 +34,10 @@
               Class="mx-12 pa-4"
               Style="@($"background-color: {Colors.Grey.Darken2}")">
         <HeaderContent>
-            <MudTh Style="font-size: 24px">Titel</MudTh>
-            <MudTh Style="font-size: 24px">Antal frågor</MudTh>
-            <MudTh Style="font-size: 24px">Antal svar</MudTh>
-            <MudTh Style="width: 200px"></MudTh>
+            <MudTh Style="font-size: 24px; width: 300px">Titel</MudTh>
+            <MudTh Style="font-size: 24px; width: 200px">Antal frågor</MudTh>
+            <MudTh Style="font-size: 24px; width: 200px">Antal svar</MudTh>
+            <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             @if (context != null)
@@ -46,43 +46,83 @@
                     <MudTd DataLabel="Title">@context.FormTitle</MudTd>
                     <MudTd DataLabel="Antal frågor">@CountQuestions(context)</MudTd>
                     <MudTd DataLabel="Antal svar">@CountAnswers(context)</MudTd>
-                    <MudTd DataLabel="" Class="d-flex justify-end gap-2">
-                        <MudTooltip Text="Statistik"
+                    <MudTd DataLabel="" Class="d-flex justify-end align-center gap-2" Style="min-width:400px">
+                        @if (openOptions[context.FormId])
+                        {
+                            <MudContainer Class="d-flex flex-column gap-2 absolute pa-2 rounded" Style="@($"right: 82px; width: 52px; background-color: {Colors.Grey.Darken2}")">
+                                <MudTooltip Text="Statistik"
+                                Style="@($"background-color: {Colors.Grey.Darken4}")"
+                                Arrow="true"
+                                Placement="Placement.Bottom">
+                                    <MudIconButton Icon="@Icons.Material.Filled.InsertChart"
+                                       Variant="Variant.Outlined"
+                                       OnClick="@(() => GoToStatistics(context))"
+                                       Color="Color.Default" />
+                                </MudTooltip>
+                                <MudTooltip Text="Förhandsgranska"
+                                Style="@($"background-color: {Colors.Grey.Darken4}")"
+                                Arrow="true"
+                                Placement="Placement.Bottom">
+                                    <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye"
+                                       Variant="Variant.Outlined"
+                                       OnClick="@(() => GoToPreview(context))"
+                                       Color="Color.Warning" />
+                                </MudTooltip>
+                                <MudTooltip Text="Duplicera"
+                                Style="@($"background-color: {Colors.Grey.Darken4}")"
+                                Arrow="true"
+                                Placement="Placement.Bottom">
+                                    <MudIconButton Icon="@Icons.Material.Filled.CopyAll"
+                                       Variant="Variant.Outlined"
+                                       OnClick="@(() => DuplicateForm(context))"
+                                       Color="Color.Success" />
+                                </MudTooltip>
+                                <MudTooltip Text="Regidera"
+                                Style="@($"background-color: {Colors.Grey.Darken4}")"
+                                Arrow="true"
+                                Placement="Placement.Bottom">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Variant="Variant.Filled"
+                                       OnClick="@(() => EditForm(context))"
+                                       Color="Color.Warning" />
+                                </MudTooltip>
+                                <MudTooltip Text="Ta bort"
+                                Style="@($"background-color: {Colors.Grey.Darken4}")"
+                                Arrow="true"
+                                Placement="Placement.Bottom">
+                                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever"
+                                       Variant="Variant.Filled"
+                                       OnClick="@(() => DeleteForm(context))"
+                                       Color="Color.Error" />
+                                </MudTooltip>
+                            </MudContainer>
+                        }
+                        <MudTooltip Text="Alternativ"
                             Style="@($"background-color: {Colors.Grey.Darken3}")"
                             Arrow="true"
                             Placement="Placement.Bottom">
-                            <MudIconButton Icon="@Icons.Material.Filled.InsertChart"
-                                   Variant="Variant.Outlined"
-                                   OnClick="@(() => GoToStatistics(context))"
-                                   Color="Color.Default" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Dehaze"
+                                   Variant="@(openOptions[context.FormId] ? Variant.Filled : Variant.Outlined)"
+                                   OnClick="@(() =>
+                                                {
+                                                    if (openOptions[context.FormId])
+                                                    {
+                                                        openOptions[context.FormId] = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        foreach (Guid key in openOptions.Keys.ToList())
+                                                        {
+                                                        openOptions[key] = false;
+                                                        }
+
+                                                        openOptions[context.FormId] = true;
+                                                    }
+                                                })"
+                                   Color="@(openOptions[context.FormId] ? Color.Dark : Color.Default)"
+                                   Size="Size.Large" />
                         </MudTooltip>
-                        <MudTooltip Text="Förhandsgranska"
-                            Style="@($"background-color: {Colors.Grey.Darken3}")"
-                            Arrow="true"
-                            Placement="Placement.Bottom">
-                            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye"
-                                   Variant="Variant.Outlined"
-                                   OnClick="@(() => GoToPreview(context))"
-                                   Color="Color.Warning" />
-                        </MudTooltip>
-                        <MudTooltip Text="Regidera"
-                            Style="@($"background-color: {Colors.Grey.Darken3}")"
-                            Arrow="true"
-                            Placement="Placement.Bottom">
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                   Variant="Variant.Filled"
-                                   OnClick="@(() => EditForm(context))"
-                                   Color="Color.Warning" />
-                        </MudTooltip>
-                        <MudTooltip Text="Ta bort"
-                            Style="@($"background-color: {Colors.Grey.Darken3}")"
-                            Arrow="true"
-                            Placement="Placement.Bottom">
-                            <MudIconButton Icon="@Icons.Material.Filled.DeleteForever"
-                                   Variant="Variant.Filled"
-                                   OnClick="@(() => DeleteForm(context))"
-                                   Color="Color.Error" />
-                        </MudTooltip>
+
                     </MudTd>
                 }
 
@@ -100,6 +140,21 @@
     </YesButton>
 </MudMessageBox>
 
+<MudMessageBox @ref="newVersionFormBox" Title="Ny version" CancelText="Avbryt">
+    <MessageContent>
+        Vad ska den nya versionen ha för namn?
+        <MudTextField Label="Versionsnamn"
+                      @bind-Value="newVersionFormName"
+                      Class="px-2"
+                      Style="@($"color: {Colors.Grey.Lighten4};")"
+                      Variant="Variant.Filled"
+                      Clearable="true" />
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Success">Skapa ny version</MudButton>
+    </YesButton>
+</MudMessageBox>
+
 
 @code {
     // TODO: Kolla table filtrering med mera
@@ -107,8 +162,13 @@
 
     public List<FormModel>? forms = null;
     private MudMessageBox? deleteFormBox { get; set; }
+    private MudMessageBox? newVersionFormBox { get; set; }
     private Dictionary<Guid, int?> answersCount = new();
     private string deleteFormMessage = "Formulär borttaget";
+    private string duplicateFormMessage = "Formulär duplicerat";
+    private string newVersionFormMessage = "Ny version av formuläret skapat";
+    private string newVersionFormName = "";
+    private Dictionary<Guid, bool> openOptions = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -117,7 +177,10 @@
         foreach (FormModel form in forms)
         {
             answersCount[form.FormId] = await formService.CountAnswers(form);
+            openOptions[form.FormId] = false;
         }
+
+
     }
 
     private int CountQuestions(FormModel form)
@@ -145,6 +208,23 @@
     private void GoToPreview(FormModel form)
     {
         navigationManager.NavigateTo($"/forms/preview/{form.FormId}");
+    }
+
+    private async void DuplicateForm(FormModel form)
+    {
+        FormModel? newForm = await formService.GetFormById(form.FormId);
+        await formService.CreateForm(newForm);
+
+        forms = await formService.GetAllForms();
+
+        foreach (FormModel currentForm in forms)
+        {
+            answersCount[currentForm.FormId] = await formService.CountAnswers(currentForm);
+            openOptions[currentForm.FormId] = false;
+        }
+
+        Snackbar.Add(duplicateFormMessage, Severity.Info);
+        StateHasChanged();
     }
 
     private void EditForm(FormModel form)
