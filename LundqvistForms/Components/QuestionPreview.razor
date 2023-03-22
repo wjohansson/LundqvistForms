@@ -9,7 +9,7 @@
         @switch (Question.QuestionOption)
         {
             case QuestionOptions.Kort:
-                <MudTextField Label="Kort svar"
+                <MudTextField Label="Ditt svar"
                       Value="Answers.First(x => x.QuestionId == Question.QuestionId).ShortAnswer"
                       ValueChanged="@(async (string? newAnswer) =>
                                         {
@@ -25,7 +25,7 @@
             case QuestionOptions.Lång:
                 answer.LongAnswer = Answers.First(x => x.QuestionId == Question.QuestionId).LongAnswer;
 
-                <MudTextField Label="Långt svar"
+                <MudTextField Label="Ditt svar"
                       Value="Answers.First(x => x.QuestionId == Question.QuestionId).LongAnswer"
                       ValueChanged="@(async (string? newAnswer) =>
                                         {
@@ -69,7 +69,7 @@
                 <MudSelect T="string"
                    Variant="Variant.Filled"
                    Class="px-2"
-                   Label="Svar"
+                   Label="Ditt svar"
                    Value="Answers.First(x => x.QuestionId == Question.QuestionId).DropdownChoice"
                    ValueChanged="@(async (string newAnswer) =>
                                     {
@@ -88,7 +88,7 @@
 
                 break;
             case QuestionOptions.Datum:
-                <MudDatePicker Label="Datum"
+                <MudDatePicker Label="Ditt svar"
                        Date="Answers.First(x => x.QuestionId == Question.QuestionId).Date"
                        DateChanged="@(async (DateTime? newAnswer) =>
                                         {
@@ -114,7 +114,7 @@
                 {
                     DateRange = new();
                 }
-                <MudDateRangePicker Label="Tidsintervall"
+                <MudDateRangePicker Label="Ditt svar"
                             DateRange="DateRange"
                             DateRangeChanged="@(async (DateRange newAnswer) =>
                                 {
@@ -137,7 +137,7 @@
 
                 break;
             case QuestionOptions.Tid:
-                <MudTimePicker Label="Tid"
+                <MudTimePicker Label="Ditt svar"
                        Time="Answers.First(x => x.QuestionId == Question.QuestionId).Time"
                        TimeChanged="@(async (TimeSpan? newAnswer) =>
                                         {
