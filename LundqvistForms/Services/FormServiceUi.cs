@@ -14,7 +14,7 @@ namespace LundqvistForms.Services
         {
             _clientWrapper = clientWrapper;
         }
-
+        //GetForm
         public async Task<int?> CountAnswers(FormModel form)
         {
             var stringContent = JsonSerializer.Serialize(form);
@@ -46,13 +46,6 @@ namespace LundqvistForms.Services
         public async Task<List<FormModel>?> GetAllForms()
         {
             return await _clientWrapper.GetAsync<List<FormModel>>($"/Form/All");
-        }
-
-        public async Task<FormModel?> GetForm(FormModel form)
-        {
-            var stringContent = JsonSerializer.Serialize(form);
-            var data = new StringContent(stringContent, Encoding.UTF8, "application/json");
-            return await _clientWrapper.PutAsync<FormModel>($"/Form", data);
         }
 
         public async Task<FormModel?> GetFormById(Guid formId)

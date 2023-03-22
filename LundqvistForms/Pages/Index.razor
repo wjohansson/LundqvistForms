@@ -5,8 +5,6 @@
 @using LundqvistForms.Services;
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @inject FormServiceUi formService;
-@inject SegmentServiceUi segmentService;
-@inject QuestionServiceUi questionService;
 @inject IDialogService DialogService;
 @inject ISnackbar Snackbar
 @inject ProtectedLocalStorage BrowserStorage
@@ -74,13 +72,18 @@
     // 3 TODO: Kolla möjlighet att koppla till användarsystemet
     // 3 TODO: Fixa tema valmöjligheter på sidan som sparas i formuläret så att det följer med då användaren ska svara på fråga,
     //          använd color picker för att få till färg
-    // 3 TODO: Göra om table till data grid?
+    // 3 TODO: Göra om table till data grid
     // 5 TODO: Fixa pagination för att hoppa mellan avsnitten
     // 5 TODO: Kolla ifall det går att fixa drag and drop mellan olika avsnitt
-    // 1 TODO: Fixa sätt att duplicera ett helt form för att göra exempelvis veckovis utskick av formulär eller för att skapa nya versioner av formulär
     // 2 TODO: Mixtra med max size på formulär
-    // 2 TODO: Kolla vilka API funktioner som används, ta bort de som inte används
     // 1 TODO: Fixa versionshantering på fomrulären till tidigare versioner för att spara de gamla svaren som finns lagrade så att dom inte försvinner
+    // 1 TODO: Fixa sätt att skapa ny version vid tidsintervall utskick för att inte spara svar på gammalt formulär. Alltså vid UserForms sidan att man kan se alla formulär 
+    //          plus gamla versioner grupperade visuellt
+    // 1 TODO: Vid edit fixa ett sätt att döpa versionen 
+    // 2 TODO: Fixa dropdown på userforms för att se gamla versioner. Även dropdown för att se gamla versioner på statistics view. 
+    //          MÅSTE då fixa ny databasstruktur så att varje form får ett formgroupid där man kan se vilket "form" den tillhör
+    // 1 TODO: Lägg till intervall på utskick möjlighet
+    // FRÅGA: Bör man kunna redigera frågornas typ eftersom det stör statistiken som redan finns på formuläret
 
     private FormModel form { get; set; } = new();
     private MudMessageBox? clearBox { get; set; }

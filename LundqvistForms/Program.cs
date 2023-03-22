@@ -37,8 +37,6 @@ builder.Services.AddHttpClient<HttpClientWrapper>(client =>
 });
 
 builder.Services.AddSingleton<FormServiceUi>();
-builder.Services.AddSingleton<SegmentServiceUi>();
-builder.Services.AddSingleton<QuestionServiceUi>();
 builder.Services.AddSingleton<AnswerServiceUi>();
 
 var app = builder.Build();
