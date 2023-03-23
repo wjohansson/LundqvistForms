@@ -16,37 +16,13 @@
           Class="d-flex flex-column align-center gap-2 pb-4"
           Elevation="0"
           Style="@($"background-color: {Colors.Grey.Darken4};")">
-    <FormContent FormType="@this.GetType().ToString()" OnChange="SaveState" Form="form"></FormContent>
-
-    <MudContainer Class="d-flex justify-center gap-2">
-        <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       OnClick="EditForm"
-                       StartIcon="@Icons.Material.Filled.Edit"
-                       Size="Size.Large">
-                @if (processing)
-                {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">REDIGERAR FORMULÄR...</MudText>
-                }
-                else
-                {
-                    <MudText>REDIGERA FORMULÄR</MudText>
-                }
-            </MudButton>
-        </MudTooltip>
-
-        <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Primary"
-                       OnClick="Cancel"
-                       StartIcon="@Icons.Material.Filled.Cancel"
-                       Size="Size.Large">
-                AVBRYT REDIGERING
-            </MudButton>
-        </MudTooltip>
-    </MudContainer>
+    <FormContent FormType="@this.GetType().ToString()"
+                 OnChange="SaveState"
+                 Form="form"
+                 OnFormCleared="Cancel"
+                 OnFormCreated="EditForm"
+                 Processing="processing"
+                 SegmentExpanded="segmentExpanded" />
 </MudPaper>
 
 <MudMessageBox @ref="cancelBox" Title="Rensa formulär" CancelText="Nej">
@@ -69,6 +45,7 @@
     private string errorMessage = "Något obligatoriskt fält är tomt";
     private string successMessage = "Formulär redigerat";
     private string cancelMessage = "Redigering avbruten";
+    private Dictionary<Guid, bool> segmentExpanded = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -135,13 +112,6 @@
             processing = false;
             Snackbar.Add(successMessage, Severity.Success);
             await BrowserStorage.DeleteAsync("editForm");
-
-            //var result = await BrowserStorage.GetAsync<FormModel>("answerForm");
-
-            //if (result.Value.FormId == form.FormId)
-            //{
-            //    await BrowserStorage.SetAsync("answerForm", form);
-            //}
             navigationManager.NavigateTo("/forms");
         }
         catch (Exception)
@@ -174,27 +144,21 @@
 
     private async Task ReadState()
     {
-        try
+        var result = await BrowserStorage.GetAsync<FormModel>("editForm");
+
+        if (result.Success && result.Value.FormId == Guid.Parse(FormId))
         {
-
-            var result = await BrowserStorage.GetAsync<FormModel>("editForm");
-            if (result.Success && result.Value.FormId == Guid.Parse(FormId))
-            {
-                form = result.Value;
-            }
-            else
-            {
-                form = await formService.GetFormById(Guid.Parse(FormId));
-            }
-
+            form = result.Value;
         }
-        catch (Exception ex)
+        else
         {
-            var y = ex;
-            throw;
+            form = await formService.GetFormById(Guid.Parse(FormId));
         }
 
-
+        foreach (SegmentModel segment in form.Segments)
+        {
+            segmentExpanded[segment.SegmentId] = true;
+        }
 
         StateHasChanged();
     }

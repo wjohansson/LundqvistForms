@@ -36,7 +36,7 @@
                            Segment="segment"
                            FormType="@FormType"
                            OnSegmentDelete="@(() => DeleteSegment(segment))"
-                           OnSegmentDuplicate="@(() => DuplicateSegment(segment))"/>
+                           OnSegmentDuplicate="@(() => DuplicateSegment(segment))" />
 
             <Questions FormType="@FormType" Form="Form" OnChange="Update" Segment="segment" Expanded="SegmentExpanded[segment.SegmentId]" />
         </MudContainer>
@@ -63,11 +63,11 @@
             @if (Processing)
             {
                 <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                <MudText Class="ms-2">SKAPAR FORMULÄR...</MudText>
+                <MudText Class="ms-2">@submitButtonProcessing</MudText>
             }
             else
             {
-                <MudText>SKAPA FORMULÄR</MudText>
+                <MudText>@submitButtonText</MudText>
             }
         </MudButton>
     </MudTooltip>
@@ -78,10 +78,11 @@
                    OnClick="@(() => OnFormCleared.InvokeAsync())"
                    StartIcon="@Icons.Material.Filled.Delete"
                    Size="Size.Large">
-            RENSA FORMULÄR
+            @cancelButtonText
         </MudButton>
     </MudTooltip>
 </MudContainer>
+
 @code {
     [Parameter]
     public EventCallback<FormModel> OnChange { get; set; }
@@ -104,10 +105,27 @@
     [Parameter]
     public Dictionary<Guid, bool> SegmentExpanded { get; set; } = new();
 
-    [Parameter]
-    public SegmentModel CurrentSegment { get; set; } = new();
-
+    private SegmentModel CurrentSegment = new();
     private string deleteSegmentMessage = "Avsnitt borttaget";
+    private string submitButtonText = "";
+    private string submitButtonProcessing = "";
+    private string cancelButtonText = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (FormType == "LundqvistForms.Pages.Index")
+        {
+            submitButtonText = "SKAPA FORMULÄR";
+            submitButtonProcessing = "SKAPAR FORMULÄR...";
+            cancelButtonText = "RENSA FORMULÄR";
+        }
+        else
+        {
+            submitButtonText = "REDIGERA FORMULÄR";
+            submitButtonProcessing = "REDIGERAR FORMULÄR...";
+            cancelButtonText = "AVBRYT REDIGERING";
+        }
+    }
 
     protected override async Task OnParametersSetAsync()
     {

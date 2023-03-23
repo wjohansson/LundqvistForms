@@ -21,8 +21,7 @@
     OnFormCleared="ClearForm"
     OnFormCreated="CreateForm"
     Processing="processing" 
-    SegmentExpanded="segmentExpanded" 
-    CurrentSegment="currentSegment"/>
+    SegmentExpanded="segmentExpanded"/>
 </MudPaper>
 
 <MudMessageBox @ref="clearBox" Title="Rensa formulär" CancelText="Avbryt">
@@ -67,7 +66,6 @@
     private string clearMessage = "Formulär rensat";
     private bool processing;
     private Dictionary<Guid, bool> segmentExpanded = new();
-    private SegmentModel currentSegment = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -152,7 +150,6 @@
                 };
 
             AddSegment();
-            currentSegment = form.Segments.ToList()[0];
 
             segmentExpanded = new();
             foreach (SegmentModel segment in form.Segments)
@@ -189,7 +186,6 @@
                 FormDescription = "Ingen beskrivning"
             };
         AddSegment();
-        currentSegment = form.Segments.ToList()[0];
 
         segmentExpanded = new();
         foreach (SegmentModel segment in form.Segments)
@@ -223,6 +219,11 @@
             form.FormTitle = "Formulär utan namn";
             form.FormDescription = "Ingen beskrivning";
             AddSegment();
+        }
+
+        foreach (SegmentModel segment in form.Segments)
+        {
+            segmentExpanded[segment.SegmentId] = true;
         }
 
         StateHasChanged();
