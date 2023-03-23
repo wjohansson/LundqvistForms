@@ -21,6 +21,9 @@ namespace FormsLibrary.Models
         [JsonPropertyName("formDate")]
         public DateTime FormDate { get; set; }
 
+        [JsonPropertyName("isDeleted")]
+        public bool IsDeleted { get; set; } = false;
+
         [ForeignKey("FormId")]
         [JsonPropertyName("segments")]
         public ICollection<SegmentModel> Segments { get; set; }
