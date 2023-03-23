@@ -30,7 +30,7 @@
               GroupHeaderStyle="@($"background-color: {Colors.Grey.Darken1}")"
                 CustomHeader
               Hover="true"
-              LoadingProgressColor="Color.Warning"
+              LoadingProgressColor="Color.Primary"
               Class="mx-12 pa-4"
               Style="@($"background-color: {Colors.Grey.Darken2}")">
         <HeaderContent>
@@ -40,7 +40,7 @@
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            @if (context != null)
+            @if (context.IsDeleted != true)
                 {
                     CountAnswers(context);
                     <MudTd DataLabel="Title">@context.FormTitle</MudTd>
@@ -53,42 +53,47 @@
                                 <MudTooltip Text="Statistik"
                                 Style="@($"background-color: {Colors.Grey.Darken4}")"
                                 Arrow="true"
+                                Color="Color.Primary"
                                 Placement="Placement.Bottom">
                                     <MudIconButton Icon="@Icons.Material.Filled.InsertChart"
-                                       Variant="Variant.Outlined"
+                                       Variant="Variant.Filled"
                                        OnClick="@(() => GoToStatistics(context))"
-                                       Color="Color.Default" />
+                                       Color="Color.Dark" />
                                 </MudTooltip>
                                 <MudTooltip Text="Förhandsgranska"
                                 Style="@($"background-color: {Colors.Grey.Darken4}")"
                                 Arrow="true"
+                                Color="Color.Primary"
                                 Placement="Placement.Bottom">
                                     <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye"
-                                       Variant="Variant.Outlined"
+                                       Variant="Variant.Filled"
                                        OnClick="@(() => GoToPreview(context))"
-                                       Color="Color.Warning" />
+                                       Color="Color.Dark" />
                                 </MudTooltip>
                                 <MudTooltip Text="Duplicera"
                                 Style="@($"background-color: {Colors.Grey.Darken4}")"
                                 Arrow="true"
+                                Color="Color.Primary"
                                 Placement="Placement.Bottom">
                                     <MudIconButton Icon="@Icons.Material.Filled.CopyAll"
-                                       Variant="Variant.Outlined"
+                                       Variant="Variant.Filled"
                                        OnClick="@(() => DuplicateForm(context))"
-                                       Color="Color.Success" />
+                                       Color="Color.Dark" />
                                 </MudTooltip>
                                 <MudTooltip Text="Regidera"
                                 Style="@($"background-color: {Colors.Grey.Darken4}")"
                                 Arrow="true"
+                                Color="Color.Primary"
                                 Placement="Placement.Bottom">
                                     <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                        Variant="Variant.Filled"
                                        OnClick="@(() => EditForm(context))"
-                                       Color="Color.Warning" />
+                                       Color="Color.Dark" />
                                 </MudTooltip>
                                 <MudTooltip Text="Ta bort"
                                 Style="@($"background-color: {Colors.Grey.Darken4}")"
                                 Arrow="true"
+                                Color="Color.Primary"
                                 Placement="Placement.Bottom">
                                     <MudIconButton Icon="@Icons.Material.Filled.DeleteForever"
                                        Variant="Variant.Filled"
@@ -100,6 +105,7 @@
                         <MudTooltip Text="Alternativ"
                             Style="@($"background-color: {Colors.Grey.Darken3}")"
                             Arrow="true"
+                            Color="Color.Primary"
                             Placement="Placement.Bottom">
                             <MudIconButton Icon="@Icons.Material.Filled.Dehaze"
                                    Variant="@(openOptions[context.FormId] ? Variant.Filled : Variant.Outlined)"

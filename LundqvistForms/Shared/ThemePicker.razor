@@ -1,0 +1,65 @@
+﻿<MudContainer Class="d-flex align-center flex-column gap-4 pa-2">
+    <MudText Typo="Typo.h5">Teman</MudText>
+    <MudDivider></MudDivider>
+    <MudIconButton Class="rounded-xl"
+                   Style="width:32px; height: 32px"
+                   Size="Size.Large"
+                   Variant="Variant.Filled"
+                   Color="Color.Warning"
+                   OnClick="@(() =>
+                    {
+                        CustomTheme.PaletteDark = new PaletteDark() 
+                                        {
+                                            Primary =  "#ffa800ff",
+                                        };
+                        ThemeChanged.InvokeAsync();
+                    })" />
+    <MudIconButton Class="rounded-xl"
+                   Style="width:32px; height: 32px"
+                   Size="Size.Large"
+                   Variant="Variant.Filled"
+                   Color="Color.Secondary" 
+                   OnClick="@(() =>
+                    {
+                        CustomTheme.PaletteDark = new PaletteDark()
+                                        {
+                                            Primary =  "#ff4081ff",
+                                        };
+                        ThemeChanged.InvokeAsync();
+                    })" />
+    <MudIconButton Class="rounded-xl"
+                   Style="width:32px; height: 32px"
+                   Size="Size.Large"
+                   Variant="Variant.Filled"
+                   Color="Color.Info" 
+                   OnClick="@(() =>
+                    {
+                        CustomTheme.PaletteDark = new PaletteDark()
+                                        {
+                                            Primary =  "#3299ffff",
+                                        };
+                        ThemeChanged.InvokeAsync();
+                    })" />
+    <MudIconButton Class="rounded-xl"
+                   Style="width:32px; height: 32px"
+                   Size="Size.Large"
+                   Variant="Variant.Filled"
+                   Color="Color.Success" 
+                   OnClick="@(() =>
+                    {
+                        CustomTheme.PaletteDark = new PaletteDark()
+                                        {
+                                            Primary =  "#0bba83ff",
+                                        };
+                        ThemeChanged.InvokeAsync();
+                    })" />
+</MudContainer>
+
+@code {
+    [Parameter]
+    public EventCallback<MudTheme> ThemeChanged { get; set; }
+
+    [Parameter]
+    public MudTheme CustomTheme { get; set; } = new();
+}
+

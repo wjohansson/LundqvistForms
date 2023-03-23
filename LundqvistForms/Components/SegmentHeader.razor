@@ -31,9 +31,9 @@
     <MudContainer Class="d-flex align-center gap-2 ma-0" Style="width: fit-content">
         <MudTooltip Text="@(expandSegment ? "Utvidga" : "Minska")"
                     Arrow="true"
-                    Color="Color.Warning"
+                    Color="Color.Primary"
                     Placement="Placement.Bottom">
-            <MudIconButton Color="Color.Warning"
+            <MudIconButton Color="Color.Primary"
                            OnClick="@(() => ToggleExpandSegment(Segment))"
                            Icon="@(expandSegment
                                     ? @Icons.Material.Filled.UnfoldMore
@@ -41,14 +41,14 @@
                            Size="Size.Large"></MudIconButton>
         </MudTooltip>
 
-        <MudTooltip Text="Duplicera avsnitt" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
-            <MudIconButton Color="Color.Warning"
-                           OnClick="@(() => DuplicateSegment(Segment))"
+        <MudTooltip Text="Duplicera avsnitt" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
+            <MudIconButton Color="Color.Primary"
+                           OnClick="@(() => OnSegmentDuplicate.InvokeAsync())"
                            Icon="@Icons.Material.Filled.ContentCopy"
                            Size="Size.Large"></MudIconButton>
         </MudTooltip>
 
-        <MudTooltip Text="Ta bort avsnitt" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+        <MudTooltip Text="Ta bort avsnitt" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
             <MudIconButton Color="Color.Error"
                            OnClick="@(() => DeleteSegment(Segment))"
                            Icon="@Icons.Material.Filled.Delete"
@@ -74,6 +74,12 @@
     public EventCallback<SegmentModel> OnToggleExpand { get; set; }
 
     [Parameter]
+    public EventCallback<SegmentModel> OnSegmentDelete { get; set; }
+
+    [Parameter]
+    public EventCallback<SegmentModel> OnSegmentDuplicate { get; set; }
+
+    [Parameter]
     public bool IsFocused { get; set; }
 
     [Parameter]
@@ -87,7 +93,6 @@
 
     private MudMessageBox? deleteSegmentBox { get; set; }
 
-    private string deleteSegmentMessage = "Avsnitt borttaget";
     private bool expandSegment;
     private string borderColor = Colors.Grey.Darken2;
 
@@ -115,83 +120,7 @@
         {
             return;
         }
-
-        List<SegmentModel> segmentsAfterCurrent = Form.Segments.Where(x => x.SegmentOrder > segment.SegmentOrder).ToList();
-
-        foreach (SegmentModel afterSegment in segmentsAfterCurrent)
-        {
-            afterSegment.SegmentOrder--;
-        }
-
-        Form.Segments.Remove(segment);
-
-        if (Form.Segments.Count == 0)
-        {
-            Form.Segments.Add(new SegmentModel()
-                {
-                    FormId = Form.FormId,
-                    SegmentTitle = "Avsnitt utan namn",
-                    SegmentDescription = "Ingen beskrivning",
-                    SegmentOrder = Form.Segments.Count + 1,
-                    SegmentDate = DateTime.Now
-                });
-        }
-        Snackbar.Add(deleteSegmentMessage, Severity.Info);
-
-        await OnChange.InvokeAsync();
-    }
-
-    private async Task DuplicateSegment(SegmentModel segment)
-    {
-        SegmentModel newSegment = new()
-            {
-                FormId = segment.FormId,
-                SegmentTitle = segment.SegmentTitle,
-                SegmentDescription = segment.SegmentDescription,
-                SegmentOrder = Form.Segments.Count + 1
-            };
-
-        foreach (QuestionModel question in segment.Questions)
-        {
-            QuestionModel newQuestion = new()
-                {
-                    SegmentId = question.SegmentId,
-                    QuestionTitle = question.QuestionTitle,
-                    QuestionOption = question.QuestionOption,
-                    ScaleOptions = question.ScaleOptions,
-                    QuestionOrder = question.QuestionOrder
-                };
-
-            foreach (ChoiceModel choice in question.ChoiceOptions)
-            {
-                ChoiceModel newChoice = new()
-                    {
-                        QuestionId = choice.QuestionId,
-                        ChoiceTitle = choice.ChoiceTitle,
-                        ChoiceOrder = choice.ChoiceOrder,
-                        ChoiceDate = DateTime.Now
-                    };
-
-                newQuestion.ChoiceOptions.Add(newChoice);
-            }
-
-            ScaleModel newScale = new()
-                {
-                    QuestionId = question.QuestionId,
-                    Low = question.ScaleOptions.Low,
-                    High = question.ScaleOptions.High,
-                    LowLabel = question.ScaleOptions.LowLabel,
-                    HighLabel = question.ScaleOptions.HighLabel
-                };
-
-            newQuestion.ScaleOptions = newScale;
-
-            newSegment.Questions.Add(newQuestion);
-        }
-
-        Form.Segments.Add(newSegment);
-
-        await OnChange.InvokeAsync();
+        await OnSegmentDelete.InvokeAsync();
     }
 
     private async Task ToggleExpandSegment(SegmentModel segment)

@@ -1,22 +1,23 @@
 ﻿@using FormsLibrary.Models;
+@inject ISnackbar Snackbar;
 
 <FormHeader FormType="@FormType" Form="Form" />
 
 <Virtualize Items="Form.Segments" Context="segment">
     <MudContainer Class="d-flex gap-2 mx-0 justify-center">
         <MudContainer Class="d-flex flex-column gap-2 ma-0 mt-3 pa-0" Style="width: 48px">
-            <MudTooltip Text="Flytta upp avsnitt" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+            <MudTooltip Text="Flytta upp avsnitt" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
                 <MudIconButton Class="mt-3"
-                               Color="Color.Warning"
+                               Color="Color.Primary"
                                OnClick="@(() => OrderUp(segment))"
                                Icon="@Icons.Material.Filled.ArrowUpward"
                                Size="Size.Medium"
                                Disabled="segment.SegmentOrder == 1" />
             </MudTooltip>
 
-            <MudTooltip Text="Flytta ner avsnitt" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+            <MudTooltip Text="Flytta ner avsnitt" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
                 <MudIconButton Class="mt-3"
-                               Color="Color.Warning"
+                               Color="Color.Primary"
                                OnClick="@(() => OrderDown(segment))"
                                Icon="@Icons.Material.Filled.ArrowDownward"
                                Size="Size.Medium"
@@ -31,28 +32,65 @@
             <SegmentHeader OnToggleExpand="@(() => ToggleSegmentExpand(segment))"
                            OnChange="Update"
                            Form="Form"
-                           IsFocused="@(currentSegment == segment)" 
-                           Segment="segment" 
-                           FormType="@FormType" />
+                           IsFocused="@(CurrentSegment == segment)"
+                           Segment="segment"
+                           FormType="@FormType"
+                           OnSegmentDelete="@(() => DeleteSegment(segment))"
+                           OnSegmentDuplicate="@(() => DuplicateSegment(segment))"/>
 
-            <Questions FormType="@FormType" Form="Form" OnChange="Update" Segment="segment" Expanded="segmentExpanded" />
+            <Questions FormType="@FormType" Form="Form" OnChange="Update" Segment="segment" Expanded="SegmentExpanded[segment.SegmentId]" />
         </MudContainer>
 
-        @if (segment == currentSegment)
+        @if (segment == CurrentSegment)
         {
             <Controls OnQuestionAdded="AddQuestion" OnSegmentAdded="AddSegment" />
         }
         else
         {
             <MudContainer MaxWidth="MaxWidth.ExtraSmall"
-              Class="d-flex flex-column gap-2 pa-2 ma-0 rounded" Style="width: 58px"></MudContainer>
+                      Class="d-flex flex-column gap-2 pa-2 ma-0 rounded" Style="width: 58px"></MudContainer>
         }
     </MudContainer>
 </Virtualize>
 
+<MudContainer Class="d-flex justify-center gap-2">
+    <MudTooltip Arrow="true" Placement="Placement.Right">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="@(() => OnFormCreated.InvokeAsync())"
+                   StartIcon="@Icons.Material.Filled.AddCircle"
+                   Size="Size.Large">
+            @if (Processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">SKAPAR FORMULÄR...</MudText>
+            }
+            else
+            {
+                <MudText>SKAPA FORMULÄR</MudText>
+            }
+        </MudButton>
+    </MudTooltip>
+
+    <MudTooltip Arrow="true" Placement="Placement.Right">
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Primary"
+                   OnClick="@(() => OnFormCleared.InvokeAsync())"
+                   StartIcon="@Icons.Material.Filled.Delete"
+                   Size="Size.Large">
+            RENSA FORMULÄR
+        </MudButton>
+    </MudTooltip>
+</MudContainer>
 @code {
     [Parameter]
     public EventCallback<FormModel> OnChange { get; set; }
+
+    [Parameter]
+    public EventCallback<FormModel> OnFormCreated { get; set; }
+
+    [Parameter]
+    public EventCallback<FormModel> OnFormCleared { get; set; }
 
     [Parameter]
     public FormModel Form { get; set; }
@@ -60,25 +98,39 @@
     [Parameter]
     public string FormType { get; set; }
 
-    private bool segmentExpanded = true;
-    private SegmentModel currentSegment = new();
+    [Parameter]
+    public bool Processing { get; set; }
 
-    protected override async Task OnParametersSetAsync ()
+    [Parameter]
+    public Dictionary<Guid, bool> SegmentExpanded { get; set; } = new();
+
+    [Parameter]
+    public SegmentModel CurrentSegment { get; set; } = new();
+
+    private string deleteSegmentMessage = "Avsnitt borttaget";
+
+    protected override async Task OnParametersSetAsync()
     {
-        if (Form.FormTitle != "")
+        if (Form.FormTitle != "" && CurrentSegment.FormId == Guid.Empty)
         {
-            currentSegment = Form.Segments.ToList()[0];
+            CurrentSegment = Form.Segments.ToList()[0];
+
+            foreach (SegmentModel segment in Form.Segments)
+            {
+                SegmentExpanded[segment.SegmentId] = true;
+            }
         }
     }
 
-    public async void AddQuestion ()
+    public async void AddQuestion()
     {
         QuestionModel newQuestion = new()
             {
-                SegmentId = currentSegment.SegmentId,
-                QuestionTitle = $"Fråga {currentSegment.Questions.Count + 1}",
-                QuestionOrder = currentSegment.Questions.Count + 1,
-                QuestionDate = DateTime.Now
+                SegmentId = CurrentSegment.SegmentId,
+                QuestionTitle = $"Fråga {CurrentSegment.Questions.Count + 1}",
+                QuestionOrder = CurrentSegment.Questions.Count + 1,
+                QuestionDate = DateTime.Now,
+                QuestionOption = QuestionOptions.Flerval
             };
 
         ChoiceModel newChoice = new()
@@ -90,11 +142,11 @@
             };
         newQuestion.ChoiceOptions.Add(newChoice);
 
-        currentSegment.Questions.Add(newQuestion);
+        CurrentSegment.Questions.Add(newQuestion);
         Update();
     }
 
-    public async void AddSegment ()
+    public async void AddSegment()
     {
         SegmentModel newSegment = new()
             {
@@ -105,37 +157,126 @@
                 SegmentDate = DateTime.Now
             };
         Form.Segments.Add(newSegment);
-        currentSegment = newSegment;
+        CurrentSegment = newSegment;
+        SegmentExpanded[newSegment.SegmentId] = true;
         Update();
     }
 
-    public void FocusSegment (SegmentModel segment)
+    public void FocusSegment(SegmentModel segment)
     {
-        currentSegment = segment;
+        CurrentSegment = segment;
     }
 
-    public string CheckFocus (SegmentModel segment)
+    public string CheckFocus(SegmentModel segment)
     {
-        if (currentSegment == segment)
+        if (CurrentSegment == segment)
         {
             return Colors.Grey.Lighten5;
         }
         return Colors.Grey.Darken3;
     }
 
-    public void ToggleSegmentExpand (SegmentModel segment)
+    public void ToggleSegmentExpand(SegmentModel segment)
     {
-        currentSegment = segment;
-        segmentExpanded = !segmentExpanded;
+        CurrentSegment = segment;
+        SegmentExpanded[segment.SegmentId] = !SegmentExpanded[segment.SegmentId];
     }
 
-    private async void Update ()
+    private async void DeleteSegment(SegmentModel segment)
+    {
+        List<SegmentModel> segmentsAfterCurrent = Form.Segments.Where(x => x.SegmentOrder > segment.SegmentOrder).ToList();
+
+        foreach (SegmentModel afterSegment in segmentsAfterCurrent)
+        {
+            afterSegment.SegmentOrder--;
+        }
+
+        Form.Segments.Remove(segment);
+        SegmentExpanded.Remove(segment.SegmentId);
+        if (Form.Segments.Count == 0)
+        {
+            SegmentModel newSegment = new SegmentModel()
+                {
+                    FormId = Form.FormId,
+                    SegmentTitle = "Avsnitt utan namn",
+                    SegmentDescription = "Ingen beskrivning",
+                    SegmentOrder = Form.Segments.Count + 1,
+                    SegmentDate = DateTime.Now
+                };
+            Form.Segments.Add(newSegment);
+            SegmentExpanded[newSegment.SegmentId] = true;
+            CurrentSegment = newSegment;
+        }
+
+        if (CurrentSegment == segment)
+        {
+            CurrentSegment = Form.Segments.ToList()[0];
+        }
+        Snackbar.Add(deleteSegmentMessage, Severity.Info);
+        await OnChange.InvokeAsync();
+    }
+
+    private async Task DuplicateSegment(SegmentModel segment)
+    {
+        SegmentModel newSegment = new()
+            {
+                FormId = segment.FormId,
+                SegmentTitle = segment.SegmentTitle,
+                SegmentDescription = segment.SegmentDescription,
+                SegmentOrder = Form.Segments.Count + 1
+            };
+
+        foreach (QuestionModel question in segment.Questions)
+        {
+            QuestionModel newQuestion = new()
+                {
+                    SegmentId = question.SegmentId,
+                    QuestionTitle = question.QuestionTitle,
+                    QuestionOption = question.QuestionOption,
+                    ScaleOptions = question.ScaleOptions,
+                    QuestionOrder = question.QuestionOrder
+                };
+
+            foreach (ChoiceModel choice in question.ChoiceOptions)
+            {
+                ChoiceModel newChoice = new()
+                    {
+                        QuestionId = choice.QuestionId,
+                        ChoiceTitle = choice.ChoiceTitle,
+                        ChoiceOrder = choice.ChoiceOrder,
+                        ChoiceDate = DateTime.Now
+                    };
+
+                newQuestion.ChoiceOptions.Add(newChoice);
+            }
+
+            ScaleModel newScale = new()
+                {
+                    QuestionId = question.QuestionId,
+                    Low = question.ScaleOptions.Low,
+                    High = question.ScaleOptions.High,
+                    LowLabel = question.ScaleOptions.LowLabel,
+                    HighLabel = question.ScaleOptions.HighLabel
+                };
+
+            newQuestion.ScaleOptions = newScale;
+
+            newSegment.Questions.Add(newQuestion);
+        }
+
+        Form.Segments.Add(newSegment);
+        SegmentExpanded[newSegment.SegmentId] = true;
+
+        await OnChange.InvokeAsync();
+    }
+
+    private async void Update()
     {
         StateHasChanged();
         await OnChange.InvokeAsync();
     }
 
-    private async Task OrderUp (SegmentModel segment)
+    private async Task OrderUp(SegmentModel segment)
     {
         SegmentModel segmentBefore = Form.Segments.First(x => x.SegmentOrder == segment.SegmentOrder - 1);
         segmentBefore.SegmentOrder++;
@@ -144,7 +285,7 @@
         await OnChange.InvokeAsync();
     }
 
-    private async Task OrderDown (SegmentModel segment)
+    private async Task OrderDown(SegmentModel segment)
     {
         SegmentModel segmentAfter = Form.Segments.First(x => x.SegmentOrder == segment.SegmentOrder + 1);
         segmentAfter.SegmentOrder--;

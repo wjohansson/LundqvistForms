@@ -40,18 +40,18 @@
                         <MudCard Elevation="0">
                             <MudCardContent Class="d-flex align-center pa-2" Style="@($"background-color: {Colors.Grey.Darken2};")">
                                 <MudContainer Class="d-flex flex-column gap-2 ma-0 pa-0" Style="width: 48px">
-                                    <MudTooltip Text="Flytta upp alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                                    <MudTooltip Text="Flytta upp alternativ" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
                                         <MudIconButton Class="mt-3"
-                                       Color="Color.Warning"
+                                       Color="Color.Primary"
                                        OnClick="@(() => OrderUp(choice))"
                                        Icon="@Icons.Material.Filled.ArrowUpward"
                                        Size="Size.Small"
                                        Disabled="choice.ChoiceOrder == 1" />
                                     </MudTooltip>
 
-                                    <MudTooltip Text="Flytta ner alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                                    <MudTooltip Text="Flytta ner alternativ" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
                                         <MudIconButton Class="mt-3"
-                                       Color="Color.Warning"
+                                       Color="Color.Primary"
                                        OnClick="@(() => OrderDown(choice))"
                                        Icon="@Icons.Material.Filled.ArrowDownward"
                                        Size="Size.Small"
@@ -73,7 +73,7 @@
                                     }
                                 </MudContainer>
 
-                                <MudTooltip Text="Ta bort alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Right">
+                                <MudTooltip Text="Ta bort alternativ" Arrow="true" Color="Color.Primary" Placement="Placement.Right">
                                     <MudIconButton Size="Size.Small"
                                    Icon="@Icons.Material.Filled.Delete"
                                    OnClick="@(() => Question.ChoiceOptions.Remove(choice))"
@@ -86,11 +86,11 @@
 
 
 
-                <MudTooltip Text="Lägg till alternativ" Arrow="true" Color="Color.Warning" Placement="Placement.Right">
+                <MudTooltip Text="Lägg till alternativ" Arrow="true" Color="Color.Primary" Placement="Placement.Right">
                     <MudIconButton Size="Size.Large"
                        Icon="@Icons.Material.Filled.AddCircle"
                        OnClick="@AddChoice"
-                       Color="Color.Warning" />
+                       Color="Color.Primary" />
                 </MudTooltip>
 
                 break;
@@ -101,7 +101,7 @@
                    ShowWeekNumbers="true"
                    DisplayMonths="2"
                    PickerVariant="PickerVariant.Dialog"
-                   Color="Color.Warning"
+                   Color="Color.Primary"
                    Class="px-2"
                    Variant="Variant.Filled"
                    Clearable="true"
@@ -113,7 +113,7 @@
                         @bind-DateRange="dateRange"
                         ShowWeekNumbers="true"
                         PickerVariant="PickerVariant.Dialog"
-                        Color="Color.Warning"
+                        Color="Color.Primary"
                         Class="px-2"
                         Variant="Variant.Filled"
                         Clearable="true"
@@ -124,7 +124,7 @@
                    @bind-Time="timeSpan"
                    Editable="true"
                    PickerVariant="PickerVariant.Dialog"
-                   Color="Color.Warning"
+                   Color="Color.Primary"
                    Class="px-2"
                    Variant="Variant.Filled"
                    Clearable="true"

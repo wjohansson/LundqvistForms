@@ -3,29 +3,26 @@
 
 <PageTitle>LundqvistForms</PageTitle>
 
-<MudThemeProvider IsDarkMode="true" />
+<MudThemeProvider IsDarkMode="true" Theme="customTheme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Color="Color.Warning" Dense="true">
+    <MudAppBar Color="Color.Primary" Dense="true">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         Lundqvist Forms
         <MudSpacer />
-        <MudTooltip Text="Förhandsgranska" Arrow="true" Placement="Placement.Bottom">
-            <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Edge="Edge.End" Color="Color.Inherit" Class="mx-2" OnClick="@((e) => PreviewToggle())" />
-        </MudTooltip>
-        <MudTooltip Text="Profil" Arrow="true" Placement="Placement.Bottom">
-            <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Edge="Edge.End" Color="Color.Inherit" Class="mx-2" OnClick="@((e) => ProfileToggle())" />
+        <MudTooltip Text="Ändra tema" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
+            <MudIconButton Icon="@Icons.Material.Filled.Palette" Edge="Edge.End" Color="Color.Inherit" Class="mx-2" OnClick="@((e) => ThemeToggle())" />
         </MudTooltip>
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen" Anchor="Anchor.Start" Variant="@DrawerVariant.Temporary">
         <NavMenu />
     </MudDrawer>
-    <MudDrawer @bind-Open="@_profileOpen" Anchor="Anchor.End" Variant="@DrawerVariant.Temporary">
-        <Profile />
+    <MudDrawer @bind-Open="@_themeOpen" Anchor="Anchor.End" Variant="@DrawerVariant.Temporary">
+        <ThemePicker ThemeChanged="Update" CustomTheme="customTheme" />
     </MudDrawer>
-    
+
     <MudMainContent>
         <MudMainContent>
             @Body
@@ -41,21 +38,26 @@
 
 @code {
     bool _drawerOpen = false;
-    bool _profileOpen = false;
-    bool _previewOpen = false;
+    bool _themeOpen = false;
+    bool _darkMode = true;
+    MudTheme customTheme = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        customTheme.PaletteDark.Primary = "#ffa800ff";
+    }
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
     }
 
-    void ProfileToggle()
+    void ThemeToggle()
     {
-        _profileOpen = !_profileOpen;
+        _themeOpen = !_themeOpen;
     }
 
-    void PreviewToggle()
+    void Update()
     {
-        _previewOpen = !_previewOpen;
+        StateHasChanged();
     }
 }

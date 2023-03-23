@@ -3,16 +3,16 @@
 <MudContainer MaxWidth="MaxWidth.ExtraSmall"
               Class="d-flex flex-column gap-2 pa-2 ma-0 rounded"
               Style="@($"width: fit-content; height: fit-content; background-color: {Colors.Grey.Darken3}")">
-    <MudTooltip Text="Lägg till fråga" Color="Color.Warning" Arrow="true" Placement="Placement.Right">
+    <MudTooltip Text="Lägg till fråga" Color="Color.Primary" Arrow="true" Placement="Placement.Right">
         <MudIconButton Variant="Variant.Filled"
-                       Color="Color.Warning"
+                       Color="Color.Primary"
                        OnClick="@OnQuestionAdded.InvokeAsync"
                        Icon="@Icons.Material.Filled.Add"
                        Size="Size.Large"></MudIconButton>
     </MudTooltip>
-    <MudTooltip Text="Lägg till avsnitt" Color="Color.Warning" Arrow="true" Placement="Placement.Right">
+    <MudTooltip Text="Lägg till avsnitt" Color="Color.Primary" Arrow="true" Placement="Placement.Right">
         <MudIconButton Variant="Variant.Outlined"
-                       Color="Color.Warning"
+                       Color="Color.Primary"
                        OnClick="@OnSegmentAdded.InvokeAsync"
                        Icon="@Icons.Material.Filled.Segment"
                        Size="Size.Large"></MudIconButton>

@@ -7,18 +7,18 @@
 {
     <MudContainer Class="d-flex gap-2 ma-0 align-center">
         <MudContainer Class="d-flex flex-column gap-2 ma-0 pa-0" Style="width: 48px">
-            <MudTooltip Text="Flytta upp fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+            <MudTooltip Text="Flytta upp fråga" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
                 <MudIconButton Class="mt-3"
-                           Color="Color.Warning"
+                           Color="Color.Primary"
                            OnClick="@(() => OrderUp(question))"
                            Icon="@Icons.Material.Filled.ArrowUpward"
                            Size="Size.Medium"
                            Disabled="question.QuestionOrder == 1" />
             </MudTooltip>
 
-            <MudTooltip Text="Flytta ner fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+            <MudTooltip Text="Flytta ner fråga" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
                 <MudIconButton Class="mt-3"
-                           Color="Color.Warning"
+                           Color="Color.Primary"
                            OnClick="@(() => OrderDown(question))"
                            Icon="@Icons.Material.Filled.ArrowDownward"
                            Size="Size.Medium"
@@ -56,14 +56,14 @@
                             </MudSelect>
                         </MudContainer>
 
-                        <MudTooltip Text="Duplicera fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                        <MudTooltip Text="Duplicera fråga" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
                             <MudIconButton Class="mt-3"
-                                       Color="Color.Warning"
+                                       Color="Color.Primary"
                                        OnClick="@(() => DuplicateQuestion(question))"
                                        Icon="@Icons.Material.Filled.ContentCopy"
                                        Size="Size.Medium"></MudIconButton>
                         </MudTooltip>
-                        <MudTooltip Text="Ta bort fråga" Arrow="true" Color="Color.Warning" Placement="Placement.Bottom">
+                        <MudTooltip Text="Ta bort fråga" Arrow="true" Color="Color.Primary" Placement="Placement.Bottom">
                             <MudIconButton Class="mt-3"
                                        Color="Color.Error"
                                        OnClick="@(() => DeleteQuestion(question))"

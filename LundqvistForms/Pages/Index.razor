@@ -15,38 +15,14 @@
           Class="d-flex flex-column align-center gap-2 pb-4"
           Elevation="0"
           Style="@($"background-color: {Colors.Grey.Darken4};")">
-    <FormContent FormType="@this.GetType().ToString()" OnChange="SaveState" Form="form"></FormContent>
-
-
-    <MudContainer Class="d-flex justify-center gap-2">
-        <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Warning"
-                       OnClick="CreateForm"
-                       StartIcon="@Icons.Material.Filled.AddCircle"
-                       Size="Size.Large">
-                @if (processing)
-                {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">SKAPAR FORMULÄR...</MudText>
-                }
-                else
-                {
-                    <MudText>SKAPA FORMULÄR</MudText>
-                }
-            </MudButton>
-        </MudTooltip>
-
-        <MudTooltip Arrow="true" Placement="Placement.Right">
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Warning"
-                       OnClick="ClearForm"
-                       StartIcon="@Icons.Material.Filled.Delete"
-                       Size="Size.Large">
-                RENSA FORMULÄR
-            </MudButton>
-        </MudTooltip>
-    </MudContainer>
+    <FormContent FormType="@this.GetType().ToString()" 
+    OnChange="SaveState"
+    Form="form" 
+    OnFormCleared="ClearForm"
+    OnFormCreated="CreateForm"
+    Processing="processing" 
+    SegmentExpanded="segmentExpanded" 
+    CurrentSegment="currentSegment"/>
 </MudPaper>
 
 <MudMessageBox @ref="clearBox" Title="Rensa formulär" CancelText="Avbryt">
@@ -67,28 +43,21 @@
     // 5 TODO: Möjlighet att göra formulär private eller public för möjlighet att använda andra användares formulär
     // 2 TODO: Gör frågor obligatoriska av default. Val för designer att inte göra dom obligatoriska. Sedan validera vid
     //          skicka svar eller gå vidare till nästa avsnitt
-    // 2 TODO: Fixa soft deletes med bool IsDeleted i databasen på formulären
-    // 3 TODO: Kolla möjlighet att koppla till användarsystemet
-    // 3 TODO: Fixa tema valmöjligheter på sidan som sparas i formuläret så att det följer med då användaren ska svara på fråga,
-    //          använd color picker för att få till färg
     // 3 TODO: Göra om table till data grid
     // 5 TODO: Fixa pagination för att hoppa mellan avsnitten
     // 5 TODO: Kolla ifall det går att fixa drag and drop mellan olika avsnitt
     // 2 TODO: Mixtra med max size på formulär
-    // 1 TODO: Fixa versionshantering på fomrulären till tidigare versioner för att spara de gamla svaren som finns lagrade så att dom inte försvinner
+    // 1 TODO: Fixa versionshantering på formulären till tidigare versioner för att spara de gamla svaren som finns lagrade så att dom inte försvinner
     // 1 TODO: Fixa sätt att skapa ny version vid tidsintervall utskick för att inte spara svar på gammalt formulär. Alltså vid UserForms sidan att man kan se alla formulär 
     //          plus gamla versioner grupperade visuellt
-    // 1 TODO: Vid edit fixa ett sätt att döpa versionen 
-    // 2 TODO: Fixa dropdown på userforms för att se gamla versioner. Även dropdown för att se gamla versioner på statistics view. 
-    //          MÅSTE då fixa ny databasstruktur så att varje form får ett formgroupid där man kan se vilket "form" den tillhör
     // 1 TODO: Lägg till intervall på utskick möjlighet
     // 2 TODO: Fixa en obligatorisk toggle på alla svar för att välja om ett det krävs ett svar på den frågan.
     //          Som standard borde alla svar vara obligatoriska, men man får välja om det ska vara frivilligt
-    // 3 TODO: Kunna dela alla mallar mellan varadra så att en annan användare ska kunna använda allas mallar, kan göras genom att alla får se alla formulär och skapa en kopia på sin egen användare
 
     // FRÅGA: Bör man kunna redigera frågornas typ eftersom det stör statistiken som redan finns på formuläret
     // Fråga: Ska det finnas edit funktion så att det gamla formuläret sparas som en "gammal version"
 
+    // FIXA: Gör så att man kan rensa formuläret och så att man kan ta bort sista avsnittet i formuläret och att man kan duplicera formulär
 
     private FormModel form { get; set; } = new();
     private MudMessageBox? clearBox { get; set; }
@@ -97,6 +66,8 @@
     private string successMessage = "Formulär skapat";
     private string clearMessage = "Formulär rensat";
     private bool processing;
+    private Dictionary<Guid, bool> segmentExpanded = new();
+    private SegmentModel currentSegment = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -181,6 +152,14 @@
                 };
 
             AddSegment();
+            currentSegment = form.Segments.ToList()[0];
+
+            segmentExpanded = new();
+            foreach (SegmentModel segment in form.Segments)
+            {
+                segmentExpanded[segment.SegmentId] = true;
+            }
+
             await SaveState();
 
             await Task.Delay(500);
@@ -210,6 +189,14 @@
                 FormDescription = "Ingen beskrivning"
             };
         AddSegment();
+        currentSegment = form.Segments.ToList()[0];
+
+        segmentExpanded = new();
+        foreach (SegmentModel segment in form.Segments)
+        {
+            segmentExpanded[segment.SegmentId] = true;
+        }
+
         await SaveState();
 
         Snackbar.Add(clearMessage, Severity.Info);
